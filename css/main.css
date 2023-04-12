@@ -31,9 +31,17 @@ div#divTablaMenu {
 	height: calc(60vh - 50px);
 }
 
+div#divSwitchesFiltros {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 22px;
+}
+
 button.btnImagenPlato {
 	color: #0d6efd;
-	padding: 0px 8px 0px 8px;
+	padding: 2px 8px 2px 8px;
 }
 
 @media only screen and (max-width: 766px) {
@@ -43,7 +51,11 @@ button.btnImagenPlato {
 }
 
 .fav {
-	background-color: #99cc33 !important;
+	background-color: #7feb7f !important;
+}
+
+.sushi {
+	background-color: #fdc4be !important;
 }
 
 p#pInfoMenu {
@@ -104,6 +116,13 @@ div#divComplementariaBtns {
 
 .accordion-button {
 	padding: 6px 8px 7px 8px !important;
+}
+
+span#spanInfoBebida {
+	font-weight: 700;
+	font-size: 14px;
+	color: red;
+	white-space: nowrap;
 }
 
 .separador {

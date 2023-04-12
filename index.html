@@ -52,19 +52,30 @@
             <div id="divMenu">
                 <fieldset class="mb-3 border rounded-3 p-3">
                     <legend class="w-auto px-2 float-none">MENÚ</legend>
+
                     <div class="table-responsive" id="divTablaMenu" style="display: none;">
 
                         <div class="mb-2" id="divFiltrosMenu" style="margin-left: 4px;">
-                            <label><b>Filtros:</b></label>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch"
-                                    id="switchFiltroFavoritos">
-                                <label class="form-check-label" for="switchFiltroFavoritos">Favoritos</label>
+                            <label>Filtros:</label>
+
+                            <div id="divSwitchesFiltros">
+                                <div class="form-check form-switch">
+                                    <label class="form-check-label" for="switchFiltroFavoritos">Favoritos</label>
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                        id="switchFiltroFavoritos" title="Marcar favoritos.">
+
+                                </div>
+                                <div class="form-check form-switch">
+                                    <label class="form-check-label" for="switchFiltroSushi">Sushi</label>
+                                    <input class="form-check-input" type="checkbox" role="switch" id="switchFiltroSushi"
+                                        title="Marcar sushi.">
+
+                                </div>
                             </div>
+
                         </div>
 
-                        <table class="table table-sm table-hover table-bordered table-striped mb-0 w-100"
-                            id="tablaMenu">
+                        <table class="table table-sm table-hover table-bordered mb-0 w-100" id="tablaMenu">
                         </table>
                         <p class="mt-3" id="pInfoMenu"><b>*</b> Los platos que llevan ⭐ solo están disponibles por la
                             noche, fines
@@ -122,8 +133,7 @@
                         <!-- INICIO CUERPO POSTRES -->
                         <div id="divPostres">
                             <div class="table-responsive" id="divTablaPostrres">
-                                <table class="table table-sm table-hover table-bordered table-striped mb-0 w-100"
-                                    id="tablaPostres">
+                                <table class="table table-sm table-bordered table-striped mb-0 w-100" id="tablaPostres">
                                 </table>
                                 <p class="mt-2" id="pInfoMenu"><b>*</b> Solo 1 postre por persona.</p>
                             </div>
@@ -159,6 +169,12 @@
                             <ul>
                                 <li><u>Adultos</u>: <b>16,80 &euro;</b></li>
                                 <li><u>Niños menores de 7 años</u>: <b>9,50 &euro;</b></li>
+                            </ul>
+                            <label class="border-top" style="padding-top: 12px;">BEBIDAS:</label>
+                            <ul>
+                                <li><u>Por cada bebida</u>: <b>3,50 &euro;</b>&nbsp;&nbsp;
+                                    <span id="spanInfoBebida">¡No abusar!</span>
+                                    </li>
                             </ul>
                         </div>
                         <!-- FIN CUERPO PRECIOS -->
@@ -205,13 +221,18 @@
 
         </div>
 
+        <div class="mt-5" id="divTiempo">
+            <p class="mb-1"><b>Fecha actual:</b> <span id="tiempoActual"></span></p>
+            <p><span id="tiempoCierre"></span></p>
+        </div>
+
     </div>
 
     <!-- FOOTER -->
-    <div class="container mt-5">
+    <div class="container">
 
         <div class="text-center my-2 border-top" id="div-footer">
-            <p class="text-muted mb-0" id="copyright" style="margin-top: 3px;"></p>
+            <p class="text-muted mb-0" id="copyright" style="margin-top: 8px;"></p>
             <div class="separador"></div>
         </div>
 
@@ -332,7 +353,7 @@
 
     const btnBackTop = document.getElementById("btn-back-to-top");
 
-    //VARIABLES EASTER EGG
+    //VARIABLES EASTER EGG.
     let contadorClicks = 0;
     let ultimoTiempoClick = 0;
 
@@ -360,7 +381,7 @@
 
     //FUNCION PARA CREAR LA TABLA DEL MENÚ.
     function crearTablaMenu(mapMenu) {
-        let tablaMenu = "<thead>" +
+        let tablaMenu = "<thead class='table-light'>" +
             "<tr class='align-middle'>" +
             "<th scope='col' style='display: none;'>ID_FILA</th>" +
             "<th scope='col' style='text-align:center; width:90px;'>NÚMERO</th>" +
@@ -468,6 +489,9 @@
     $("#switchFiltroFavoritos").on("change", function () {
         const platosFavoritos = ["A15", "A20", "A43", "A53", "A57", "A61", "A67", "A76", "A80", "A81"];
 
+        $("#switchFiltroSushi").prop("checked", false);
+        $("td").closest("tr").removeClass("sushi");
+
         if ($(this).is(":checked")) {
 
             for (let i = 0; i < platosFavoritos.length; i++) {
@@ -476,6 +500,25 @@
 
         } else {
             $("td").closest("tr").removeClass("fav");
+        }
+    });
+
+    //LISTENER PARA REMARCAR LOS PLATOS DE SUSHI.
+    $("#switchFiltroSushi").on("change", function () {
+        const platosSushi = ["A76", "A78", "A79", "A80", "A81", "A82", "A83", "A84", "A85", "A86", "A87",
+            "A88", "A89", "A90", "A91", "A92", "A93", "A94", "A95", "A98", "A99"];
+
+        $("#switchFiltroFavoritos").prop("checked", false);
+        $("td").closest("tr").removeClass("fav");
+
+        if ($(this).is(":checked")) {
+
+            for (let i = 0; i < platosSushi.length; i++) {
+                $("td:contains(" + platosSushi[i] + ")").closest("tr").addClass("sushi");
+            }
+
+        } else {
+            $("td").closest("tr").removeClass("sushi");
         }
     });
 
@@ -559,11 +602,15 @@
 
     //FUNCION PARA EL EASTER EGG.
     $("body").on("click", "#spanEE", function () {
+        const frasesEE = ["¿Cavani te apetece japones o japonesa?", "Cavani la tiene chicken little.", "Cavani la tiene como un nigiri.", "Hassy."];
+        let numeroAleatorio = Math.floor(Math.random() * frasesEE.length);
+
         const ahora = new Date().getTime();
+
         if (ahora - ultimoTiempoClick < 2000) {
             contadorClicks++;
             if (contadorClicks >= 5) {
-                alert("¿CAVANI TE APETECE JAPONES?");
+                alert(frasesEE[numeroAleatorio]);
                 //$("#tooltipEE").tooltipster("open");
                 contadorClicks = 0;
             }
@@ -590,6 +637,102 @@
         document.body.scrollTop = 0;
         document.documentElement.scrollTop = 0;
     }
+    //
+
+    //ESTA FUNCION SE ENCARGA DE MOSTRAR LA FECHA Y HORA EN TIEMPO REAL.
+    function actualizarReloj() {
+        let fecha = new Date();
+
+        //TIEMPO ACTUAL
+        let horas = fecha.getHours();
+        let minutos = fecha.getMinutes();
+        let segundos = fecha.getSeconds();
+        let horaActual = formatoHora(horas) + ":" + formatoHora(minutos) + ":" + formatoHora(segundos);
+
+        //FECHA ACTUAL
+        let dia = fecha.getDate();
+        let mes = fecha.getMonth() + 1;
+        let año = fecha.getFullYear();
+        let fechaActual = formatoHora(dia) + "/" + formatoHora(mes) + "/" + año;
+
+        $("#tiempoActual").html(fechaActual + " - " + horaActual);
+
+        let tiempoRestante = "";
+
+        // Crear objetos Date para las 12:00 PM y las 16:00 PM
+        let horaMediodia1 = new Date();
+        horaMediodia1.setHours(12);
+        horaMediodia1.setMinutes(00);
+
+        let horaMediodia2 = new Date();
+        horaMediodia2.setHours(16);
+        horaMediodia2.setMinutes(0);
+        horaMediodia2.setSeconds(0);
+
+        // Comparar la hora actual con las 12:00 PM y las 16:00 PM
+        if (fecha.getTime() > horaMediodia1.getTime() && fecha.getTime() < horaMediodia2.getTime()) {
+
+            // Calcular la diferencia de tiempo en segundos
+            let diferenciaTiempo = horaMediodia2.getTime() - fecha.getTime();
+
+            // Calcular la diferencia de tiempo en horas, minutos y segundos
+            let horasRestantes = Math.floor(diferenciaTiempo / 1000 / 60 / 60);
+            let minutosRestantes = Math.floor(diferenciaTiempo / 1000 / 60) % 60;
+            let segundosRestantes = Math.floor(diferenciaTiempo / 1000) % 60;
+
+            tiempoRestante = "Cierran a las <b>00:00</b>. <b>Tiempo restante:</b> " + horasRestantes + ":" + formatoHora(minutosRestantes) + ":" + formatoHora(segundosRestantes);
+        } else {
+            // Crear objetos Date para las 19:30 PM y las 24:00 PM
+            let horaNoche1 = new Date();
+            horaNoche1.setHours(19);
+            horaNoche1.setMinutes(30);
+
+            let horaNoche2 = new Date();
+            horaNoche2.setHours(24);
+            horaNoche2.setMinutes(0);
+            horaNoche2.setSeconds(0);
+
+            // Comparar la hora actual con las 19:30 PM y las 24:00 PM
+            if (fecha.getTime() > horaNoche1.getTime() && fecha.getTime() < horaNoche2.getTime()) {
+
+                // Calcular la diferencia de tiempo en segundos
+                let diferenciaTiempo = horaNoche2.getTime() - fecha.getTime();
+
+                // Calcular la diferencia de tiempo en horas, minutos y segundos
+                let horasRestantes = Math.floor(diferenciaTiempo / 1000 / 60 / 60);
+                let minutosRestantes = Math.floor(diferenciaTiempo / 1000 / 60) % 60;
+                let segundosRestantes = Math.floor(diferenciaTiempo / 1000) % 60;
+
+                tiempoRestante = "Cierran a las <b>00:00</b>. <b>Tiempo restante:</b> " + horasRestantes + ":" + formatoHora(minutosRestantes) + ":" + formatoHora(segundosRestantes);
+
+            } else {
+                tiempoRestante = "<b>Japonés cerrado.</b> ";
+
+                if (fecha.getTime() < horaNoche1.getTime()) {
+                    tiempoRestante += "Volverá a abrir a las <b>12:00</b>. 😞";
+                } else {
+                    tiempoRestante += "Volverá a abrir a las <b>19:30</b>. 😞";
+                }
+            }
+
+        }
+
+        $("#tiempoCierre").html(tiempoRestante);
+
+        window.requestAnimationFrame(actualizarReloj);
+    }
+
+    // Formatear un valor numerico (horas, minutos, segundos) para que siempre tenga dos digitos.
+    function formatoHora(valor) {
+        if (valor < 10) {
+            return "0" + valor;
+        } else {
+            return valor;
+        }
+    }
+
+    actualizarReloj();
+
 
 </script>
 
