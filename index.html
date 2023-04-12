@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <title>Carta buffet libre Nakoya</title>
+
+    <meta charset="utf-8">
+    <meta name="description" content="Carta buffet libre Nakoya">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link href="css/main.css" rel="stylesheet">
+
+    <!-- Bootstrap. -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap icons. -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
+
+    <!-- DataTables plug-in. -->
+    <link href="css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="css/responsive.dataTables.min.css" rel="stylesheet">
+
+    <!-- Tooltipster plugin -->
+    <link href="css/tooltipster.bundle.min.css" rel="stylesheet">
+    <link href="css/tooltipster-sideTip-borderless.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+    <div id="div-loading">
+        <img id="img-loading" src="images/loading_gif.svg" />
+    </div>
+
+    <header>
+        <div class="container text-center">
+
+            <div id="div-titulo">
+                <h2>CARTA BUFFET LIBRE <a href="http://m.restaurantejaponesnakoya.com/col.jsp?id=112" target="_blank"
+                        title="Enlace página buffet libre Nakoya.">NAKOYA</a></h2>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <fieldset class="mb-5 border rounded-3 p-3" id="fieldsetMenu">
+
+            <!-- MENU -->
+            <div id="divMenu">
+                <fieldset class="mb-3 border rounded-3 p-3">
+                    <legend class="w-auto px-2 float-none">MENÚ</legend>
+                    <div class="table-responsive" id="divTablaMenu" style="display: none;">
+
+                        <div class="mb-2" id="divFiltrosMenu" style="margin-left: 4px;">
+                            <label><b>Filtros:</b></label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch"
+                                    id="switchFiltroFavoritos">
+                                <label class="form-check-label" for="switchFiltroFavoritos">Favoritos</label>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm table-hover table-bordered table-striped mb-0 w-100"
+                            id="tablaMenu">
+                        </table>
+                        <p class="mt-3" id="pInfoMenu"><b>*</b> Los platos que llevan ⭐ solo están disponibles por la
+                            noche, fines
+                            de
+                            semana y festivos.</p>
+                    </div>
+                </fieldset>
+            </div>
+
+            <!-- LISTADO PEDIDOS -->
+            <div id="divListaPedidos">
+                <fieldset class="border rounded-3 p-3">
+                    <legend class="w-auto px-2 float-none">LISTADO PEDIDOS</legend>
+
+                    <div id="divPedidos">
+                        <p id="pInfoSeleccionPlatos" class="mb-0"><i>Selecciona platos del menú de arriba para comenzar
+                                con
+                                el pedido!</i></p>
+                        <ul class="list-group" id="listaPedidos"></ul>
+                    </div>
+
+                    <div class="mt-3" id="divComplementariaPedidos" style="display: none;">
+
+                        <span id="totalPedidos"></span>
+
+                        <div id="divComplementariaBtns">
+                            <button class="btn btn-primary btn-sm" id="btnCopiarPedidos" title="Copiar pedidos."><span
+                                    class="tooltip" title="Listado copiado al portapapeles!"></span><i
+                                    class="bi bi-files"></i></button>
+
+                            <button class="btn btn-danger btn-sm" id="btnBorrarListaPedidos" title="Borrar todo."><i
+                                    class="bi bi-trash"></i></button>
+                        </div>
+                    </div>
+
+                </fieldset>
+            </div>
+
+        </fieldset>
+
+        <div class="accordion" id="accordionExample">
+            <!-- POSTRES -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true"
+                        aria-controls="panelsStayOpen-collapseOne">
+                        POSTRES
+                    </button>
+                </h2>
+                <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse"
+                    aria-labelledby="panelsStayOpen-headingOne">
+                    <div class="accordion-body" style="padding-bottom: 16px;">
+
+                        <!-- INICIO CUERPO POSTRES -->
+                        <div id="divPostres">
+                            <div class="table-responsive" id="divTablaPostrres">
+                                <table class="table table-sm table-hover table-bordered table-striped mb-0 w-100"
+                                    id="tablaPostres">
+                                </table>
+                                <p class="mt-2" id="pInfoMenu"><b>*</b> Solo 1 postre por persona.</p>
+                            </div>
+                        </div>
+                        <!-- FIN CUERPO POSTRES -->
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRECIOS -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false"
+                        aria-controls="panelsStayOpen-collapseTwo">
+                        PRECIOS
+                    </button>
+                </h2>
+                <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse"
+                    aria-labelledby="panelsStayOpen-headingTwo">
+                    <div class="accordion-body" style="padding-bottom: 0px;">
+
+                        <!-- INICIO CUERPO PRECIOS -->
+                        <div id="divPrecios">
+                            <label>MEDIODÍA:</label>
+                            <ul>
+                                <li><u>Adultos</u>: <b>13,50 &euro;</b></li>
+                                <li><u>Niños menores de 7 años</u>: <b>8,00 &euro;</b></li>
+                            </ul>
+                            <label class="border-top" style="padding-top: 12px;">NOCHES, FINES DE SEMANA Y
+                                FESTIVOS:</label>
+                            <ul>
+                                <li><u>Adultos</u>: <b>16,80 &euro;</b></li>
+                                <li><u>Niños menores de 7 años</u>: <b>9,50 &euro;</b></li>
+                            </ul>
+                        </div>
+                        <!-- FIN CUERPO PRECIOS -->
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- HORARIO -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="panelsStayOpen-headingThree">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#panelsStayOpen-collapseThree" aria-expanded="false"
+                        aria-controls="panelsStayOpen-collapseThree">
+                        HORARIO Y CONTACTO
+                    </button>
+                </h2>
+                <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse"
+                    aria-labelledby="panelsStayOpen-headingThree">
+                    <div class="accordion-body">
+                        <div class="text-center">
+                            <label>TODOS LOS DÍAS</label>
+                            <p class="mb-0">12:00 - 16:00</p>
+                            <p>19:30 - 00:00</p>
+                            <div id="divInfoContacto">
+                                <p class="border-top mb-0" style="padding-top: 12px;">📞&nbsp;<b>Teléfono:</b> <a
+                                        href="tel:960704136" target="_blank">960 70 41 36</a> - <a href="tel:685917657"
+                                        target="_blank">685 91 76 57</a></p>
+                                <p class="mb-0">🧭&nbsp;<b>Dirección:</b> <a
+                                        href="https://goo.gl/maps/NCEefxuxbUPxLFX68" target="_blank">Pl. de Juan
+                                        Grandia, 3,
+                                        46340 Requena, Valencia</a></p>
+
+                                <p class="mb-0">🌐&nbsp;<b>Página web:</b> <a
+                                        href="http://m.restaurantejaponesnakoya.com"
+                                        target="_blank">http://m.restaurantejaponesnakoya.com</a></p>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="container mt-5">
+
+        <div class="text-center my-2 border-top" id="div-footer">
+            <p class="text-muted mb-0" id="copyright" style="margin-top: 3px;"></p>
+            <div class="separador"></div>
+        </div>
+
+    </div>
+
+    <button class="btn btn-primary" id="btn-back-to-top" type="button" onclick="topFunction()"
+        title="Pulsa para volver arriba.">
+        <i class="bi bi-arrow-up-short"></i>
+    </button>
+
+    <div></div>
+
+</body>
+
+<!-- JQUERY -->
+<script src="js/jquery-3.6.4.min.js"></script>
+
+<!-- DATATABLES PLUGIN -->
+<script src="js/jquery.dataTables.min.js"></script>
+<script src="js/dataTables.bootstrap5.min.js"></script>
+<script src="js/dataTables.responsive.min.js"></script>
+<script src="js/responsive.bootstrap5.min.js"></script>
+
+<!-- BOOTSTRAP -->
+<script src="js/bootstrap.min.js"></script>
+
+<!-- TOOLTIPSTER PLUGIN -->
+<script src="js/tooltipster.bundle.min.js"></script>
+
+
+<script type="text/javascript">
+    //VARIABLES GLOBALES
+
+    //MAPA CON LOS PLATOS DEL MENU Y SU CORRESPONDIENTE CÓDIGO.
+    const mapMenu = new Map([
+        ["A1", "Rollo ternera con queso ⭐"],
+        ["A2", "Ensalada de la casa (algas)"],
+        ["A3", "Ensalada china de lechuga"],
+        ["A4", "Ensalada china de col"],
+        ["A5", "Sopa miso"],
+        ["A7", "Sopa de aleta de tiburón"],
+        ["A9", "Sopa de maíz con carne de cangrejo"],
+        ["A6", "Rollito de gamba"],
+        ["A10", "Rollitos vietnamitas"],
+        ["A11", "Rollito de pollo con queso fundido"],
+        ["A12", "Rollo de primavera"],
+        ["A13", "Pastel de berenjena"],
+        ["A14", "Wan Tun frito"],
+        ["A15", "Langostino crujiente ⭐"],
+        ["A16", "Xiao long bao"],
+        ["A17", "Bolas de arroz frito"],
+        ["A18", "Pan japones frito"],
+        ["A19", "Tempura atún"],
+        ["A20", "Entrecot rollo con queso ⭐🥈"],
+        ["A21", "Tempura verdura"],
+        ["A22", "Tempura langostinos"],
+        ["A23", "Arroz teppanyaki"],
+        ["A24", "Tallarines teppanyaki"],
+        ["A25", "Teppanyaki de pollo"],
+        ["A26", "Sau mai frito"],
+        ["A27", "Teppanyaki de gambas ⭐"],
+        ["A28", "Yakitori de gambas ⭐"],
+        ["A29", "Yakitori de pollo"],
+        ["A31", "Triángulo de ternera con curry"],
+        ["A33", "Teppanyaki de entrecot ⭐"],
+        ["A41", "Arroz frito tres delicias"],
+        ["A42", "Arroz de la casa"],
+        ["A43", "Arroz coreano (picante)"],
+        ["A44", "Tallarines tres delicias"],
+        ["A47", "Fideos de arroz"],
+        ["A50", "Pollo con sésamo"],
+        ["A52", "Pollo con almendras"],
+        ["A53", "Pollo al limón 🥉"],
+        ["A54", "Pollo picante"],
+        ["A55", "Bolas de pollo frito"],
+        ["A57", "Carne de cerdo agridulce"],
+        ["A58", "Gambas con bambú y setas ⭐"],
+        ["A60", "Ternera con bambú y setas"],
+        ["A61", "Ternera crujiente"],
+        ["A66", "Pato \"PeKin\" ⭐"],
+        ["A67", "Pato japones ⭐"],
+        ["A69", "Pollo laqueado"],
+        ["A70", "Gambas laqueado ⭐"],
+        ["A74", "Empanadilla con carne"],
+        ["A76", "Maki atún picante"],
+        ["A78", "Sushi salmón y aguacate"],
+        ["A79", "Maki de pollo desmenuzado ⭐"],
+        ["A80", "Sushi atún 🥇"],
+        ["A81", "Sushi variados"],
+        ["A82", "Maki salmón y aguacate"],
+        ["A83", "Maki palito de cangrejo, pepino y aguacate"],
+        ["A84", "Maki pollo y mayonesa"],
+        ["A85", "Maki salmón"],
+        ["A86", "Maki atún"],
+        ["A87", "Maki aguacate y pepino"],
+        ["A88", "Ebi maki"],
+        ["A89", "California maki"],
+        ["A90", "Futo maki"],
+        ["A91", "Tempura maki"],
+        ["A92", "Salmón sashimi ⭐"],
+        ["A93", "Sashimi atún ⭐"],
+        ["A94", "Maki cono"],
+        ["A95", "Tempura maki Nakoya"],
+        ["A98", "Maki queso cremoso"],
+        ["A99", "Tarta sushi ⭐"],
+
+    ]);
+    //MAPA CON LOS POSTRES.
+    const mapPostres = new Map([
+        ["1.", "Bola de helado"],
+        ["2.", "Flan"],
+        ["3.", "Plátano frito"],
+        ["4.", "Pastel de calabaza con chocolate"],
+        ["5.", "Mini rollito de plátano y chocolate (2 uds.)"],
+        ["6.", "Profiteroles (2 uds.)"],
+        ["7.", "Crepe con nata y chocolate"]
+    ]);
+
+    const btnBackTop = document.getElementById("btn-back-to-top");
+
+    //VARIABLES EASTER EGG
+    let contadorClicks = 0;
+    let ultimoTiempoClick = 0;
+
+    $(document).ready(function () {
+
+        $("body div:last").hide();
+
+        //Creamos las tablas. 
+        crearTablaMenu(mapMenu);
+        crearTablaPostres(mapPostres);
+        crearDataTable();
+
+        document.getElementById("copyright").innerHTML = "&copy " + new Date().getFullYear() + ", Desarrollado por Tito's S.A. <span id='spanEE'>🍣<span>";
+
+        //Configuramos el plugin de Tooltipster para los tooltips.
+        $(".tooltip").tooltipster({
+            theme: ["tooltipster-borderless", "tooltipster-noir", "tooltipster-noir-customized"],
+            maxWidth: 300,
+            trigger: "click",
+            timer: 1500,
+            animation: "grow"
+        });
+
+    });
+
+    //FUNCION PARA CREAR LA TABLA DEL MENÚ.
+    function crearTablaMenu(mapMenu) {
+        let tablaMenu = "<thead>" +
+            "<tr class='align-middle'>" +
+            "<th scope='col' style='display: none;'>ID_FILA</th>" +
+            "<th scope='col' style='text-align:center; width:90px;'>NÚMERO</th>" +
+            "<th scope='col'>PLATO</th>" +
+            "</tr></thead><tbody>";
+
+        for (let [key, value] of mapMenu.entries()) {
+            let index = Array.from(mapMenu.keys()).indexOf(key);
+            tablaMenu += "<tr class='align-middle'>" +
+                "<td style='display: none;'>" + index + "</td>" +
+                "<td align='center' style='font-weight: bold;'>" + key + "</td>" +
+                "<td class='d-flex justify-content-between'><span class='align-self-start my-auto'>" + value + "</span><button class='btn btn-sm bg-transparent align-self-end my-auto btnImagenPlato' title='Buscar plato.'><i class='bi bi-image'></i></button></td>";
+        }
+
+        tablaMenu += "</tr></tbody>";
+
+        document.getElementById("tablaMenu").innerHTML = tablaMenu;
+    }
+
+    //FUNCION PARA CREAR LA TABLA DE POSTRES.
+    function crearTablaPostres(mapPostres) {
+
+        let tablaPostres = "<thead style='display: none;>" +
+            "<tr class='align-middle'>" +
+            "<th scope='col' style='display: none;'>ID_FILA</th>" +
+            "<th scope='col' style='text-align:center; width:90px;'>NÚMERO</th>" +
+            "<th scope='col'>POSTRE</th>" +
+            "</tr></thead><tbody>";
+
+        // let tablaPostres = "<thead>";
+
+        for (let [key, value] of mapPostres.entries()) {
+            let index = Array.from(mapPostres.keys()).indexOf(key);
+            tablaPostres += "<tr class='align-middle'>" +
+                "<td style='display: none;'>" + index + "</td>" +
+                "<td align='center' style='font-weight: bold; width: 36px;'>" + key + "</td>" +
+                "<td class='d-flex justify-content-between'><span class='align-self-start my-auto'>" + value + "</span><button class='btn btn-sm bg-transparent align-self-end my-auto btnImagenPlato' title='Buscar plato.'><i class='bi bi-image'></i></button></td>";
+        }
+
+        tablaPostres += "</tr></tbody>";
+
+        document.getElementById("tablaPostres").innerHTML = tablaPostres;
+    }
+
+    //ESTA FUNCION SE EJECUTA CUANDO TERMINA DE CARGAR LA PAGINA.
+    $(window).on("load", function () {
+
+    });
+
+    //FUNCION PARA USAR EL PLUGIN DATATABLES Y DARLE FORMATO A LA TABLA DEL MENU.
+    function crearDataTable() {
+
+        //Configuracion del plug-in DataTables.
+        table = $("#tablaMenu").DataTable({
+
+            dom: "<'row'<'col-sm-12'f>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+
+            columnDefs: [{
+                orderable: false,
+                targets: [0, 1]
+            },
+
+            //Ocultamos la primera(0)(NUMERO_FILA) columna.
+            {
+                visible: false,
+                targets: [0]
+            }
+
+            ],
+
+            paging: false,
+            //info: false,
+            rowId: '0',
+            stateSave: false,
+            language: {
+                url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json",
+                search: '<i class="bi bi-search"></i>',
+                searchPlaceholder: "Buscar..."
+            },
+
+        });
+
+        //** SOLUCION TEMPORAL PARA CORREGIR EL DESAJUSTE DEL ENCABEZADO DE LA TABLA Y LAS COLUMNAS AL INICIALIZAR DATATABLES.
+        setTimeout(function () {
+            table.columns.adjust().responsive.recalc();
+            $("#divTablaMenu").show();
+            $("#div-loading").hide();
+        }, 480);
+
+        //Borramos la cadena del filtro de bUsqueda cada vez que se cree la tabla.
+        //$("#table").DataTable().search("").draw(false);
+
+    }
+
+    //FUNCION PARA RECALCULAR EL ANCHO DE LAS COLUMNAS RESPONSIVAS AL HACER ZOOM EN EL NAVEGADOR.
+    window.onresize = function () {
+        if (typeof table != "undefined") {
+            table.columns.adjust().responsive.recalc();
+        }
+    }
+
+    //LISTENER PARA REMARCAR LOS PLATOS FAVORITOS.
+    $("#switchFiltroFavoritos").on("change", function () {
+        const platosFavoritos = ["A15", "A20", "A43", "A53", "A57", "A61", "A67", "A76", "A80", "A81"];
+
+        if ($(this).is(":checked")) {
+
+            for (let i = 0; i < platosFavoritos.length; i++) {
+                $("td:contains(" + platosFavoritos[i] + ")").closest("tr").addClass("fav");
+            }
+
+        } else {
+            $("td").closest("tr").removeClass("fav");
+        }
+    });
+
+    //LISTENER PARA AÑADIR AL LISTADO DE PEDIDOS EL PLATO SELECCIONADO.
+    $("body").on("click", "#tablaMenu tbody tr", function () {
+        var index = $(this).index();
+        var columna1 = $(this).find("td:eq(0)").text();
+        var columna2 = $(this).find("td:eq(1)").text();
+
+        var pedido = "<li class='list-group-item' ><span><b>" + columna1 + "</b> - " + columna2 + "</span><div><button class='btn btn-sm bg-transparent align-self-end my-auto btnImagenPlato' title='Buscar plato.'><i class='bi bi-image'></i></button><button class='btn bg-transparent btnEliminarPedido' title='Eliminar pedido.'><i class='bi bi-x-lg'></i></button></div></li>";
+
+        $("#pInfoSeleccionPlatos").hide();
+
+        if (!$('#listaPedidos').text().includes(columna1)) {
+            document.getElementById("listaPedidos").innerHTML += pedido;
+            document.getElementById("totalPedidos").innerHTML = "Platos seleccionados: <b>" + $("#listaPedidos li").length + "</b>";
+        }
+
+        $("#divComplementariaPedidos").show();
+
+    });
+
+    //LISTENER PARA BUSCAR EN GOOGLE IMAGENES, EL PLATO DEL BOTON PULSADO. 
+    $("body").on("click", ".btnImagenPlato", function (event) {
+        event.stopPropagation();
+        var plato = $(this).closest("tr").find("span").text().replace(/[^A-Za-z0-9áéíóúÁÉÍÓÚ.,-:"'\(\)\s]/g, '');
+
+        //Si el boton de buscar plato es pulsado desde el listado de pedidos.
+        if (plato === "") {
+            var spanElement = $(this).parent().parent().find("span");
+            var spanContent = spanElement.text().replace(/[^A-Za-z0-9áéíóúÁÉÍÓÚ.,-:"'\(\)\s]/g, '');
+
+            plato = spanContent.replace(spanElement.find('b').text() + ' - ', '');
+        }
+
+        var url = "https://www.google.com/search?q=" + plato + "&tbm=isch";
+
+        window.open(url, "_blank");
+    });
+
+    //LISTENER PARA ELIMINAR ELEMENTOS DEL LISTADO DE PEDIDOS.
+    $("#listaPedidos").on("click", ".btnEliminarPedido", function () {
+        var index = $(this).closest("li").index();
+        $("#listaPedidos li").eq(index).remove();
+        document.getElementById("totalPedidos").innerHTML = "Total de platos seleccionados: <b>" + $("#listaPedidos li").length + "</b>";
+
+        if ($("#listaPedidos li").length == 0) {
+            $("#divComplementariaPedidos").hide();
+            $("#pInfoSeleccionPlatos").show();
+        }
+
+    });
+
+    //LISTENER DEL BOTON PARA COPIAR AL PORTAPAPELES EL LISTADO DE PEDIDOS.
+    $("#btnCopiarPedidos").click(function () {
+        let textoCopiado = "";
+        const elementosLista = $("#listaPedidos li");
+
+        elementosLista.each(function (index) {
+            const textoSpan = $(this).find("span").text().replace(/[^A-Za-z0-9áéíóúÁÉÍÓÚ.,-:"'\(\)\s]/g, '');
+            textoCopiado += textoSpan;
+
+            if (index !== elementosLista.length - 1) {
+                textoCopiado += "\n";
+            }
+        });
+
+        //Copiar el texto al portapapeles
+        navigator.clipboard.writeText(textoCopiado);
+
+        $(".tooltip").tooltipster("open");
+
+    });
+
+    //LISTENER PARA ELIMINAR TODOS LOS PLATOS DEL LISTADO DE PEDIDOS.
+    $("#btnBorrarListaPedidos").click(function () {
+        $("#listaPedidos").empty();
+        $("#divComplementariaPedidos").hide();
+        $("#pInfoSeleccionPlatos").show();
+    });
+
+    //FUNCION PARA EL EASTER EGG.
+    $("body").on("click", "#spanEE", function () {
+        const ahora = new Date().getTime();
+        if (ahora - ultimoTiempoClick < 2000) {
+            contadorClicks++;
+            if (contadorClicks >= 5) {
+                alert("¿CAVANI TE APETECE JAPONES?");
+                //$("#tooltipEE").tooltipster("open");
+                contadorClicks = 0;
+            }
+        } else {
+            contadorClicks = 1;
+        }
+        ultimoTiempoClick = ahora;
+    });
+
+    //ESTAS 3 FUNCIONES SON PARA EL FUNCIONAMIENTO DEL BOTON GO-UP.
+    window.onscroll = function () {
+        scrollFunction();
+    };
+
+    function scrollFunction() {
+        if (document.body.scrollTop > 600 || document.documentElement.scrollTop > 600) {
+            btnBackTop.style.display = "block";
+        } else {
+            btnBackTop.style.display = "none";
+        }
+    }
+
+    function topFunction() {
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+    }
+
+</script>
+
+</html>
