@@ -607,7 +607,7 @@
 
         const ahora = new Date().getTime();
 
-        if (ahora - ultimoTiempoClick < 2000) {
+        if (ahora - ultimoTiempoClick < 2500) {
             contadorClicks++;
             if (contadorClicks >= 5) {
                 alert(frasesEE[numeroAleatorio]);
@@ -680,7 +680,7 @@
             let minutosRestantes = Math.floor(diferenciaTiempo / 1000 / 60) % 60;
             let segundosRestantes = Math.floor(diferenciaTiempo / 1000) % 60;
 
-            tiempoRestante = "Cierran a las <b>00:00</b>. <b>Tiempo restante:</b> " + horasRestantes + ":" + formatoHora(minutosRestantes) + ":" + formatoHora(segundosRestantes);
+            tiempoRestante = "Cierran a las <b>16:00</b>. <b>Tiempo restante:</b> " + horasRestantes + ":" + formatoHora(minutosRestantes) + ":" + formatoHora(segundosRestantes);
         } else {
             // Crear objetos Date para las 19:30 PM y las 24:00 PM
             let horaNoche1 = new Date();
