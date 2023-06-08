@@ -31,6 +31,14 @@ div#divTablaMenu {
 	height: calc(60vh - 50px);
 }
 
+div#footerMenu {
+	display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 18px;
+}
+
 div#divSwitchesFiltros {
 	display: flex;
 	flex-direction: row;
@@ -100,7 +108,7 @@ button.btnEliminarPedido i::before {
 	font-weight: bold;
 }
 
-div#divComplementariaBtns button {
+button.btn-rounded {
 	border-radius: 50%;
 }
 
@@ -147,6 +155,15 @@ span#spanInfoBebida {
 	position: relative;
 	font-size: 30px;
 	top: -1px;
+}
+
+#modalPedido .modal-content {
+	background-color: black !important;
+    color: gray !important;
+}
+
+p.pListadoPedidosModal {
+	margin-bottom: 8px;
 }
 
 div.dataTables_wrapper div.dataTables_filter label {
