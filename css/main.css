@@ -31,14 +31,6 @@ div#divTablaMenu {
 	height: calc(60vh - 50px);
 }
 
-div#footerMenu {
-	display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 18px;
-}
-
 div#divSwitchesFiltros {
 	display: flex;
 	flex-direction: row;
@@ -89,6 +81,12 @@ legend,
 	font-size: 1rem !important;
 	font-weight: 700;
 	color: #0d6efd !important;
+}
+
+button#btnPrincipioMenu {
+	position: absolute;
+    right: -8px;
+    bottom: -15px
 }
 
 ul#listaPedidos li {
