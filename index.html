@@ -607,7 +607,7 @@
     $("#listaPedidos").on("click", ".btnEliminarPedido", function () {
         var index = $(this).closest("li").index();
         $("#listaPedidos li").eq(index).remove();
-        document.getElementById("textoTotalPedidos").innerHTML = "Total de platos seleccionados: <b>" + $("#listaPedidos li").length + "</b>";
+        document.getElementById("textoTotalPedidos").innerHTML = "Platos seleccionados: <b>" + $("#listaPedidos li").length + "</b>";
 
         if ($("#listaPedidos li").length == 0) {
             $("#divComplementariaPedidos").hide();
@@ -733,7 +733,7 @@
     //ESTA FUNCION SE ENCARGA DE MOSTRAR LA FECHA Y HORA EN TIEMPO REAL.
     function actualizarReloj() {
         let fecha = new Date();
-
+     
         //TIEMPO ACTUAL
         let horas = fecha.getHours();
         let minutos = fecha.getMinutes();
@@ -753,7 +753,7 @@
         // Crear objetos Date para las 12:00 PM y las 16:00 PM
         let horaMediodia1 = new Date();
         horaMediodia1.setHours(12);
-        horaMediodia1.setMinutes(00);
+        horaMediodia1.setMinutes(0);
 
         let horaMediodia2 = new Date();
         horaMediodia2.setHours(16);
@@ -799,9 +799,9 @@
             } else {
                 tiempoRestante = "<b>Japonés cerrado.</b> ";
 
-                if (fecha.getTime() < horaNoche1.getTime()) {
+                if (fecha.getTime() < horaMediodia1.getTime() || fecha.getTime() > horaNoche2.getTime()) {
                     tiempoRestante += "Volverá a abrir a las <b>12:00</b>. 😞";
-                } else {
+                } else if (fecha.getTime() > horaMediodia2.getTime()) {
                     tiempoRestante += "Volverá a abrir a las <b>19:30</b>. 😞";
                 }
             }
