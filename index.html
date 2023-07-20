@@ -103,7 +103,8 @@
                 </fieldset>
 
                 <button class="btn btn-primary btn-sm btn-rounded" id="btnPrincipioMenu"
-                    title="Pulsa para volver al principio del menú."><i class="bi bi-arrow-up"></i></button>
+                    title="Pulsa para volver al principio del menú." style="display: none;"><i
+                        class="bi bi-arrow-up"></i></button>
 
             </div>
 
@@ -120,7 +121,8 @@
 
                     <div class="mt-3" id="divComplementariaPedidos" style="display: none;">
 
-                        <span id="totalPedidos"><i class="bi bi-box-arrow-up-right" title="Ver pedido en modo discreto." style="color:  #0d6efd;"></i>&nbsp;&nbsp;<span id="textoTotalPedidos"></span></span>
+                        <span id="totalPedidos"><i class="bi bi-box-arrow-up-right" title="Ver pedido en modo discreto."
+                                style="color:  #0d6efd;"></i>&nbsp;&nbsp;<span id="textoTotalPedidos"></span></span>
 
                         <div id="divComplementariaBtns">
                             <button class="btn btn-primary btn-sm btn-rounded" id="btnCopiarPedidos"
@@ -171,7 +173,7 @@
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                         data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false"
                         aria-controls="panelsStayOpen-collapseTwo">
-                        PRECIOS
+                        PRECIOS BUFFET
                     </button>
                 </h2>
                 <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse"
@@ -182,7 +184,7 @@
                         <div id="divPrecios">
                             <label>MEDIODÍA:</label>
                             <ul>
-                                <li><u>Adultos</u>: <b>13,50 &euro;</b></li>
+                                <li><u>Adultos</u>: <b>13,80 &euro;</b></li>
                                 <li><u>Niños menores de 7 años</u>: <b>8,00 &euro;</b></li>
                             </ul>
                             <label class="border-top" style="padding-top: 12px;">NOCHES, FINES DE SEMANA Y
@@ -322,7 +324,6 @@
         ["A10", "Rollitos vietnamitas"],
         ["A11", "Rollito de pollo con queso fundido"],
         ["A12", "Rollo de primavera"],
-        ["A13", "Pastel de berenjena"],
         ["A14", "Wan Tun frito"],
         ["A15", "Langostino crujiente ⭐"],
         ["A16", "Xiao long bao"],
@@ -338,7 +339,6 @@
         ["A26", "Sau mai frito"],
         ["A27", "Teppanyaki de gambas ⭐"],
         ["A28", "Yakitori de gambas ⭐"],
-        ["A29", "Yakitori de pollo"],
         ["A31", "Triángulo de ternera con curry"],
         ["A33", "Teppanyaki de entrecot ⭐"],
         ["A41", "Arroz frito tres delicias"],
@@ -379,10 +379,11 @@
         ["A93", "Sashimi atún ⭐"],
         ["A94", "Maki cono"],
         ["A95", "Tempura maki Nakoya"],
+        ["A96", "Sushi pollo desmenuzado"],
         ["A98", "Maki queso cremoso"],
         ["A99", "Tarta sushi ⭐"],
-
     ]);
+
     //MAPA CON LOS POSTRES.
     const mapPostres = new Map([
         ["1.", "Bola de helado"],
@@ -393,8 +394,6 @@
         ["6.", "Profiteroles (2 uds.)"],
         ["7.", "Crepe con nata y chocolate"]
     ]);
-
-    const btnBackTop = document.getElementById("btn-back-to-top");
 
     //VARIABLES EASTER EGG.
     let contadorClicks = 0;
@@ -549,7 +548,7 @@
     //LISTENER PARA REMARCAR LOS PLATOS DE SUSHI.
     $("#switchFiltroSushi").on("change", function () {
         const platosSushi = ["A76", "A78", "A79", "A80", "A81", "A82", "A83", "A84", "A85", "A86", "A87",
-            "A88", "A89", "A90", "A91", "A92", "A93", "A94", "A95", "A98", "A99"];
+            "A88", "A89", "A90", "A91", "A92", "A93", "A94", "A95", "A96", "A98", "A99"];
 
         $("#switchFiltroFavoritos").prop("checked", false);
         $("td").closest("tr").removeClass("fav");
@@ -595,7 +594,7 @@
             var spanContent = spanElement.text().replace(/[^A-Za-z0-9áéíóúÁÉÍÓÚ.,-:"'\(\)\s]/g, '');
 
             plato = spanContent.replace(spanElement.find('b').text() + ' - ', '');
-            
+
         }
 
         var url = "https://www.google.com/search?q=" + plato.toLowerCase() + "&tbm=isch";
@@ -646,7 +645,7 @@
 
     //LISTENER PARA AÑADIR AL LISTADO LOS PLATOS HABITUALES.
     $("#añadirHabituales").click(function () {
-        const platosFavoritos = ["A15", "A20", "A22", "A43", "A53", "A57", "A61", "A67", "A76", "A80", "A81"];
+        const platosFavoritos = ["A15", "A20", "A22", "A43", "A53", "A57", "A67", "A76", "A80", "A81"];
         var pedidoHabitual = "";
 
         $("#pInfoSeleccionPlatos").hide();
@@ -671,7 +670,7 @@
 
     //FUNCION PARA EL EASTER EGG.
     $("body").on("click", "#spanEE", function () {
-        const frasesEE = ["¿Cavani te apetece japones o japonesa?", "Cavani la tiene chicken little.", "Cavani la tiene como un nigiri.", "Hassy.", "No cualquier harina hace hot cakes 🥞."];
+        const frasesEE = ["¿Cavani te apetece japones o japonesa?", "Cavani la tiene chicken little.", "Cavani la tiene como un nigiri.", "Hassy.", "No cualquier harina hace hot cakes 🥞.", "#BarbaDura TATA V6 3.2 GASOLINE 4MATIC."];
         let numeroAleatorio = Math.floor(Math.random() * frasesEE.length);
 
         const ahora = new Date().getTime();
@@ -689,7 +688,7 @@
         ultimoTiempoClick = ahora;
     });
 
-
+    //LISTENER PARA ABRIR UN MODAL CON EL LISTADO DE PLATOS SELECCIONADO EN "MODO DISCRETO".
     $("#totalPedidos").click(function () {
 
         let listadoPedidos = "";
@@ -706,10 +705,20 @@
         $("#modalPedido").modal("show");
     });
 
-
+    //LISTENER PARA VOLVER A LA PARTE SUPERIOR DEL MENU DE PLATOS.
     $("#btnPrincipioMenu").click(function () {
         $("#divTablaMenu").animate({ scrollTop: 0 }, 300, "swing");
     });
+
+    //LISTENER PARA MOSTRAR BOTON VOLVER ARRIBA, AL HACER SCROLL EN EL DIV DEL MENU DE PLATOS.
+    $("#divTablaMenu").on("scroll", function () {
+        if ($(this).scrollTop() > 0) {
+            $("#btnPrincipioMenu").fadeIn(100);
+        } else {
+            $("#btnPrincipioMenu").fadeOut(100);
+        }
+    });
+
 
     //ESTAS 3 FUNCIONES SON PARA EL FUNCIONAMIENTO DEL BOTON GO-UP.
     window.onscroll = function () {
@@ -718,9 +727,9 @@
 
     function scrollFunction() {
         if (document.body.scrollTop > 600 || document.documentElement.scrollTop > 600) {
-            btnBackTop.style.display = "block";
+            $("#btn-back-to-top").fadeIn(100);
         } else {
-            btnBackTop.style.display = "none";
+            $("#btn-back-to-top").fadeOut(100);
         }
     }
 
@@ -733,7 +742,7 @@
     //ESTA FUNCION SE ENCARGA DE MOSTRAR LA FECHA Y HORA EN TIEMPO REAL.
     function actualizarReloj() {
         let fecha = new Date();
-     
+
         //TIEMPO ACTUAL
         let horas = fecha.getHours();
         let minutos = fecha.getMinutes();
