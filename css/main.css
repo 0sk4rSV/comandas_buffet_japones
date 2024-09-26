@@ -85,8 +85,8 @@ legend,
 
 button#btnPrincipioMenu {
 	position: absolute;
-    right: -8px;
-    bottom: -15px
+	right: -8px;
+	bottom: -15px
 }
 
 ul#listaPedidos li {
@@ -157,7 +157,7 @@ span#spanInfoBebida {
 
 #modalPedido .modal-content {
 	background-color: black !important;
-    color: gray !important;
+	color: gray !important;
 }
 
 p.pListadoPedidosModal {
@@ -185,4 +185,111 @@ div.dataTables_length {
 	font-weight: 400;
 	font-size: 14px;
 	padding: 10px;
+}
+
+div#div-footer {
+	user-select: none;
+}
+
+
+#switchFiltroFavoritos:checked {
+	background-color: #7feb7f !important;
+	border-color: #00a22c !important;
+}
+
+#switchFiltroSushi:checked {
+	background-color: #fdc4be !important;
+	border-color: #ff5722 !important;
+}
+
+#divPrecios .border-bottom {
+	border-color: #c7c5c5 !important;
+}
+
+#divPrecios ul {
+	margin-bottom: 13px;
+}
+
+span.spanPlatoCant {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	flex-wrap: nowrap;
+	gap: 8px;
+}
+
+input.inputCantPlato {
+	height: 28px !important;
+	padding-left: 2px;
+	padding-right: 2px;
+	width: 48px;
+	text-align: center;
+	color: #F44336;
+}
+
+div#divPodio {
+	padding-top: 8px;
+}
+
+/* INICIO ESTILOS PARA EL CONTADOR MAKI */
+img#imgMaki {
+	width: 200px;
+	height: auto;
+
+
+}
+
+div#divBotoneraContadorMaki {
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+	max-width: 400px;
+	margin: 0 auto;
+}
+
+
+div#divImgMaki {
+	width: auto;
+	height: 220px;
+	margin-top: 7px;
+}
+
+button#btnDecrecer,
+button#btnReset {
+	-webkit-text-stroke: 1px;
+}
+
+span#contador {
+	font-family: 'GangOfThree', sans-serif;
+	font-size: 32px;
+	user-select: none;
+	min-width: 50px;
+}
+
+
+/* FIN ESTILOS PARA EL CONTADOR MAKI */
+
+div#divAlerta {
+	position: fixed;
+	top: 0;
+	right: 0;
+	width: 100%;
+}
+
+div#divContenidoAlerta {
+	padding-left: 12px;
+	padding-bottom: 10px;
+	padding-top: 10px;
+	font-weight: bold;
+	margin: 0 auto;
+}
+
+div#divContenidoAlerta button {
+	padding: 14px;
+}
+
+span.platoAlerta {
+    font-size: 14px;
 }

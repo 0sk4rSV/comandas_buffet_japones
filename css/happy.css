@@ -1,0 +1,49 @@
+@font-face {
+	font-family: 'Candy';
+	src: url('/fonts/ChristmasCandy.ttf');
+}
+
+div#div-titulo h2 {
+	font-family: 'Candy', sans-serif;
+	font-size: 36px;
+}
+
+.card-image img {
+width: 250px;
+max-height: 87%;
+}
+
+
+.card-image:hover {
+	filter: brightness(70%);
+
+}
+
+#divImages {
+	display: flex;
+    flex-direction: row;
+	justify-content: center;
+	gap: 14px;
+}
+
+    /* Estilo para dispositivos móviles */
+	@media only screen and (max-width: 767px) {
+		#img-cabecera {
+			max-height: 145px;
+		}
+	}
+
+	/* Estilo para dispositivos de pantalla media para arriba */
+	@media only screen and (min-width: 768px) {
+		#img-cabecera {
+			max-height: 220px;
+		}
+	}
+
+	#img-cris {
+		position: absolute;
+		right: 0px;
+		bottom: -24px;
+		width: 100px;
+		z-index: 1;
+	}

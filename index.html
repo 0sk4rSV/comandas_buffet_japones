@@ -182,23 +182,33 @@
 
                         <!-- INICIO CUERPO PRECIOS -->
                         <div id="divPrecios">
-                            <label>MEDIODÍA:</label>
-                            <ul>
-                                <li><u>Adultos</u>: <b>13,80 &euro;</b></li>
-                                <li><u>Niños menores de 7 años</u>: <b>8,00 &euro;</b></li>
-                            </ul>
-                            <label class="border-top" style="padding-top: 12px;">NOCHES, FINES DE SEMANA Y
-                                FESTIVOS:</label>
-                            <ul>
-                                <li><u>Adultos</u>: <b>16,80 &euro;</b></li>
-                                <li><u>Niños menores de 7 años</u>: <b>9,50 &euro;</b></li>
-                            </ul>
-                            <label class="border-top" style="padding-top: 12px;">BEBIDAS:</label>
-                            <ul>
-                                <li><u>Por cada bebida</u>: <b>3,50 &euro;</b>&nbsp;&nbsp;
-                                    <span id="spanInfoBebida">¡No abusar!</span>
-                                </li>
-                            </ul>
+                            <div class="container">
+                                <div class="row border-bottom">
+                                    <label>MEDIODÍA:</label>
+                                    <ul>
+                                        <li><u>Adultos</u>: <b>13,80 &euro;</b></li>
+                                        <li><u>Niños menores de 7 años</u>: <b>8,00 &euro;</b></li>
+                                    </ul>
+                                </div>
+
+                                <div class="row border-bottom">
+                                    <label style="padding-top: 12px;">NOCHES, FINES DE SEMANA Y
+                                        FESTIVOS:</label>
+                                    <ul>
+                                        <li><u>Adultos</u>: <b>16,80 &euro;</b></li>
+                                        <li><u>Niños menores de 7 años</u>: <b>9,50 &euro;</b></li>
+                                    </ul>
+                                </div>
+
+                                <div class="row">
+                                    <label style="padding-top: 12px;">BEBIDAS:<span id="spanInfoBebida"
+                                            style="margin-left: 13px;">¡No abusar!</span></label>
+                                    <ul>
+                                        <li><u>Botella de agua grande</u>: <b>3,50 &euro;</b></li>
+                                        <li><u>Lata de refresco</u>: <b>2,20 &euro;</b></li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                         <!-- FIN CUERPO PRECIOS -->
 
@@ -242,53 +252,117 @@
                 </div>
             </div>
 
-        </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="panelsStayOpen-headingFour">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#panelsStayOpen-collapseFour" aria-expanded="false"
+                        aria-controls="panelsStayOpen-collapseFour">
+                        HALL OF FAME 🏆
+                    </button>
+                </h2>
+                <div id="panelsStayOpen-collapseFour" class="accordion-collapse collapse"
+                    aria-labelledby="panelsStayOpen-headingFour">
+                    <div class="accordion-body">
+                        <div class="text-center" id="divPodio">
+                            <!-- INICIO CUERPO PODIO -->
+                            <img src="/images/podio.png" class="img-fluid" alt="Imágen podio.">
+                            <!-- FIN CUERPO PODIO -->
+                        </div>
 
-        <div class="mt-5" id="divTiempo">
-            <p class="mb-1"><b>Fecha actual:</b> <span id="tiempoActual"></span></p>
-            <p><span id="tiempoCierre"></span></p>
-        </div>
 
-    </div>
-
-    <!-- FOOTER -->
-    <div class="container">
-
-        <div class="text-center my-2 border-top" id="div-footer">
-            <p class="text-muted mb-0" id="copyright" style="margin-top: 8px;"></p>
-            <div class="separador"></div>
-        </div>
-
-    </div>
-
-    <button class="btn btn-primary" id="btn-back-to-top" type="button" onclick="topFunction()"
-        title="Pulsa para volver arriba.">
-        <i class="bi bi-arrow-up-short"></i>
-    </button>
-
-    <!-- MODAL PEDIDOS-->
-    <div class="modal" id="modalPedido">
-        <div class="modal-dialog modal-fullscreen">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">LISTADO PEDIDOS 🕵️</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <div id="listadoPedidosModal"></div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="panelsStayOpen-headingFive">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#panelsStayOpen-collapseFive" aria-expanded="false"
+                        aria-controls="panelsStayOpen-collapseFive">
+                        CONTADOR MAKI 🎰
+                    </button>
+                </h2>
+                <div id="panelsStayOpen-collapseFive" class="accordion-collapse collapse"
+                    aria-labelledby="panelsStayOpen-headingFive">
+                    <div class="accordion-body">
+                        <div class="text-center" id="divContadorMaki">
+                            <!-- INICIO CUERPO CONTADOR MAKI -->
+
+                            <p style="font-size: 14px; margin-bottom: 30px;">Pulsa el maki para incrementar el contador!
+                            </p>
+
+                            <div id="divImgMaki">
+                                <img src="/images/maki_atun.png" id="imgMaki" alt="Imágen maki." draggable="false">
+
+
+                            </div>
+
+                            <div id="divBotoneraContadorMaki">
+                                <button class="btn btn-primary btn-sm btn-rounded" id="btnDecrecer"
+                                    title="Decrecer contador."><i class="bi bi-dash-lg"></i></button>
+
+                                <span id="contador">0</span>
+
+                                <button class="btn btn-danger btn-sm btn-rounded" id="btnReset"
+                                    title="Resetear contador."><i class="bi bi-x-lg"></i></button>
+                            </div>
+
+
+
+                            <!-- FIN CUERPO CONTADOR MAKI -->
+                        </div>
+
+
+                    </div>
                 </div>
-                <div class="modal-footer" style="justify-content: space-between;">
-                    <span id="totalPlatosModal"></span>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
+
+            <div class="mt-5" id="divTiempo">
+                <p class="mb-1"><b>Fecha actual:</b> <span id="tiempoActual"></span></p>
+                <p><span id="tiempoCierre"></span></p>
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="container">
+
+            <div class="text-center my-2 border-top" id="div-footer">
+                <p class="text-muted mb-0" id="copyright" style="margin-top: 8px;"></p>
+                <div class="separador"></div>
+            </div>
+
+        </div>
+
+        <button class="btn btn-primary" id="btn-back-to-top" type="button" onclick="topFunction()"
+            title="Pulsa para volver arriba.">
+            <i class="bi bi-arrow-up-short"></i>
+        </button>
+
+        <!-- MODAL PEDIDOS-->
+        <div class="modal" id="modalPedido">
+            <div class="modal-dialog modal-fullscreen">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">LISTADO PEDIDOS 🕵️</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+
+                    </div>
+                    <div class="modal-body">
+                        <div id="listadoPedidosModal"></div>
+                    </div>
+                    <div class="modal-footer" style="justify-content: space-between;">
+                        <span id="totalPlatosModal"></span>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
 
-    <div></div>
+        <div></div>
 
 </body>
 
@@ -311,8 +385,9 @@
 <script type="text/javascript">
     //VARIABLES GLOBALES
 
-    //MAPA CON LOS PLATOS DEL MENU Y SU CORRESPONDIENTE CÓDIGO.
+    //MAPA CON LOS PLATOS DEL MENU Y SU CORRESPONDIENTE CODIGO.
     const mapMenu = new Map([
+        ["A0", "Tostada de gambas ⭐"],
         ["A1", "Rollo ternera con queso ⭐"],
         ["A2", "Ensalada de la casa (algas)"],
         ["A3", "Ensalada china de lechuga"],
@@ -324,14 +399,14 @@
         ["A10", "Rollitos vietnamitas"],
         ["A11", "Rollito de pollo con queso fundido"],
         ["A12", "Rollo de primavera"],
+        ["A13", "Bola de queso ⭐"],
         ["A14", "Wan Tun frito"],
         ["A15", "Langostino crujiente ⭐"],
-        ["A16", "Xiao long bao"],
+        ["A16", "Xiao Long Bao"],
         ["A17", "Bolas de arroz frito"],
         ["A18", "Pan japones frito"],
         ["A19", "Tempura atún"],
         ["A20", "Entrecot rollo con queso ⭐🥈"],
-        ["A21", "Tempura verdura"],
         ["A22", "Tempura langostinos"],
         ["A23", "Arroz teppanyaki"],
         ["A24", "Tallarines teppanyaki"],
@@ -348,7 +423,7 @@
         ["A47", "Fideos de arroz"],
         ["A50", "Pollo con sésamo"],
         ["A52", "Pollo con almendras"],
-        ["A53", "Pollo al limón 🥉"],
+        ["A53", "Pollo al limón"],
         ["A54", "Pollo picante"],
         ["A55", "Bolas de pollo frito"],
         ["A57", "Carne de cerdo agridulce"],
@@ -356,7 +431,7 @@
         ["A60", "Ternera con bambú y setas"],
         ["A61", "Ternera crujiente"],
         ["A66", "Pato \"PeKin\" ⭐"],
-        ["A67", "Pato japones ⭐"],
+        ["A67", "Pato japonés ⭐🥉"],
         ["A69", "Pollo laqueado"],
         ["A70", "Gambas laqueado ⭐"],
         ["A74", "Empanadilla con carne"],
@@ -379,14 +454,13 @@
         ["A93", "Sashimi atún ⭐"],
         ["A94", "Maki cono"],
         ["A95", "Tempura maki Nakoya"],
-        ["A96", "Sushi pollo desmenuzado"],
         ["A98", "Maki queso cremoso"],
         ["A99", "Tarta sushi ⭐"],
     ]);
 
     //MAPA CON LOS POSTRES.
     const mapPostres = new Map([
-        ["1.", "Bola de helado"],
+        ["1.", "Bola de helado (chocolate, fresa, vainilla o limón)"],
         ["2.", "Flan"],
         ["3.", "Plátano frito"],
         ["4.", "Pastel de calabaza con chocolate"],
@@ -399,7 +473,11 @@
     let contadorClicks = 0;
     let ultimoTiempoClick = 0;
 
+    var valorContador;
+
     $(document).ready(function () {
+
+
 
         $("body div:last").hide();
 
@@ -409,6 +487,58 @@
         crearDataTable();
 
         document.getElementById("copyright").innerHTML = "&copy " + new Date().getFullYear() + ", Desarrollado por Tito's S.A. <span id='spanEE'>🍣<span>";
+
+        // Función para guardar en caché
+        function guardarEnCache() {
+            var contenido = $('#listaPedidos').html();
+            // Guardar los valores de los inputs junto con el HTML
+            var valoresInputs = {};
+            $('#listaPedidos input').each(function () {
+                valoresInputs[$(this).closest('li').attr('id')] = $(this).val();
+            });
+            localStorage.setItem('contenidoListaPedidos', contenido);
+            localStorage.setItem('valoresInputsListaPedidos', JSON.stringify(valoresInputs));
+            localStorage.setItem('valorContador', $('#contador').text());
+            var timestamp = new Date().getTime();
+            localStorage.setItem('timestampListaPedidos', timestamp);
+        }
+
+        // Función para cargar desde caché
+        function cargarDesdeCache() {
+            var contenidoGuardado = localStorage.getItem('contenidoListaPedidos');
+            var valoresInputsGuardados = JSON.parse(localStorage.getItem('valoresInputsListaPedidos'));
+            contador = (localStorage.getItem('valorContador') != null ? localStorage.getItem('valorContador') : 0);
+            $('#contador').text(contador);
+
+            var timestampGuardado = localStorage.getItem('timestampListaPedidos');
+            var timestampActual = new Date().getTime();
+            if (contenidoGuardado && (timestampActual - timestampGuardado < 24 * 60 * 60 * 1000)) {
+                $("#pInfoSeleccionPlatos").hide();
+                $('#listaPedidos').html(contenidoGuardado);
+                // Restaurar los valores de los inputs
+                if (valoresInputsGuardados) {
+
+                    $.each(valoresInputsGuardados, function (id, valor) {
+                        $('#' + id + ' .inputCantPlato').val((valor != "" ? valor : "1"));
+                    });
+                }
+                document.getElementById("textoTotalPedidos").innerHTML = "Platos seleccionados: <b>" + $("#divListaPedidos #listaPedidos li").length + "</b>";
+                $("#divComplementariaPedidos").show();
+
+
+
+
+            }
+
+        }
+
+        // Llamar a la función para cargar desde caché al cargar la página
+        cargarDesdeCache();
+
+        // Llamar a la función para guardar en caché al salir de la página o al recargar
+        $(window).on('beforeunload', function () {
+            guardarEnCache();
+        });
 
         //Configuramos el plugin de Tooltipster para los tooltips.
         $(".tooltip").tooltipster({
@@ -421,12 +551,12 @@
 
     });
 
-    //FUNCION PARA CREAR LA TABLA DEL MENÚ.
+    //FUNCION PARA CREAR LA TABLA DEL MENU.
     function crearTablaMenu(mapMenu) {
         let tablaMenu = "<thead class='table-light'>" +
             "<tr class='align-middle'>" +
             "<th scope='col' style='display: none;'>ID_FILA</th>" +
-            "<th scope='col' style='text-align:center; width:90px;'>NÚMERO</th>" +
+            "<th scope='col' style='text-align:center; max-width:90px;'>NÚMERO</th>" +
             "<th scope='col'>PLATO</th>" +
             "</tr></thead><tbody>";
 
@@ -483,16 +613,23 @@
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
 
-            columnDefs: [{
-                orderable: false,
-                targets: [0, 1]
-            },
+            columnDefs: [
 
-            //Ocultamos la primera(0)(NUMERO_FILA) columna.
-            {
-                visible: false,
-                targets: [0]
-            }
+                {
+                    orderData: [0],
+                    targets: [1]
+                },
+
+                {
+                    orderable: false,
+                    targets: [0]
+                },
+
+                //Ocultamos la primera(0)(NUMERO_FILA) columna.
+                {
+                    visible: false,
+                    targets: [0]
+                }
 
             ],
 
@@ -529,7 +666,7 @@
 
     //LISTENER PARA REMARCAR LOS PLATOS FAVORITOS.
     $("#switchFiltroFavoritos").on("change", function () {
-        const platosFavoritos = ["A15", "A20", "A22", "A43", "A53", "A57", "A61", "A67", "A76", "A80", "A81"];
+        const platosFavoritos = ["A15", "A20", "A22", "A28", "A43", "A50", "A53", "A57", "A61", "A67", "A76", "A80"];
 
         $("#switchFiltroSushi").prop("checked", false);
         $("td").closest("tr").removeClass("sushi");
@@ -543,6 +680,7 @@
         } else {
             $("td").closest("tr").removeClass("fav");
         }
+
     });
 
     //LISTENER PARA REMARCAR LOS PLATOS DE SUSHI.
@@ -570,28 +708,99 @@
         var columna1 = $(this).find("td:eq(0)").text();
         var columna2 = $(this).find("td:eq(1)").text();
 
-        var pedido = "<li class='list-group-item' ><span><b>" + columna1 + "</b> - " + columna2 + "</span><div><button class='btn btn-sm bg-transparent align-self-end my-auto btnImagenPlato' title='Buscar plato.'><i class='bi bi-image'></i></button><button class='btn bg-transparent btnEliminarPedido' title='Eliminar pedido.'><i class='bi bi-x-lg'></i></button></div></li>";
+        var pedido = "<li id='pedido" + index + "' class='list-group-item' ><span class='spanPlatoCant'><b>" + columna1 + "</b> - " + "<input class='form-control inputCantPlato' type='number' inputmode='numeric' value='1' step='1' min='1' max='99' onkeypress='return isNumeric(event)' oninput='maxLengthCheck(this)' onchange='minCantValue(this)'>" + columna2 + "</span><div><button class='btn btn-sm bg-transparent align-self-end my-auto btnImagenPlato' title='Buscar plato.'><i class='bi bi-image'></i></button><button class='btn bg-transparent btnEliminarPedido' title='Eliminar pedido.'><i class='bi bi-x-lg'></i></button></div></li>";
+
 
         $("#pInfoSeleccionPlatos").hide();
 
-        if (!$('#listaPedidos').text().includes(columna1)) {
-            document.getElementById("listaPedidos").innerHTML += pedido;
+
+
+        var arrayNumPlatos = [];
+
+        // Selecciona todas las etiquetas <b> dentro del div con id="divPedidos"
+        $("#divPedidos b").each(function () {
+            arrayNumPlatos.push($(this).text());
+        });
+
+        if (!arrayNumPlatos.includes(columna1)) {
+
+            $("#listaPedidos").append(pedido);
             document.getElementById("textoTotalPedidos").innerHTML = "Platos seleccionados: <b>" + $("#listaPedidos li").length + "</b>";
+
+
+
+            mostrarAlerta("success", "Plato añadido<br><span class='platoAlerta'>("+ columna1 + " - " + columna2 + ")</span>");
+
+        } else {
+
+            mostrarAlerta("warning", "El plato ya está añadido<br><span class='platoAlerta'>("+ columna1 + " - " + columna2 + ")</span>");
+
         }
+
+        console.log(columna1)
+        console.log(pedido)
 
         $("#divComplementariaPedidos").show();
 
+
+
+
+
+
+
     });
+
+    //Funcion para crear alertas dinamicas.
+    function mostrarAlerta(tipoAlerta, textoAlerta) {
+        //Verifica si hay una alerta visible y la elimina si la hay.
+        $(".alert").remove();
+
+        var icono = "";
+        if (tipoAlerta == "success") {
+            icono = "<i class='bi bi-check-circle-fill'></i>";
+        } else if (tipoAlerta == "warning") {
+            icono = "<i class='bi bi-exclamation-triangle-fill'></i>";
+        } else if (tipoAlerta == "danger") {
+            icono = "<i class='bi bi-exclamation-circle-fill'></i>";
+        }
+
+        // Creamos la alerta.
+        var alert = $("<div id='divAlerta'>" + "<div class='alert alert-" + tipoAlerta + " alert-dismissible fade show' id='divContenidoAlerta' role='alert'>" + icono + "&nbsp;&nbsp;" + textoAlerta
+            + "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>");
+
+        //Agregamos la alerta al cuerpo del documento.
+        $("body").append(alert);
+
+        //Cierra la alerta automaticamente despues x segundos.
+        setTimeout(function () {
+            alert.fadeOut(750, function () {
+                alert.remove();
+            });
+        }, 2500);
+
+    }
+
+    //Agrega un manejador de eventos para el boton "close" de las alertas.
+    $('.btn-close').click(function () {
+        alert.fadeOut(750, function () {
+            alert.remove();
+        });
+    });
+
+
+
 
     //LISTENER PARA BUSCAR EN GOOGLE IMAGENES, EL PLATO DEL BOTON PULSADO. 
     $("body").on("click", ".btnImagenPlato", function (event) {
         event.stopPropagation();
-        var plato = $(this).closest("tr").find("span").text().replace(/[^A-Za-z0-9áéíóúÁÉÍÓÚ.,-:"'\(\)\s]/g, '');
+        var plato = $(this).closest("tr").find("span").text().replace(/"/g, '').replace(/[^A-Za-z0-9áéíóúÁÉÍÓÚ.,\-:"'()\s]/g, '');
+
 
         //Si el boton de buscar plato es pulsado desde el listado de pedidos.
         if (plato === "") {
             var spanElement = $(this).parent().parent().find("span");
-            var spanContent = spanElement.text().replace(/[^A-Za-z0-9áéíóúÁÉÍÓÚ.,-:"'\(\)\s]/g, '');
+            var spanContent = spanElement.text().replace(/"/g, '').replace(/[^A-Za-z0-9áéíóúÁÉÍÓÚ.,\-:"'()\s]/g, '');
+
 
             plato = spanContent.replace(spanElement.find('b').text() + ' - ', '');
 
@@ -603,7 +812,7 @@
     });
 
     //LISTENER PARA ELIMINAR ELEMENTOS DEL LISTADO DE PEDIDOS.
-    $("#listaPedidos").on("click", ".btnEliminarPedido", function () {
+    $("#divListaPedidos").on("click", "button.btnEliminarPedido", function () {
         var index = $(this).closest("li").index();
         $("#listaPedidos li").eq(index).remove();
         document.getElementById("textoTotalPedidos").innerHTML = "Platos seleccionados: <b>" + $("#listaPedidos li").length + "</b>";
@@ -616,13 +825,20 @@
     });
 
     //LISTENER DEL BOTON PARA COPIAR AL PORTAPAPELES EL LISTADO DE PEDIDOS.
-    $("#btnCopiarPedidos").click(function () {
+    $("#divListaPedidos").on("click", "button#btnCopiarPedidos", function () {
+
+
+
         let textoCopiado = "";
         const elementosLista = $("#listaPedidos li");
 
         elementosLista.each(function (index) {
-            const textoSpan = $(this).find("span").text().replace(/[^A-Za-z0-9áéíóúÁÉÍÓÚ.,-:"'\(\)\s]/g, '');
-            textoCopiado += textoSpan;
+            let textoSpan = $(this).find("span").text().replace(/[^A-Za-z0-9áéíóúÁÉÍÓÚ.,-:"'\(\)\s]/g, '');
+
+            let cantidadPlato = $(this).find("input").val();
+            cantidadPlato = " ~ (" + cantidadPlato + (cantidadPlato > 1 ? " uds." : "ud.") + ")";
+
+            textoCopiado += textoSpan + cantidadPlato;
 
             if (index !== elementosLista.length - 1) {
                 textoCopiado += "\n";
@@ -637,7 +853,7 @@
     });
 
     //LISTENER PARA ELIMINAR TODOS LOS PLATOS DEL LISTADO DE PEDIDOS.
-    $("#btnBorrarListaPedidos").click(function () {
+    $("#divListaPedidos").on("click", "button#btnBorrarListaPedidos", function () {
         $("#listaPedidos").empty();
         $("#divComplementariaPedidos").hide();
         $("#pInfoSeleccionPlatos").show();
@@ -645,18 +861,25 @@
 
     //LISTENER PARA AÑADIR AL LISTADO LOS PLATOS HABITUALES.
     $("#añadirHabituales").click(function () {
-        const platosFavoritos = ["A15", "A20", "A22", "A43", "A53", "A57", "A67", "A76", "A80", "A81"];
+        const platosFavoritos = ["A15", "A20", "A22", "A43", "A50", "A53", "A57", "A67", "A76"];
         var pedidoHabitual = "";
 
         $("#pInfoSeleccionPlatos").hide();
 
+        var arrayNumPlatos = [];
+
+        // Selecciona todas las etiquetas <b> dentro del div con id="divPedidos"
+        $("#divPedidos b").each(function () {
+            arrayNumPlatos.push($(this).text());
+        });
+
         for (let i = 0; i < platosFavoritos.length; i++) {
-            if (!$('#listaPedidos').text().includes(platosFavoritos[i])) {
-                pedidoHabitual += "<li class='list-group-item' ><span><b>" + platosFavoritos[i] + "</b> - " + mapMenu.get(platosFavoritos[i]) + "</span><div><button class='btn btn-sm bg-transparent align-self-end my-auto btnImagenPlato' title='Buscar plato.'><i class='bi bi-image'></i></button><button class='btn bg-transparent btnEliminarPedido' title='Eliminar pedido.'><i class='bi bi-x-lg'></i></button></div></li>";
+            if (!arrayNumPlatos.includes(platosFavoritos[i])) {
+                pedidoHabitual += "<li id='pedido" + i + "' class='list-group-item' ><span class='spanPlatoCant'><b>" + platosFavoritos[i] + "</b> - " + "<input class='form-control inputCantPlato' type='number' inputmode='numeric' value='1' step='1' min='1' max='99' onkeypress='return isNumeric(event)' oninput='maxLengthCheck(this)' onchange='minCantValue(this)'>" + mapMenu.get(platosFavoritos[i]) + "</span><div><button class='btn btn-sm bg-transparent align-self-end my-auto btnImagenPlato' title='Buscar plato.'><i class='bi bi-image'></i></button><button class='btn bg-transparent btnEliminarPedido' title='Eliminar pedido.'><i class='bi bi-x-lg'></i></button></div></li>";
             }
         }
 
-        document.getElementById("listaPedidos").innerHTML += pedidoHabitual;
+        $("#listaPedidos").append(pedidoHabitual);
         document.getElementById("textoTotalPedidos").innerHTML = "Platos seleccionados: <b>" + $("#listaPedidos li").length + "</b>";
 
         $("#divComplementariaPedidos").show();
@@ -689,14 +912,19 @@
     });
 
     //LISTENER PARA ABRIR UN MODAL CON EL LISTADO DE PLATOS SELECCIONADO EN "MODO DISCRETO".
-    $("#totalPedidos").click(function () {
+    $("#divListaPedidos").on("click", "span#totalPedidos", function () {
+
 
         let listadoPedidos = "";
         const elementosLista = $("#listaPedidos li");
 
         elementosLista.each(function (index) {
-            const textoSpan = $(this).find("span").text().replace(/[^A-Za-z0-9áéíóúÁÉÍÓÚ.,-:"'\(\)\s]/g, '');
-            listadoPedidos += "<p class='pListadoPedidosModal'>" + textoSpan + "</p>";
+            let textoSpan = $(this).find("span").text().replace(/[^A-Za-z0-9áéíóúÁÉÍÓÚ.,-:"'\(\)\s]/g, '');
+
+            let cantidadPlato = $(this).find("input").val();
+            cantidadPlato = " ~ (" + cantidadPlato + (cantidadPlato > 1 ? " uds." : "ud.") + ")";
+
+            listadoPedidos += "<p class='pListadoPedidosModal'>" + textoSpan + cantidadPlato + "</p>";
         });
 
         $("#listadoPedidosModal").html(listadoPedidos);
@@ -719,6 +947,38 @@
         }
     });
 
+    //ESTAS 2 FUNCIONES SIRVEN PARA CONTROLAR EL VALOR DEL INPUT DE LA CANTIDAD DEL PLATO.
+    function maxLengthCheck(object) {
+        if (object.value.length > object.max.length) {
+            object.value = object.value.slice(0, object.max.length);
+        }
+    }
+
+    function isNumeric(evt) {
+        var theEvent = evt || window.event;
+        var key = theEvent.keyCode || theEvent.which;
+        key = String.fromCharCode(key);
+
+        var regex = /^[0-9][0-9]?$/;
+        if (!regex.test(key)) {
+            theEvent.returnValue = false;
+            if (theEvent.preventDefault) theEvent.preventDefault();
+        }
+    }
+
+    function minCantValue(object) {
+        if (object.value === "" || object.value === "0") {
+            object.value = "1";
+        }
+    }
+
+    $("#divListaPedidos").on("change", "input.inputCantPlato", function () {
+        var value = $(this).val();
+        value = value.replace(",", "").replace(".", "").replace("-", "");
+        $(this).val(value);
+    });
+
+    //
 
     //ESTAS 3 FUNCIONES SON PARA EL FUNCIONAMIENTO DEL BOTON GO-UP.
     window.onscroll = function () {
@@ -834,6 +1094,135 @@
     actualizarReloj();
 
 
+
+
 </script>
+
+<script>
+    $(document).ready(function () {
+
+        var anchoOriginal = $('#imgMaki').css('width');
+        var intervalId;
+        var buttonReleased = true;
+
+        // AUDIOS
+        var aficion_CR7 = new Audio('audio/aficion_CR7.mp3');
+        var tactical_nuke = new Audio('audio/tactical_nuke.mp3');
+
+        $('#divContadorMaki').find('*').on('contextmenu', function (event) {
+            event.preventDefault(); // Evita que se muestre el menú contextual
+        });
+
+
+        $('#imgMaki').click(function () {
+
+            // Detener la animación actual y restaurar el tamaño original y el margen original
+            $(this).stop().width(anchoOriginal);
+
+            // Hacer vibrar el dispositivo móvil
+            if (navigator.vibrate) {
+                navigator.vibrate(100); // Vibrar durante 100 milisegundos
+            }
+
+            // Hacer la imagen un poco más pequeña y ajustar el margen para mantener el mismo espacio en la página
+            $(this).animate({ width: '-=10px' }, 80).animate({ width: anchoOriginal }, 80);
+
+            if (contador < 100) {
+                // Incrementar el contador
+                contador++;
+                $('#contador').text(contador);
+            }
+
+            accionesContador();
+
+        });
+
+        // Función para decrementar el contador
+        $('#btnDecrecer').click(function () {
+            if (contador > 0) {
+                contador--;
+                $('#contador').text(contador);
+            }
+
+            if (contador != 100) {
+                accionesContador();
+            }
+        });
+
+        // Función para reiniciar el contador
+        $('#btnReset').click(function () {
+            contador = 0;
+            $('#contador').text(contador);
+
+            accionesContador();
+
+        });
+
+        // Función para decrementar el contador cuando se mantiene pulsado el botón
+        $('#btnDecrecer').on('mousedown touchstart', function () {
+
+
+            accionesContador();
+
+            if (buttonReleased) {
+
+                buttonReleased = false; // Indicar que se ha pulsado el botón
+                // Temporizador de retraso para iniciar el decremento después de 1.5 segundos
+                delayTimer = setTimeout(function () {
+
+                    intervalId = setInterval(function () {
+                        if (contador > 0) {
+                            contador--;
+                            $('#contador').text(contador);
+
+                        }
+                    }, 160); // Intervalo de decremento
+                }, 220); // Retraso de 1.5 segundos
+            }
+        }).on('mouseup touchend', function () {
+            clearTimeout(delayTimer); // Limpiar el temporizador de retraso
+            clearInterval(intervalId); // Limpiar el intervalo de decremento
+            buttonReleased = true; // Indicar que se ha soltado el botón
+
+        });
+
+
+        function accionesContador() {
+
+            pausarAudios();
+
+            if (contador === 30) {
+                reproducirAudio(tactical_nuke);
+            }
+            else if (contador === 100) {
+                reproducirAudio(aficion_CR7);
+            }
+
+            function pausarAudios() {
+                tactical_nuke.pause();
+                tactical_nuke.currentTime = 0;
+
+                aficion_CR7.pause();
+                aficion_CR7.currentTime = 0;
+            }
+
+            function reproducirAudio(audio) {
+                // Verifica si el audio está reproduciéndose
+                if (!audio.paused) {
+                    audio.pause(); // Pausa el audio si ya está sonando
+                    audio.currentTime = 0; // Reinicia la reproducción al principio
+                }
+
+                audio.play(); // Reproduce el audio
+            }
+        }
+
+
+
+    });
+
+
+</script>
+
 
 </html>
