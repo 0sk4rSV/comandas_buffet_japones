@@ -1,6 +1,6 @@
 @font-face {
 	font-family: 'GangOfThree';
-	src: url('./fonts/GangOfThree.ttf');
+	src: url('../fonts/GangOfThree.ttf');
 }
 
 #div-loading {
