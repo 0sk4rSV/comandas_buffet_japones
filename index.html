@@ -387,35 +387,38 @@
 
     //MAPA CON LOS PLATOS DEL MENU Y SU CORRESPONDIENTE CODIGO.
     const mapMenu = new Map([
-        ["A0", "Tostada de gambas ⭐"],
-        ["A1", "Rollo ternera con queso ⭐"],
         ["A2", "Ensalada de la casa (algas)"],
         ["A3", "Ensalada china de lechuga"],
         ["A4", "Ensalada china de col"],
         ["A5", "Sopa miso"],
+        ["A6", "Sopa de maíz con carne de cangrejo"],
         ["A7", "Sopa de aleta de tiburón"],
-        ["A9", "Sopa de maíz con carne de cangrejo"],
-        ["A6", "Rollito de gamba"],
+        ["A9", "Rollitos de gambas"],
         ["A10", "Rollitos vietnamitas"],
         ["A11", "Rollito de pollo con queso fundido"],
         ["A12", "Rollo de primavera"],
-        ["A13", "Bola de queso ⭐"],
+        ["A13", "Palitos crujientes tres delicias"],
         ["A14", "Wan Tun frito"],
-        ["A15", "Langostino crujiente ⭐"],
-        ["A16", "Xiao Long Bao"],
+        ["A15", "Langostinos crujientes ⭐"],
         ["A17", "Bolas de arroz frito"],
-        ["A18", "Pan japones frito"],
-        ["A19", "Tempura atún"],
+        ["A18", "Pan chino frito"],
         ["A20", "Entrecot rollo con queso ⭐🥈"],
-        ["A22", "Tempura langostinos"],
-        ["A23", "Arroz teppanyaki"],
-        ["A24", "Tallarines teppanyaki"],
-        ["A25", "Teppanyaki de pollo"],
+        ["A21", "Tempura de verduras"],
+        ["A22", "Tempura de langostinos"],
+        ["A23", "Tempura de atún"],
+        ["A24", "Rollo de ternera con queso ⭐"],
+        ["A25", "Bolas de queso fundido ⭐"],
         ["A26", "Sau mai frito"],
-        ["A27", "Teppanyaki de gambas ⭐"],
+        ["A27", "Tostada de gambas ⭐"],
         ["A28", "Yakitori de gambas ⭐"],
-        ["A31", "Triángulo de ternera con curry"],
-        ["A33", "Teppanyaki de entrecot ⭐"],
+        ["A29", "Gambas laqueadas ⭐"],
+        ["A30", "Pollo laqueado"],
+        ["A31", "Triángulos de ternera con curry"],
+        ["A33", "Tallarines teppanyaki"],
+        ["A34", "Arroz teppanyaki"],
+        ["A35", "Teppanyaki de pollo"],
+        ["A36", "Teppanyaki de gambas ⭐"],
+        ["A37", "Entrecot al ajo braseado ⭐"],
         ["A41", "Arroz frito tres delicias"],
         ["A42", "Arroz de la casa"],
         ["A43", "Arroz coreano (picante)"],
@@ -428,34 +431,34 @@
         ["A55", "Bolas de pollo frito"],
         ["A57", "Carne de cerdo agridulce"],
         ["A58", "Gambas con bambú y setas ⭐"],
-        ["A60", "Ternera con bambú y setas"],
         ["A61", "Ternera crujiente"],
-        ["A66", "Pato \"PeKin\" ⭐"],
+        ["A63", "Ternera con bambú y setas"],
+        ["A66", "Pato asado \"PeKin\" ⭐"],
         ["A67", "Pato japonés ⭐🥉"],
-        ["A69", "Pollo laqueado"],
-        ["A70", "Gambas laqueado ⭐"],
-        ["A74", "Empanadilla con carne"],
-        ["A76", "Maki atún picante 🥇"],
+        ["A74", "Empanadillas con carne"],
         ["A78", "Sushi salmón y aguacate"],
-        ["A79", "Maki de pollo desmenuzado ⭐"],
-        ["A80", "Sushi atún"],
-        ["A81", "Sushi variados"],
-        ["A82", "Maki salmón y aguacate"],
-        ["A83", "Maki palito de cangrejo, pepino y aguacate"],
-        ["A84", "Maki pollo y mayonesa"],
+        ["A79", "Maki tempura Nakoya"],
+        ["A81", "Sushis variados"],
         ["A85", "Maki salmón"],
         ["A86", "Maki atún"],
         ["A87", "Maki aguacate y pepino"],
-        ["A88", "Ebi maki"],
+        ["A88", "Maki gambas"],
         ["A89", "California maki"],
         ["A90", "Futo maki"],
-        ["A91", "Tempura maki"],
-        ["A92", "Salmón sashimi ⭐"],
+        ["A91", "Maki tempura"],
+        ["A92", "Sashimi salmón ⭐"],
         ["A93", "Sashimi atún ⭐"],
         ["A94", "Maki cono"],
-        ["A95", "Tempura maki Nakoya"],
         ["A98", "Maki queso cremoso"],
-        ["A99", "Tarta sushi ⭐"],
+        ["A99", "Tarta sushi ⭐🤢"],
+        ["A105", "Maki pollo desmenuzado ⭐"],
+        ["A106", "Maki pollo mayonesa"],
+        ["A107", "Maki pollo desmenuzado y salmón ⭐"],
+        ["A108", "Maki pollo tropical ⭐"],
+        ["A109", "Maki atún picante"],
+        ["A111", "Maki salmón y aguacate 🥇"],
+        ["A112", "Maki palito de cangrejo, pepino y aguacate"],
+
     ]);
 
     //MAPA CON LOS POSTRES.
@@ -666,7 +669,7 @@
 
     //LISTENER PARA REMARCAR LOS PLATOS FAVORITOS.
     $("#switchFiltroFavoritos").on("change", function () {
-        const platosFavoritos = ["A15", "A20", "A22", "A28", "A43", "A50", "A53", "A57", "A61", "A67", "A76", "A80"];
+        const platosFavoritos = ["A15", "A20", "A22", "A25", "A28", "A43", "A50", "A53", "A67", "A78", "A86", "A106", "A109"];
 
         $("#switchFiltroSushi").prop("checked", false);
         $("td").closest("tr").removeClass("sushi");
@@ -685,8 +688,8 @@
 
     //LISTENER PARA REMARCAR LOS PLATOS DE SUSHI.
     $("#switchFiltroSushi").on("change", function () {
-        const platosSushi = ["A76", "A78", "A79", "A80", "A81", "A82", "A83", "A84", "A85", "A86", "A87",
-            "A88", "A89", "A90", "A91", "A92", "A93", "A94", "A95", "A96", "A98", "A99"];
+        const platosSushi = ["A78", "A79", "A81", "A85", "A86", "A87", "A88", "A89", "A90", "A91",
+            "A92", "A93", "A94", "A98", "A99", "A105", "A106", "A107", "A108", "A109", "A111", "A112"];
 
         $("#switchFiltroFavoritos").prop("checked", false);
         $("td").closest("tr").removeClass("fav");
@@ -861,7 +864,7 @@
 
     //LISTENER PARA AÑADIR AL LISTADO LOS PLATOS HABITUALES.
     $("#añadirHabituales").click(function () {
-        const platosFavoritos = ["A15", "A20", "A22", "A43", "A50", "A53", "A57", "A67", "A76"];
+        const platosFavoritos = ["A15", "A20", "A28", "A50", "A56", "A67", "A78", "A86", "A109"];
         var pedidoHabitual = "";
 
         $("#pInfoSeleccionPlatos").hide();
