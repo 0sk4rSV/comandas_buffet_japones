@@ -30,12 +30,21 @@
         } catch (e) { }
     }
 
+    //App instalable y sin conexion: se registra el service worker (sw.js) en las dos versiones.
+    if ("serviceWorker" in navigator && window.isSecureContext) {
+        window.addEventListener("load", function () {
+            navigator.serviceWorker.register("sw.js").catch(function () { });
+        });
+    }
+
     const html = document.documentElement;
     const versionActual = html.dataset.version;
 
     //Si la ultima vez se eligio la otra version, vamos directamente a ella (antes de pintar la pagina).
+    //Si nunca se ha elegido ninguna, la predeterminada es la Moderna.
     //Excepcion: un enlace con un pedido compartido (?pedido=...) solo lo sabe abrir la Moderna.
-    const versionPreferida = leer(localStorage, CLAVE_VERSION);
+    const VERSION_PREDETERMINADA = "moderna";
+    const versionPreferida = leer(localStorage, CLAVE_VERSION) || VERSION_PREDETERMINADA;
     const pedidoCompartido = /[?&]pedido=/.test(location.search);
     if (versionPreferida && versionPreferida !== versionActual && PAGINAS[versionPreferida] && !pedidoCompartido) {
         location.replace(PAGINAS[versionPreferida]);
