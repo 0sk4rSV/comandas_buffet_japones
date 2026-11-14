@@ -1003,8 +1003,9 @@
             sorpresa.actual = null;
             pintarPlatoSorpresa();
         }
-        //Atrapa el sushi se para si se sale de su pantalla a mitad de partida.
+        //Atrapa el sushi se para si se sale de su pantalla a mitad de partida; al entrar, ocupa todo el alto.
         if (vista !== "atrapa") detenerAtrapa();
+        else requestAnimationFrame(ajustarZonaAtrapa);
         window.scrollTo(0, 0);
     }
 
@@ -1913,8 +1914,11 @@
         const caja = $("#sorpresaPlato");
         caja.classList.add("barajando");
         let pasos = 0;
+        //Mientras pasan los nombres, un toque de vibracion corto en cada uno (como una tragaperras)
+        //y al pararse, una vibracion mas larga.
         const intervalo = setInterval(function () {
             caja.innerHTML = htmlPlatoSorpresa(lista[numeroAlAzar(lista.length)]);
+            vibrar(15);
             if (++pasos >= 12) {
                 clearInterval(intervalo);
                 caja.classList.remove("barajando");
@@ -1922,6 +1926,7 @@
                 sorpresa.actual = elegido;
                 pintarPlatoSorpresa();
                 pitido(660, 0.15);
+                vibrar([40, 30, 90]);
             }
         }, 70);
     }
@@ -2086,12 +2091,23 @@
 
     // ------------------------------------------------------------------ ATRAPA EL SUSHI
 
-    //Caen piezas y hay que tocarlas antes de que lleguen abajo. Cada pieza atrapada acelera el juego.
-    //3 vidas; el record se guarda en el dispositivo.
+    //Caen piezas y hay que tocarlas antes de que lleguen abajo; cada una atrapada acelera el juego.
+    // - Sushi normal: +1. Si se escapa, una vida menos.
+    // - Bento dorado (de vez en cuando): +5.
+    // - Bomba (desde 10 puntos): si se toca, una vida menos; si se deja caer, no pasa nada.
+    //3 vidas; el record se guarda en el dispositivo. Durante la partida la pagina no hace scroll.
     const PIEZAS_SUSHI = ["\u{1F363}", "\u{1F364}", "\u{1F359}", "\u{1F95F}", "\u{1F365}"];
+    const BENTO = "\u{1F371}";
+    const BOMBA = "\u{1F4A3}";
+    const EXPLOSION = "\u{1F4A5}";
+    const CORAZON = "❤️";
     const CLAVE_ATRAPA = "recordAtrapaNakoya";
     const VIDAS_ATRAPA = 3;
-    const atrapa = { jugando: false, puntos: 0, vidas: VIDAS_ATRAPA, piezas: [], ultimo: 0, espera: 0, velocidad: 0, intervalo: 0, animacion: null };
+    const PUNTOS_ACELERON = 150;
+    const atrapa = {
+        jugando: false, partida: 0, puntos: 0, vidas: VIDAS_ATRAPA, piezas: [],
+        ultimo: 0, espera: 0, alto: 0, animacion: null, avisoAceleron: false
+    };
     const zonaAtrapa = $("#atrapaZona");
 
     function recordAtrapa() {
@@ -2099,12 +2115,27 @@
         return guardado > 0 ? guardado : 0;
     }
 
+    //Velocidad en "alturas de la zona por segundo" (igual de dificil en cualquier pantalla):
+    //sube rapido hasta 50 puntos, luego muy poco y, a partir de 150, el triple de deprisa.
+    function velocidadAtrapa(p) {
+        let v = 0.28 + Math.min(p, 48) * 0.015;
+        if (p > 48) v += (Math.min(p, PUNTOS_ACELERON) - 48) * 0.002;
+        if (p > PUNTOS_ACELERON) v += (p - PUNTOS_ACELERON) * 0.006;
+        return Math.min(v, 2.2);
+    }
+
+    //Milisegundos entre piezas: cada vez mas seguidas; a partir de 150, todavia mas.
+    function intervaloAtrapa(p) {
+        if (p <= PUNTOS_ACELERON) return Math.max(1100 - p * 28, 380);
+        return Math.max(380 - (p - PUNTOS_ACELERON) * 1.5, 250);
+    }
+
     function pintarAtrapa() {
         $("#atrapaPuntos").textContent = atrapa.puntos;
         $("#atrapaRecord").textContent = recordAtrapa();
         let corazones = "";
         for (let i = 0; i < VIDAS_ATRAPA; i++) {
-            corazones += "<span class=\"" + (i < atrapa.vidas ? "vida" : "vida perdida") + "\">❤️</span>";
+            corazones += "<span class=\"" + (i < atrapa.vidas ? "vida" : "vida perdida") + "\">" + CORAZON + "</span>";
         }
         $("#atrapaVidas").innerHTML = corazones;
         $("#atrapaVidas").setAttribute("aria-label", atrapa.vidas + (atrapa.vidas === 1 ? " vida" : " vidas"));
@@ -2113,104 +2144,210 @@
     function quitarPiezas() {
         atrapa.piezas.forEach(function (p) { p.el.remove(); });
         atrapa.piezas = [];
+        $$("#atrapaZona .pieza, #atrapaZona .atrapa-flotante").forEach(function (el) { el.remove(); });
+    }
+
+    //Texto que salta donde se toca ("+1", "+5", "-❤️") o en el centro ("¡Más rápido!").
+    function textoFlotante(texto, x, y, clase) {
+        const el = document.createElement("span");
+        el.className = "atrapa-flotante" + (clase ? " " + clase : "");
+        el.textContent = texto;
+        //Sin salirse de la zona: cerca del borde de arriba o de los lados quedaria cortado.
+        el.style.left = Math.min(Math.max(x, 40), zonaAtrapa.clientWidth - 40) + "px";
+        el.style.top = Math.max(y, 30) + "px";
+        zonaAtrapa.appendChild(el);
+        setTimeout(function () { el.remove(); }, 1200);
     }
 
     function crearPieza() {
+        const p = atrapa.puntos;
+        const azar = numeroAlAzar(100);
+        const probBomba = p < 10 ? 0 : (p > PUNTOS_ACELERON ? 20 : 14);
+        let tipo = "sushi";
+        if (azar < probBomba) tipo = "bomba";
+        else if (azar < probBomba + 5) tipo = "bento";
+
         const el = document.createElement("span");
-        el.className = "pieza";
-        el.textContent = PIEZAS_SUSHI[numeroAlAzar(PIEZAS_SUSHI.length)];
-        const ancho = zonaAtrapa.clientWidth;
-        el.style.left = numeroAlAzar(Math.max(1, ancho - 52)) + "px";
+        el.className = "pieza pieza-" + tipo;
+        el.textContent = tipo === "bomba" ? BOMBA : (tipo === "bento" ? BENTO : PIEZAS_SUSHI[numeroAlAzar(PIEZAS_SUSHI.length)]);
+        el.style.left = numeroAlAzar(Math.max(1, zonaAtrapa.clientWidth - 52)) + "px";
+        el.style.transform = "translate3d(0, -52px, 0)";
         zonaAtrapa.appendChild(el);
-        atrapa.piezas.push({ el: el, y: -52 });
+        atrapa.piezas.push({ el: el, y: -52, tipo: tipo });
     }
 
-    function bucleAtrapa(t) {
-        if (!atrapa.jugando) return;
-        const dt = Math.min(0.05, (t - atrapa.ultimo) / 1000);
+    function destelloAtrapa() {
+        if (zonaAtrapa.animate) {
+            zonaAtrapa.animate([{ boxShadow: "inset 0 0 0 4px #e23b2e" }, { boxShadow: "inset 0 0 0 4px transparent" }], { duration: 350 });
+        }
+    }
+
+    function perderVida() {
+        atrapa.vidas--;
+        destelloAtrapa();
+        vibrar(140);
+        pintarAtrapa();
+    }
+
+    //Bucle de animacion. "partida" evita que queden dos bucles a la vez si se empieza otra rapido.
+    function bucleAtrapa(partida, t) {
+        if (!atrapa.jugando || partida !== atrapa.partida) return;
+        //Con el movil lento el paso se limita a 0,1 s: el juego no da saltos ni va a camara lenta.
+        const dt = Math.min(0.1, Math.max(0, (t - atrapa.ultimo) / 1000));
         atrapa.ultimo = t;
         atrapa.espera -= dt * 1000;
         if (atrapa.espera <= 0) {
             crearPieza();
-            atrapa.espera = atrapa.intervalo;
+            atrapa.espera = intervaloAtrapa(atrapa.puntos);
         }
-        const alto = zonaAtrapa.clientHeight;
-        atrapa.piezas = atrapa.piezas.filter(function (p) {
-            p.y += atrapa.velocidad * dt;
-            p.el.style.transform = "translateY(" + p.y + "px)";
-            if (p.y < alto) return true;
-            //Se ha escapado: una vida menos.
+        const avance = velocidadAtrapa(atrapa.puntos) * atrapa.alto * dt;
+        const quedan = [];
+        for (let i = 0; i < atrapa.piezas.length; i++) {
+            const p = atrapa.piezas[i];
+            p.y += avance;
+            if (p.y < atrapa.alto) {
+                p.el.style.transform = "translate3d(0, " + p.y + "px, 0)";
+                quedan.push(p);
+                continue;
+            }
             p.el.remove();
-            atrapa.vidas--;
-            zonaAtrapa.classList.remove("fallo");
-            void zonaAtrapa.offsetWidth;
-            zonaAtrapa.classList.add("fallo");
-            pitido(196, 0.2);
-            vibrar(120);
-            pintarAtrapa();
-            return false;
-        });
+            //Se ha escapado: solo el sushi (y el bento) quitan vida; la bomba no.
+            if (p.tipo !== "bomba") {
+                pitido(196, 0.2);
+                perderVida();
+            }
+        }
+        atrapa.piezas = quedan;
         if (atrapa.vidas <= 0) {
             finAtrapa();
             return;
         }
-        atrapa.animacion = requestAnimationFrame(bucleAtrapa);
+        atrapa.animacion = requestAnimationFrame(function (t2) { bucleAtrapa(partida, t2); });
     }
 
+    // --- Bloqueo del scroll durante la partida (tambien en iPhone, donde overflow:hidden no basta)
+    function evitarScroll(e) {
+        if (atrapa.jugando || $("#atrapaPortada").dataset.contando === "1") e.preventDefault();
+    }
+    function bloquearScroll(bloquear) {
+        document.documentElement.classList.toggle("sin-scroll", bloquear);
+        if (bloquear) document.addEventListener("touchmove", evitarScroll, { passive: false });
+        else document.removeEventListener("touchmove", evitarScroll);
+    }
+
+    //Cuenta atras "3, 2, 1" y a jugar. Antes se centra la zona de juego en la pantalla.
     function empezarAtrapa() {
+        cancelAnimationFrame(atrapa.animacion);
         quitarPiezas();
+        atrapa.partida++;
+        const partida = atrapa.partida;
         atrapa.puntos = 0;
         atrapa.vidas = VIDAS_ATRAPA;
-        atrapa.velocidad = 130;
-        atrapa.intervalo = 1100;
         atrapa.espera = 0;
-        atrapa.jugando = true;
-        $("#atrapaPortada").hidden = true;
+        atrapa.avisoAceleron = false;
         pintarAtrapa();
-        atrapa.ultimo = performance.now();
-        atrapa.animacion = requestAnimationFrame(bucleAtrapa);
+
+        $(".atrapa-panel").scrollIntoView({ block: "center" });
+        bloquearScroll(true);
+        const portada = $("#atrapaPortada");
+        portada.dataset.contando = "1";
+        $("#atrapaEmpezar").hidden = true;
+        let cuenta = 3;
+        const mensaje = $("#atrapaMensaje");
+        mensaje.innerHTML = "<b class=\"atrapa-total num\">" + cuenta + "</b>";
+        pitido(523, 0.1);
+        const reloj = setInterval(function () {
+            if (partida !== atrapa.partida) { clearInterval(reloj); return; }
+            cuenta--;
+            if (cuenta > 0) {
+                mensaje.innerHTML = "<b class=\"atrapa-total num\">" + cuenta + "</b>";
+                pitido(523, 0.1);
+                return;
+            }
+            clearInterval(reloj);
+            pitido(784, 0.15);
+            portada.dataset.contando = "";
+            portada.hidden = true;
+            $("#atrapaEmpezar").hidden = false;
+            atrapa.alto = zonaAtrapa.clientHeight;
+            atrapa.jugando = true;
+            atrapa.ultimo = performance.now();
+            atrapa.animacion = requestAnimationFrame(function (t) { bucleAtrapa(partida, t); });
+        }, 650);
     }
 
     function finAtrapa() {
         atrapa.jugando = false;
         cancelAnimationFrame(atrapa.animacion);
         quitarPiezas();
+        bloquearScroll(false);
         const anterior = recordAtrapa();
         const nuevoRecord = atrapa.puntos > anterior;
         if (nuevoRecord) escribirStorage(CLAVE_ATRAPA, atrapa.puntos);
         pintarAtrapa();
         $("#atrapaMensaje").innerHTML = "<b class=\"atrapa-total num\">" + atrapa.puntos + "</b>" +
-            (atrapa.puntos === 1 ? "pieza atrapada" : "piezas atrapadas") +
+            (atrapa.puntos === 1 ? "punto" : "puntos") +
             (nuevoRecord ? "<span class=\"adivina-record\">¡Nuevo récord!</span>" : "");
         $("#atrapaEmpezar").innerHTML = "<i class=\"bi bi-arrow-repeat\" aria-hidden=\"true\"></i>Jugar otra vez";
         $("#atrapaPortada").hidden = false;
         if (nuevoRecord) vibrar([60, 40, 60, 40, 120]);
     }
 
-    //Si se sale de la pantalla a mitad de partida, el juego se para (sin contar como record).
+    //Si se sale de la pantalla (o se cambia de app) a mitad de partida, el juego se para.
     function detenerAtrapa() {
-        if (!atrapa.jugando) return;
+        const contando = $("#atrapaPortada").dataset.contando === "1";
+        if (!atrapa.jugando && !contando) return;
         atrapa.jugando = false;
+        atrapa.partida++;
         cancelAnimationFrame(atrapa.animacion);
         quitarPiezas();
+        bloquearScroll(false);
+        $("#atrapaPortada").dataset.contando = "";
         $("#atrapaMensaje").textContent = "Partida interrumpida. ¿Otra?";
         $("#atrapaEmpezar").innerHTML = "<i class=\"bi bi-play-fill\" aria-hidden=\"true\"></i>Empezar";
+        $("#atrapaEmpezar").hidden = false;
         $("#atrapaPortada").hidden = false;
     }
 
     //Se atrapa al tocar (pointerdown responde al instante, sin esperar al "click").
     zonaAtrapa.addEventListener("pointerdown", function (e) {
-        const el = e.target.closest(".pieza");
-        if (!el || !atrapa.jugando || el.classList.contains("atrapada")) return;
+        if (!atrapa.jugando) return;
         e.preventDefault();
-        atrapa.piezas = atrapa.piezas.filter(function (p) { return p.el !== el; });
+        const el = e.target.closest(".pieza");
+        if (!el || el.classList.contains("atrapada")) return;
+        const pieza = atrapa.piezas.find(function (p) { return p.el === el; });
+        if (!pieza) return;
+        atrapa.piezas = atrapa.piezas.filter(function (p) { return p !== pieza; });
+
+        const zona = zonaAtrapa.getBoundingClientRect();
+        const x = e.clientX - zona.left;
+        const y = e.clientY - zona.top;
+
+        if (pieza.tipo === "bomba") {
+            el.textContent = EXPLOSION;
+            el.classList.add("atrapada", "explota");
+            setTimeout(function () { el.remove(); }, 300);
+            textoFlotante("-" + CORAZON, x, y, "flotante-malo");
+            pitido(110, 0.35);
+            perderVida();
+            if (atrapa.vidas <= 0) finAtrapa();
+            return;
+        }
+
         el.classList.add("atrapada");
         setTimeout(function () { el.remove(); }, 200);
-        atrapa.puntos++;
-        //Cada vez mas rapido y mas seguido, con un tope para que siga siendo posible.
-        atrapa.velocidad = Math.min(130 + atrapa.puntos * 7, 460);
-        atrapa.intervalo = Math.max(1100 - atrapa.puntos * 28, 360);
-        pitido(660 + Math.min(atrapa.puntos, 20) * 15, 0.06);
+        const suma = pieza.tipo === "bento" ? 5 : 1;
+        const antes = atrapa.puntos;
+        atrapa.puntos += suma;
+        textoFlotante("+" + suma, x, y, suma > 1 ? "flotante-bonus" : "");
+        pitido(suma > 1 ? 988 : 660 + Math.min(atrapa.puntos, 30) * 10, suma > 1 ? 0.15 : 0.06);
+        if (suma > 1) vibrar(40);
+        //Aviso al pasar de 150 puntos: a partir de aqui acelera mas.
+        if (antes < PUNTOS_ACELERON && atrapa.puntos >= PUNTOS_ACELERON && !atrapa.avisoAceleron) {
+            atrapa.avisoAceleron = true;
+            textoFlotante("¡Más rápido!", zona.width / 2, zona.height / 2, "flotante-aviso");
+            vibrar([60, 40, 60]);
+        }
         pintarAtrapa();
     });
 
@@ -2219,6 +2356,21 @@
     document.addEventListener("visibilitychange", function () {
         if (document.hidden) detenerAtrapa();
     });
+
+    //La zona de juego llena exactamente el alto que queda en la pantalla (sin scroll): desde donde empieza
+    //hasta el borde de abajo, descontando el relleno del panel y del lienzo (que en movil deja sitio al menu).
+    function ajustarZonaAtrapa() {
+        if ($("#vista-atrapa").hidden) return;
+        const relleno = parseFloat(getComputedStyle($(".atrapa-panel")).paddingBottom) +
+            parseFloat(getComputedStyle($(".lienzo")).paddingBottom);
+        const arriba = zonaAtrapa.getBoundingClientRect().top + window.scrollY;
+        const alto = Math.max(240, Math.floor(window.innerHeight - arriba - relleno));
+        zonaAtrapa.style.height = alto + "px";
+        if (atrapa.jugando) atrapa.alto = zonaAtrapa.clientHeight;
+    }
+
+    //Si cambia el tamano de la ventana (girar el movil, barra del navegador...), se recalcula.
+    window.addEventListener("resize", ajustarZonaAtrapa);
 
     pintarAtrapa();
 

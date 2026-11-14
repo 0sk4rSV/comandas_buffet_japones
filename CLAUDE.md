@@ -42,8 +42,9 @@ Es un sitio estático (HTML + CSS + JS, sin build ni dependencias de npm). Todo 
   piedra, papel o tijera para dos jugadores por turnos con un móvil
   (el 1 elige sin que se vea, luego el 2; marcador y rondas jugadas), adivina el plato (preguntas sin fin código ↔ nombre; aciertos, fallos y racha; mejor racha en `localStorage.rachaAdivinaNakoya`;
   no hay fotos de los platos, solo enlace a Google Imágenes), el dedo elegido (`<dialog id="dedos">`: varios dedos a la vez,
-  3 s quietos y elige uno), cara o cruz (moneda 3D con la N), atrapa el sushi (piezas que caen, 3 vidas, récord en
-  `localStorage.recordAtrapaNakoya`; se para al salir de la pantalla) y easter egg 🍣 (5 toques → frase).
+  3 s quietos y elige uno), cara o cruz (moneda 3D con la N), atrapa el sushi (piezas que caen, bento +5, bombas que quitan
+  vida al tocarlas, 3 vidas, cuenta atrás, acelera más desde 150 puntos, récord en `localStorage.recordAtrapaNakoya`;
+  bloquea el scroll durante la partida con `html.sin-scroll` y `touch-action: none`; se para al salir de la pantalla) y easter egg 🍣 (5 toques → frase).
   Los pitidos de los juegos se generan con Web Audio (`pitido()`), sin archivos.
 - Diseño: negro (`--ground #0b0a09`), rojo hinomaru (`--accent #e23b2e`), Inter + GangOfThree para la marca, iconos Bootstrap Icons 1.11.3.
 
