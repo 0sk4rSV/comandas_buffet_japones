@@ -28,15 +28,23 @@ Es un sitio estático (HTML + CSS + JS, sin build ni dependencias de npm). Todo 
 
 ## Versión Moderna
 
-- Vistas por hash: `#carta`, `#pedido`, `#postres`, `#info`, `#extras` y las subpantallas de Extras `#podio`, `#maki`, `#ruleta`
-  (llevan `data-padre="extras"`). Cada vista es una `<section class="vista">`; `mostrarVista()` anima la entrada según el orden del menú.
+- Vistas por hash: `#carta`, `#pedido`, `#postres`, `#info`, `#extras` y las subpantallas de Extras `#podio`, `#maki`, `#ruleta`,
+  `#sorpresa`, `#dedo`, `#moneda`, `#duelo`, `#piedra-papel-tijera`, `#adivina`, `#atrapa` (llevan `data-padre="extras"`). Cada vista es una `<section class="vista">`; `mostrarVista()` anima la entrada según el orden del menú.
 - Horario: mediodía 12:00-16:00 (tarifa de mediodía entre semana), noche 19:30-24:00. Fines de semana y festivos = tarifa y platos de noche.
   Línea de estado arriba con la cuenta atrás ("quedan H:MM:SS para cerrar/abrir").
 - Funciones: carta con filtros (Todos/Favoritos/Sushi) y buscador; pedido con cantidades, ordenado por número; copiar; modo discreto;
   **rondas** ("Ya lo he pedido" guarda la ronda; historial desplegable; volver a pedir; borrar una o todas); **compartir pedido**
   por enlace `?pedido=15-2.20.109` o QR propio (qrcode-generator 1.4.4 de cdnjs, pintado en SVG con el maki en el centro);
   avisos con "Deshacer"; Extras: Hall of Fame (imagen del podio de makis), contador maki (vibra y suena a los 30 y 100),
-  ruleta rusa (truco secreto: un nombre apuntado con espacio al final nunca pierde), easter egg 🍣 (5 toques → frase).
+  ruleta rusa (truco secreto: un nombre apuntado con espacio al final nunca pierde), plato sorpresa (un plato al azar
+  entre los que se sirven ahora), duelo de reflejos al mejor de 3 (`<dialog id="arena">` a pantalla completa partido en dos;
+  el marcador de la pantalla cuenta duelos ganados),
+  piedra, papel o tijera para dos jugadores por turnos con un móvil
+  (el 1 elige sin que se vea, luego el 2; marcador y rondas jugadas), adivina el plato (preguntas sin fin código ↔ nombre; aciertos, fallos y racha; mejor racha en `localStorage.rachaAdivinaNakoya`;
+  no hay fotos de los platos, solo enlace a Google Imágenes), el dedo elegido (`<dialog id="dedos">`: varios dedos a la vez,
+  3 s quietos y elige uno), cara o cruz (moneda 3D con la N), atrapa el sushi (piezas que caen, 3 vidas, récord en
+  `localStorage.recordAtrapaNakoya`; se para al salir de la pantalla) y easter egg 🍣 (5 toques → frase).
+  Los pitidos de los juegos se generan con Web Audio (`pitido()`), sin archivos.
 - Diseño: negro (`--ground #0b0a09`), rojo hinomaru (`--accent #e23b2e`), Inter + GangOfThree para la marca, iconos Bootstrap Icons 1.11.3.
 
 ### Reglas de diseño (el usuario es muy detallista)

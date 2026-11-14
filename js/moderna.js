@@ -997,6 +997,14 @@
             icono.classList.toggle(normal, !activo);
             icono.classList.toggle(ICONOS_RELLENOS[normal], activo);
         });
+
+        //El plato sorpresa depende del pedido: al entrar se refresca por si ha cambiado.
+        if (vista === "sorpresa") {
+            sorpresa.actual = null;
+            pintarPlatoSorpresa();
+        }
+        //Atrapa el sushi se para si se sale de su pantalla a mitad de partida.
+        if (vista !== "atrapa") detenerAtrapa();
         window.scrollTo(0, 0);
     }
 
@@ -1334,7 +1342,12 @@
         let svg = "<svg viewBox=\"-100 -100 200 200\" role=\"img\" aria-label=\"Ruleta con " + n + (n === 1 ? " nombre" : " nombres") + "\">";
 
         if (n < 2) {
-            svg += "<circle r=\"98\" fill=\"#2a2725\"/><text class=\"ruleta-texto-vacio\" text-anchor=\"middle\" dominant-baseline=\"middle\">Añade nombres</text>";
+            //Sin nombres la rueda vuelve recta (si se habia girado antes, el texto saldria torcido).
+            giroRuleta = 0;
+            $("#ruletaRueda").style.transition = "none";
+            $("#ruletaRueda").style.transform = "none";
+            //El texto va por encima del circulo central para que no lo tape.
+            svg += "<circle r=\"98\" fill=\"#2a2725\"/><text class=\"ruleta-texto-vacio\" y=\"-42\" text-anchor=\"middle\" dominant-baseline=\"middle\">Añade nombres</text>";
         } else {
             const paso = 360 / n;
             const tamLetra = n <= 4 ? 13 : (n <= 8 ? 11 : 9);
@@ -1445,6 +1458,770 @@
     pintarSugerencias();
     pintarJugadores();
 
+    // ------------------------------------------------------------------ SONIDOS DE LOS JUEGOS
+
+    //Pitidos generados por el navegador (sin archivos de audio). El contexto se crea en el primer toque.
+    let contextoAudio = null;
+    function pitido(frecuencia, duracion) {
+        try {
+            const Contexto = window.AudioContext || window.webkitAudioContext;
+            if (!Contexto) return;
+            contextoAudio = contextoAudio || new Contexto();
+            const t = contextoAudio.currentTime;
+            const oscilador = contextoAudio.createOscillator();
+            const volumen = contextoAudio.createGain();
+            oscilador.type = "triangle";
+            oscilador.frequency.value = frecuencia;
+            volumen.gain.setValueAtTime(0.2, t);
+            volumen.gain.exponentialRampToValueAtTime(0.001, t + duracion);
+            oscilador.connect(volumen);
+            volumen.connect(contextoAudio.destination);
+            oscilador.start(t);
+            oscilador.stop(t + duracion);
+        } catch (e) { }
+    }
+
+    function vibrar(patron) {
+        if (navigator.vibrate) navigator.vibrate(patron);
+    }
+
+    //Mezcla una lista al azar (Fisher-Yates con el generador criptografico).
+    function barajar(lista) {
+        for (let i = lista.length - 1; i > 0; i--) {
+            const j = numeroAlAzar(i + 1);
+            const tmp = lista[i];
+            lista[i] = lista[j];
+            lista[j] = tmp;
+        }
+        return lista;
+    }
+
+    // ------------------------------------------------------------------ DUELO DE REFLEJOS
+
+    //Al mejor de 3: gana el duelo el primero que se lleva 2 rondas.
+    //Estados: "espera" (no tocar), "ya" (rojo: gana el primero), "fin" (resultado), "listo" (toca para seguir).
+    //"rondas" es el marcador del duelo en curso; "puntos", los duelos ganados (el marcador de la pantalla).
+    const RONDAS_PARA_GANAR = 2;
+    const duelo = { puntos: [0, 0], rondas: [0, 0], estado: "parado", temporizador: null, inicio: 0 };
+    const arena = $("#arena");
+    const ladosArena = $$(".arena-lado");
+    const formatoSegundos = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+
+    function textoLado(n, html) {
+        ladosArena[n - 1].querySelector(".arena-texto").innerHTML = html;
+    }
+
+    function pintarMarcadorDuelo() {
+        $("#dueloPuntos1").textContent = duelo.puntos[0];
+        $("#dueloPuntos2").textContent = duelo.puntos[1];
+    }
+
+    //Rondas del duelo en curso vistas por cada jugador: "Vas 1 – 0".
+    function marcadorDesde(n) {
+        const mios = duelo.rondas[n - 1];
+        const suyos = duelo.rondas[n === 1 ? 1 : 0];
+        return "<small class=\"arena-marcador\">Vas " + mios + " – " + suyos + "</small>";
+    }
+
+    function dueloTerminado() {
+        return duelo.rondas[0] >= RONDAS_PARA_GANAR || duelo.rondas[1] >= RONDAS_PARA_GANAR;
+    }
+
+    function nuevaRondaDuelo() {
+        clearTimeout(duelo.temporizador);
+        //Si el duelo anterior ya se decidio, esta ronda abre la revancha desde 0 – 0.
+        if (dueloTerminado()) duelo.rondas = [0, 0];
+        const ronda = duelo.rondas[0] + duelo.rondas[1] + 1;
+        duelo.estado = "espera";
+        arena.dataset.estado = "espera";
+        ladosArena.forEach(function (l) { l.classList.remove("gana", "pierde"); });
+        const cabecera = "<small class=\"arena-ronda\">Ronda " + ronda + " · al mejor de 3</small>";
+        textoLado(1, "Espera…" + cabecera + marcadorDesde(1));
+        textoLado(2, "Espera…" + cabecera + marcadorDesde(2));
+        //Entre 1,5 y 5 segundos al azar para que nadie pueda adivinar el momento.
+        duelo.temporizador = setTimeout(function () {
+            duelo.estado = "ya";
+            duelo.inicio = performance.now();
+            arena.dataset.estado = "ya";
+            textoLado(1, "¡TOCA!");
+            textoLado(2, "¡TOCA!");
+            pitido(880, 0.15);
+            vibrar(60);
+        }, 1500 + numeroAlAzar(3500));
+    }
+
+    function terminarRondaDuelo(ganador, adelantado) {
+        clearTimeout(duelo.temporizador);
+        const tiempo = (performance.now() - duelo.inicio) / 1000;
+        const perdedor = ganador === 1 ? 2 : 1;
+        duelo.estado = "fin";
+        arena.dataset.estado = "fin";
+        duelo.rondas[ganador - 1]++;
+        const final = dueloTerminado();
+        if (final) {
+            duelo.puntos[ganador - 1]++;
+            pintarMarcadorDuelo();
+        }
+        ladosArena[ganador - 1].classList.add("gana");
+        ladosArena[perdedor - 1].classList.add("pierde");
+
+        //Titulares: la ronda o, si se decide el duelo, el duelo entero.
+        const tituloGanador = final ? "¡Ganas el duelo!" : "¡Ganas la ronda!";
+        const tituloPerdedor = final ? "Pierdes el duelo" : (adelantado ? "¡Te has adelantado!" : "Pierdes la ronda");
+        const detalle = adelantado ? "<small>El otro se ha adelantado</small>" : "<small>" + formatoSegundos.format(tiempo) + " s</small>";
+        textoLado(ganador, tituloGanador + detalle + marcadorDesde(ganador));
+        textoLado(perdedor, tituloPerdedor + (final && adelantado ? "<small>Te has adelantado</small>" : "") + marcadorDesde(perdedor));
+
+        if (final) {
+            [523, 659, 784].forEach(function (f, i) { setTimeout(function () { pitido(f, 0.2); }, i * 140); });
+            vibrar([80, 50, 80, 50, 200]);
+        } else {
+            pitido(adelantado ? 220 : 660, 0.3);
+            vibrar([80, 50, 80]);
+        }
+        //Duelo decidido: se ensena el resultado un momento y se vuelve solo a la pantalla del juego.
+        if (final) {
+            const quien = ganador === 1 ? "el jugador de arriba" : "el jugador de abajo";
+            $("#dueloUltimo").textContent = "Último duelo: ganó " + quien + " " + duelo.rondas[ganador - 1] + " – " + duelo.rondas[perdedor - 1];
+            duelo.temporizador = setTimeout(function () { arena.close(); }, 2500);
+            return;
+        }
+        //Pausa corta antes de seguir (asi un toque tardio no empieza la siguiente ronda sin querer).
+        duelo.temporizador = setTimeout(function () {
+            duelo.estado = "listo";
+            ladosArena.forEach(function (l) {
+                l.querySelector(".arena-texto").insertAdjacentHTML("beforeend", "<small class=\"arena-otra\">Toca para la siguiente ronda</small>");
+            });
+        }, 1200);
+    }
+
+    ladosArena.forEach(function (lado) {
+        //pointerdown responde al instante (sin esperar al "click") y admite los dos dedos a la vez.
+        lado.addEventListener("pointerdown", function (e) {
+            e.preventDefault();
+            const n = parseInt(lado.dataset.lado, 10);
+            if (duelo.estado === "espera") terminarRondaDuelo(n === 1 ? 2 : 1, true);
+            else if (duelo.estado === "ya") terminarRondaDuelo(n, false);
+            else if (duelo.estado === "listo") nuevaRondaDuelo();
+        });
+    });
+
+    //Cada vez que se entra en la arena empieza un duelo nuevo desde 0 – 0.
+    $("#dueloEmpezar").addEventListener("click", function () {
+        duelo.rondas = [0, 0];
+        arena.showModal();
+        nuevaRondaDuelo();
+    });
+
+    $("#arenaCerrar").addEventListener("click", function () { arena.close(); });
+
+    arena.addEventListener("close", function () {
+        clearTimeout(duelo.temporizador);
+        duelo.estado = "parado";
+    });
+
+    $("#dueloReiniciar").addEventListener("click", function () {
+        duelo.puntos = [0, 0];
+        duelo.rondas = [0, 0];
+        pintarMarcadorDuelo();
+        $("#dueloUltimo").textContent = "";
+    });
+
+    // ------------------------------------------------------------------ PIEDRA, PAPEL O TIJERA
+
+    //Dos jugadores con un solo movil, por turnos: primero elige el jugador 1 (sin que se vea que eligio),
+    //luego el jugador 2 y entonces se cuenta "Piedra… Papel… ¡Tijera!" y se ensenan las dos manos.
+    //Fases: "j1" (elige el 1), "j2" (elige el 2), "cuenta" (animacion) y "fin" (resultado, boton "Otra ronda").
+    const MANOS = { piedra: "✊", papel: "✋", tijera: "✌️" };
+    const GANA_A = { piedra: "tijera", papel: "piedra", tijera: "papel" };
+    const jkp = { puntos: [0, 0], rondas: 0, fase: "j1", eleccion1: null };
+
+    //Marcador y rondas jugadas (los empates tambien cuentan como ronda).
+    function pintarMarcadorJkp() {
+        $("#jkpPuntos1").textContent = jkp.puntos[0];
+        $("#jkpPuntos2").textContent = jkp.puntos[1];
+        $("#jkpRondas").textContent = jkp.rondas;
+    }
+
+    //Texto del turno, botones activos y el jugador al que le toca resaltado.
+    function pintarTurnoJkp() {
+        const turno = $("#jkpTurno");
+        if (jkp.fase === "j1") {
+            turno.className = "jkp-turno";
+            turno.innerHTML = "Turno del <b>Jugador 1</b>: elige sin que mire el otro";
+        } else if (jkp.fase === "j2") {
+            turno.className = "jkp-turno";
+            turno.innerHTML = "Jugador 1 ya ha elegido. Pasa el móvil: turno del <b>Jugador 2</b>";
+        }
+        const eligiendo = jkp.fase === "j1" || jkp.fase === "j2";
+        $$(".jkp-opcion").forEach(function (b) { b.disabled = !eligiendo; });
+        $("#jkpOpciones").hidden = jkp.fase === "fin";
+        $("#jkpOtra").hidden = jkp.fase !== "fin";
+        $("#jkpLado1").classList.toggle("activo", jkp.fase === "j1");
+        $("#jkpLado2").classList.toggle("activo", jkp.fase === "j2");
+    }
+
+    function nuevaRondaJkp() {
+        jkp.fase = "j1";
+        jkp.eleccion1 = null;
+        $("#jkpMano1").textContent = MANOS.piedra;
+        $("#jkpMano2").textContent = MANOS.piedra;
+        $("#jkpTexto").textContent = "VS";
+        $("#jkpLado1").classList.remove("ganador");
+        $("#jkpLado2").classList.remove("ganador");
+        pintarTurnoJkp();
+    }
+
+    function jugarJkp(eleccion1, eleccion2) {
+        jkp.fase = "cuenta";
+        pintarTurnoJkp();
+        const mano1 = $("#jkpMano1");
+        const mano2 = $("#jkpMano2");
+        const texto = $("#jkpTexto");
+        const turno = $("#jkpTurno");
+        turno.textContent = "";
+        [mano1, mano2].forEach(function (m) {
+            m.textContent = MANOS.piedra;
+            m.classList.remove("agitar");
+            void m.offsetWidth;
+            m.classList.add("agitar");
+        });
+
+        //"Piedra… Papel… ¡Tijera!" con un pitido en cada palabra; en "¡Tijera!" se ensenan las manos.
+        const pasos = [["Piedra", 523], ["Papel", 587], ["¡Tijera!", 784]];
+        pasos.forEach(function (paso, i) {
+            setTimeout(function () {
+                texto.textContent = paso[0];
+                pitido(paso[1], i === 2 ? 0.25 : 0.12);
+                if (i < 2) return;
+
+                mano1.textContent = MANOS[eleccion1];
+                mano2.textContent = MANOS[eleccion2];
+                jkp.rondas++;
+                turno.className = "jkp-turno jkp-resultado";
+                if (eleccion1 === eleccion2) {
+                    turno.textContent = "Empate";
+                } else {
+                    const ganador = GANA_A[eleccion1] === eleccion2 ? 1 : 2;
+                    jkp.puntos[ganador - 1]++;
+                    turno.textContent = "Gana el Jugador " + ganador;
+                    $("#jkpLado" + ganador).classList.add("ganador");
+                    vibrar([60, 40, 60]);
+                }
+                pintarMarcadorJkp();
+                jkp.fase = "fin";
+                pintarTurnoJkp();
+            }, i * 450);
+        });
+    }
+
+    $$(".jkp-opcion").forEach(function (boton) {
+        boton.addEventListener("click", function () {
+            if (jkp.fase === "j1") {
+                //La eleccion del jugador 1 no se marca en pantalla, para que el jugador 2 no la vea.
+                jkp.eleccion1 = boton.dataset.mano;
+                jkp.fase = "j2";
+                pitido(440, 0.08);
+                vibrar(30);
+                pintarTurnoJkp();
+            } else if (jkp.fase === "j2") {
+                jugarJkp(jkp.eleccion1, boton.dataset.mano);
+            }
+        });
+    });
+
+    $("#jkpOtra").addEventListener("click", nuevaRondaJkp);
+
+    $("#jkpReiniciar").addEventListener("click", function () {
+        jkp.puntos = [0, 0];
+        jkp.rondas = 0;
+        pintarMarcadorJkp();
+        nuevaRondaJkp();
+    });
+
+    nuevaRondaJkp();
+
+    // ------------------------------------------------------------------ ADIVINA EL PLATO
+
+    //Preguntas sin fin: unas veces el nombre (¿que numero tiene?) y otras el numero (¿que plato es?).
+    //Se cuentan aciertos, fallos y la racha de aciertos seguidos; la mejor racha se guarda como record.
+    const CLAVE_ADIVINA = "rachaAdivinaNakoya";
+    const SIN_REPETIR = 10; //No vuelven a salir los platos de las ultimas 10 preguntas.
+    const adivina = { pregunta: null, recientes: [], aciertos: 0, fallos: 0, racha: 0, respondida: false };
+
+    function recordAdivina() {
+        const guardado = parseInt(leerStorage(CLAVE_ADIVINA), 10);
+        return guardado > 0 ? guardado : 0;
+    }
+
+    //Opciones falsas: para "¿que numero tiene?" se eligen numeros cercanos, que es mas dificil.
+    function crearPregunta(plato) {
+        const tipo = numeroAlAzar(2) === 0 ? "numero" : "nombre";
+        let candidatos = platos.filter(function (p) { return p.codigo !== plato.codigo; });
+        if (tipo === "numero") {
+            candidatos.sort(function (a, b) {
+                return Math.abs(numeroPlato(a.codigo) - numeroPlato(plato.codigo)) - Math.abs(numeroPlato(b.codigo) - numeroPlato(plato.codigo));
+            });
+            candidatos = candidatos.slice(0, 10);
+        }
+        const falsas = barajar(candidatos).slice(0, 3);
+        return { plato: plato, tipo: tipo, opciones: barajar([plato].concat(falsas)) };
+    }
+
+    //Siguiente pregunta: un plato al azar que no haya salido en las ultimas preguntas.
+    function siguientePreguntaAdivina() {
+        const posibles = platos.filter(function (p) { return !adivina.recientes.includes(p.codigo); });
+        const plato = posibles[numeroAlAzar(posibles.length)];
+        adivina.recientes.push(plato.codigo);
+        if (adivina.recientes.length > SIN_REPETIR) adivina.recientes.shift();
+        adivina.pregunta = crearPregunta(plato);
+        pintarPreguntaAdivina();
+    }
+
+    function pintarCabeceraAdivina() {
+        $("#adivinaProgreso").innerHTML = "Aciertos <b>" + adivina.aciertos + "</b> · Fallos <b>" + adivina.fallos + "</b>";
+        $("#adivinaAciertos").innerHTML = "Racha <b>" + adivina.racha + "</b> · Récord <b>" + recordAdivina() + "</b>";
+    }
+
+    function pintarPreguntaAdivina() {
+        const pregunta = adivina.pregunta;
+        adivina.respondida = false;
+        pintarCabeceraAdivina();
+        const enunciado = pregunta.tipo === "numero"
+            ? "¿Qué número tiene <b>«" + escaparHtml(pregunta.plato.nombre) + "»</b>?"
+            : "¿Qué plato es el <b class=\"num\">" + pregunta.plato.codigo + "</b>?";
+        $("#adivinaJuego").innerHTML = "<p class=\"adivina-pregunta\">" + enunciado + "</p>" +
+            "<div class=\"adivina-opciones\">" + pregunta.opciones.map(function (p) {
+                return "<button type=\"button\" class=\"adivina-opcion" + (pregunta.tipo === "numero" ? " num" : "") + "\" data-opcion=\"" + p.codigo + "\">" +
+                    (pregunta.tipo === "numero" ? p.codigo : escaparHtml(p.nombre)) + "</button>";
+            }).join("") + "</div>" +
+            "<div class=\"adivina-pie\" id=\"adivinaPie\"></div>";
+    }
+
+    function responderAdivina(codigo) {
+        if (adivina.respondida) return;
+        adivina.respondida = true;
+        const pregunta = adivina.pregunta;
+        const acierto = codigo === pregunta.plato.codigo;
+        let nuevoRecord = false;
+        if (acierto) {
+            adivina.aciertos++;
+            adivina.racha++;
+            if (adivina.racha > recordAdivina()) {
+                escribirStorage(CLAVE_ADIVINA, adivina.racha);
+                nuevoRecord = adivina.racha > 1;
+            }
+        } else {
+            adivina.fallos++;
+            adivina.racha = 0;
+        }
+        pitido(acierto ? 784 : 220, 0.2);
+        vibrar(acierto ? (nuevoRecord ? [60, 40, 60] : 30) : 80);
+
+        $$("#adivinaJuego .adivina-opcion").forEach(function (b) {
+            b.disabled = true;
+            if (b.dataset.opcion === pregunta.plato.codigo) b.classList.add("correcta");
+            else if (b.dataset.opcion === codigo) b.classList.add("fallo");
+        });
+        pintarCabeceraAdivina();
+
+        const nombre = pregunta.plato.nombre;
+        $("#adivinaPie").innerHTML =
+            (nuevoRecord ? "<p class=\"adivina-record\">¡Nuevo récord: " + adivina.racha + " seguidos!</p>" : "") +
+            "<p class=\"adivina-solucion\">" + (acierto ? "¡Correcto! " : "Era ") + "<b class=\"num\">" + pregunta.plato.codigo + "</b> · " + escaparHtml(nombre) + "</p>" +
+            "<a class=\"accion-texto\" href=\"https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(nombre.replace(/"/g, "")) + "\" target=\"_blank\" rel=\"noopener\">Ver fotos del plato</a>" +
+            "<button type=\"button\" class=\"btn btn-principal juego-boton\" data-adivina=\"siguiente\">Siguiente</button>";
+    }
+
+    $("#adivinaJuego").addEventListener("click", function (e) {
+        const opcion = e.target.closest("[data-opcion]");
+        if (opcion) {
+            responderAdivina(opcion.dataset.opcion);
+            return;
+        }
+        if (e.target.closest("[data-adivina=\"siguiente\"]")) siguientePreguntaAdivina();
+    });
+
+    //"Empezar de cero": contadores a 0 (el record de racha se conserva).
+    $("#adivinaReiniciar").addEventListener("click", function () {
+        adivina.aciertos = 0;
+        adivina.fallos = 0;
+        adivina.racha = 0;
+        siguientePreguntaAdivina();
+    });
+
+    siguientePreguntaAdivina();
+
+    // ------------------------------------------------------------------ PLATO SORPRESA
+
+    const sorpresa = { actual: null, animando: false };
+
+    //Platos que se pueden sortear: los que se sirven ahora (aunque ya esten en el pedido).
+    function platosSorteables(excluir) {
+        return platos.filter(function (p) {
+            return disponible(p) && !(excluir || []).includes(p.codigo);
+        });
+    }
+
+    function htmlPlatoSorpresa(p) {
+        return "<span class=\"sorpresa-codigo num\" translate=\"no\">" + p.codigo + "</span>" +
+            "<span class=\"sorpresa-nombre\">" + nombreConEmojis(p) + "</span>";
+    }
+
+    function pintarBotonSorpresa() {
+        const boton = $("#sorpresaAnadir");
+        const dentro = sorpresa.actual && enPedido(sorpresa.actual.codigo);
+        boton.disabled = !sorpresa.actual || dentro || sorpresa.animando;
+        boton.innerHTML = dentro
+            ? "<i class=\"bi bi-check-lg\" aria-hidden=\"true\"></i>Añadido"
+            : "<i class=\"bi bi-plus-lg\" aria-hidden=\"true\"></i>Añadir al pedido";
+    }
+
+    //Sin plato (al entrar en la pantalla): una incognita hasta que se pulse "Sortear plato".
+    function pintarPlatoSorpresa() {
+        const caja = $("#sorpresaPlato");
+        $("#sorpresaOtro").innerHTML = "<i class=\"bi bi-shuffle\" aria-hidden=\"true\"></i>" + (sorpresa.actual ? "Otro plato" : "Sortear plato");
+        if (!sorpresa.actual) {
+            caja.innerHTML = "<span class=\"sorpresa-codigo sorpresa-incognita\" aria-hidden=\"true\">?</span>" +
+                "<span class=\"sorpresa-nombre sorpresa-pista\">¿Qué te toca hoy?</span>";
+        } else {
+            caja.innerHTML = htmlPlatoSorpresa(sorpresa.actual) +
+                "<a class=\"accion-texto\" href=\"https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(sorpresa.actual.nombre.replace(/"/g, "")) +
+                "\" target=\"_blank\" rel=\"noopener\">Ver fotos del plato</a>";
+        }
+        pintarBotonSorpresa();
+    }
+
+    //Sortea un plato. Con animacion, los nombres pasan rapido unas decimas antes de pararse.
+    function sortearPlato(animar) {
+        const candidatos = platosSorteables(sorpresa.actual ? [sorpresa.actual.codigo] : []);
+        const lista = candidatos.length ? candidatos : platosSorteables();
+        if (lista.length === 0) {
+            sorpresa.actual = null;
+            pintarPlatoSorpresa();
+            return;
+        }
+        const elegido = lista[numeroAlAzar(lista.length)];
+        const sinMovimiento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (!animar || sinMovimiento || sorpresa.animando) {
+            sorpresa.actual = elegido;
+            pintarPlatoSorpresa();
+            return;
+        }
+        sorpresa.animando = true;
+        pintarBotonSorpresa();
+        const caja = $("#sorpresaPlato");
+        caja.classList.add("barajando");
+        let pasos = 0;
+        const intervalo = setInterval(function () {
+            caja.innerHTML = htmlPlatoSorpresa(lista[numeroAlAzar(lista.length)]);
+            if (++pasos >= 12) {
+                clearInterval(intervalo);
+                caja.classList.remove("barajando");
+                sorpresa.animando = false;
+                sorpresa.actual = elegido;
+                pintarPlatoSorpresa();
+                pitido(660, 0.15);
+            }
+        }, 70);
+    }
+
+    $("#sorpresaOtro").addEventListener("click", function () { sortearPlato(true); });
+
+    $("#sorpresaAnadir").addEventListener("click", function () {
+        if (!sorpresa.actual || enPedido(sorpresa.actual.codigo)) return;
+        pedido.push({ codigo: sorpresa.actual.codigo, cantidad: 1 });
+        guardarYPintarPedido(sorpresa.actual.codigo);
+        avisar(sorpresa.actual.codigo + " añadido al pedido");
+        pintarBotonSorpresa();
+    });
+
+    // ------------------------------------------------------------------ EL DEDO ELEGIDO
+
+    //Cada dedo en la pantalla es un circulo. Con 2 o mas dedos quietos (sin poner ni quitar ninguno)
+    //durante 3 segundos, se elige uno al azar. Al levantar todos los dedos se puede repetir.
+    const ESPERA_DEDOS = 3000;
+    const COLORES_DEDO = ["#ffffff", "#e5a93b", "#7ee2a8", "#7cb4ff", "#d58cff", "#ff8b80"];
+    const dedos = { toques: new Map(), estado: "esperando", temporizador: null, colores: 0 };
+    const capaDedos = $("#dedos");
+
+    function textoDedos() {
+        const n = dedos.toques.size;
+        const texto = $("#dedosTexto");
+        if (dedos.estado === "elegido") texto.textContent = "¡Elegido! Levantad los dedos para repetir";
+        else if (n === 0) texto.textContent = "Poned un dedo cada uno";
+        else if (n === 1) texto.textContent = "Falta al menos otro dedo";
+        else texto.textContent = "¡Quietos!…";
+    }
+
+    //Cada vez que entra o sale un dedo, la cuenta de 3 segundos vuelve a empezar.
+    function programarEleccionDedo() {
+        clearTimeout(dedos.temporizador);
+        capaDedos.classList.remove("contando");
+        if (dedos.estado !== "esperando" || dedos.toques.size < 2) return;
+        void capaDedos.offsetWidth;
+        capaDedos.classList.add("contando");
+        dedos.temporizador = setTimeout(elegirDedo, ESPERA_DEDOS);
+    }
+
+    function elegirDedo() {
+        const ids = Array.from(dedos.toques.keys());
+        const elegido = ids[numeroAlAzar(ids.length)];
+        dedos.estado = "elegido";
+        capaDedos.classList.remove("contando");
+        dedos.toques.forEach(function (toque, id) {
+            toque.el.classList.add(id === elegido ? "elegido" : "descartado");
+        });
+        pitido(784, 0.3);
+        vibrar([100, 50, 200]);
+        textoDedos();
+    }
+
+    function colocarDedo(el, e) {
+        el.style.left = e.clientX + "px";
+        el.style.top = e.clientY + "px";
+    }
+
+    function reiniciarDedos() {
+        clearTimeout(dedos.temporizador);
+        dedos.toques.forEach(function (toque) { toque.el.remove(); });
+        dedos.toques.clear();
+        dedos.estado = "esperando";
+        dedos.colores = 0;
+        capaDedos.classList.remove("contando");
+        textoDedos();
+    }
+
+    capaDedos.addEventListener("pointerdown", function (e) {
+        if (e.target.closest(".arena-cerrar")) return;
+        e.preventDefault();
+        if (dedos.estado === "elegido") return;
+        const el = document.createElement("span");
+        el.className = "dedo";
+        el.style.setProperty("--color", COLORES_DEDO[dedos.colores++ % COLORES_DEDO.length]);
+        colocarDedo(el, e);
+        capaDedos.appendChild(el);
+        dedos.toques.set(e.pointerId, { el: el });
+        vibrar(20);
+        textoDedos();
+        programarEleccionDedo();
+    });
+
+    capaDedos.addEventListener("pointermove", function (e) {
+        const toque = dedos.toques.get(e.pointerId);
+        if (toque) colocarDedo(toque.el, e);
+    });
+
+    function soltarDedo(e) {
+        const toque = dedos.toques.get(e.pointerId);
+        if (!toque) return;
+        toque.el.remove();
+        dedos.toques.delete(e.pointerId);
+        if (dedos.estado === "elegido") {
+            if (dedos.toques.size === 0) reiniciarDedos();
+            return;
+        }
+        textoDedos();
+        programarEleccionDedo();
+    }
+    capaDedos.addEventListener("pointerup", soltarDedo);
+    capaDedos.addEventListener("pointercancel", soltarDedo);
+
+    $("#dedoEmpezar").addEventListener("click", function () {
+        reiniciarDedos();
+        capaDedos.showModal();
+    });
+    $("#dedosCerrar").addEventListener("click", function () { capaDedos.close(); });
+    capaDedos.addEventListener("close", reiniciarDedos);
+
+    // ------------------------------------------------------------------ CARA O CRUZ
+
+    //La moneda sube, gira sobre si misma y cae en cara (N de Nakoya) o cruz.
+    const moneda = { caras: 0, cruces: 0, giro: 0, lanzando: false };
+
+    function pintarMarcadorMoneda() {
+        $("#monedaCaras").textContent = moneda.caras;
+        $("#monedaCruces").textContent = moneda.cruces;
+    }
+
+    $("#monedaLanzar").addEventListener("click", function () {
+        if (moneda.lanzando) return;
+        moneda.lanzando = true;
+        const cara = numeroAlAzar(2) === 0;
+        const sinMovimiento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const duracion = sinMovimiento ? 300 : 1400;
+        const vueltas = sinMovimiento ? 1 : 6;
+        const pieza = $("#moneda");
+        const vuelo = $("#monedaVuelo");
+
+        moneda.giro = moneda.giro - (moneda.giro % 360) + vueltas * 360 + (cara ? 0 : 180);
+        pieza.style.transition = "transform " + duracion + "ms cubic-bezier(0.25, 0.6, 0.35, 1)";
+        pieza.style.transform = "rotateX(" + moneda.giro + "deg)";
+        vuelo.style.animationDuration = duracion + "ms";
+        vuelo.classList.remove("lanzando");
+        void vuelo.offsetWidth;
+        vuelo.classList.add("lanzando");
+        $("#monedaResultado").textContent = "";
+        $("#monedaLanzar").disabled = true;
+        pitido(523, 0.08);
+
+        setTimeout(function () {
+            if (cara) moneda.caras++;
+            else moneda.cruces++;
+            pintarMarcadorMoneda();
+            $("#monedaResultado").textContent = cara ? "¡Cara!" : "¡Cruz!";
+            pitido(cara ? 784 : 659, 0.2);
+            vibrar(60);
+            moneda.lanzando = false;
+            $("#monedaLanzar").disabled = false;
+        }, duracion);
+    });
+
+    $("#monedaReiniciar").addEventListener("click", function () {
+        moneda.caras = 0;
+        moneda.cruces = 0;
+        pintarMarcadorMoneda();
+        $("#monedaResultado").textContent = "";
+    });
+
+    // ------------------------------------------------------------------ ATRAPA EL SUSHI
+
+    //Caen piezas y hay que tocarlas antes de que lleguen abajo. Cada pieza atrapada acelera el juego.
+    //3 vidas; el record se guarda en el dispositivo.
+    const PIEZAS_SUSHI = ["\u{1F363}", "\u{1F364}", "\u{1F359}", "\u{1F95F}", "\u{1F365}"];
+    const CLAVE_ATRAPA = "recordAtrapaNakoya";
+    const VIDAS_ATRAPA = 3;
+    const atrapa = { jugando: false, puntos: 0, vidas: VIDAS_ATRAPA, piezas: [], ultimo: 0, espera: 0, velocidad: 0, intervalo: 0, animacion: null };
+    const zonaAtrapa = $("#atrapaZona");
+
+    function recordAtrapa() {
+        const guardado = parseInt(leerStorage(CLAVE_ATRAPA), 10);
+        return guardado > 0 ? guardado : 0;
+    }
+
+    function pintarAtrapa() {
+        $("#atrapaPuntos").textContent = atrapa.puntos;
+        $("#atrapaRecord").textContent = recordAtrapa();
+        let corazones = "";
+        for (let i = 0; i < VIDAS_ATRAPA; i++) {
+            corazones += "<span class=\"" + (i < atrapa.vidas ? "vida" : "vida perdida") + "\">❤️</span>";
+        }
+        $("#atrapaVidas").innerHTML = corazones;
+        $("#atrapaVidas").setAttribute("aria-label", atrapa.vidas + (atrapa.vidas === 1 ? " vida" : " vidas"));
+    }
+
+    function quitarPiezas() {
+        atrapa.piezas.forEach(function (p) { p.el.remove(); });
+        atrapa.piezas = [];
+    }
+
+    function crearPieza() {
+        const el = document.createElement("span");
+        el.className = "pieza";
+        el.textContent = PIEZAS_SUSHI[numeroAlAzar(PIEZAS_SUSHI.length)];
+        const ancho = zonaAtrapa.clientWidth;
+        el.style.left = numeroAlAzar(Math.max(1, ancho - 52)) + "px";
+        zonaAtrapa.appendChild(el);
+        atrapa.piezas.push({ el: el, y: -52 });
+    }
+
+    function bucleAtrapa(t) {
+        if (!atrapa.jugando) return;
+        const dt = Math.min(0.05, (t - atrapa.ultimo) / 1000);
+        atrapa.ultimo = t;
+        atrapa.espera -= dt * 1000;
+        if (atrapa.espera <= 0) {
+            crearPieza();
+            atrapa.espera = atrapa.intervalo;
+        }
+        const alto = zonaAtrapa.clientHeight;
+        atrapa.piezas = atrapa.piezas.filter(function (p) {
+            p.y += atrapa.velocidad * dt;
+            p.el.style.transform = "translateY(" + p.y + "px)";
+            if (p.y < alto) return true;
+            //Se ha escapado: una vida menos.
+            p.el.remove();
+            atrapa.vidas--;
+            zonaAtrapa.classList.remove("fallo");
+            void zonaAtrapa.offsetWidth;
+            zonaAtrapa.classList.add("fallo");
+            pitido(196, 0.2);
+            vibrar(120);
+            pintarAtrapa();
+            return false;
+        });
+        if (atrapa.vidas <= 0) {
+            finAtrapa();
+            return;
+        }
+        atrapa.animacion = requestAnimationFrame(bucleAtrapa);
+    }
+
+    function empezarAtrapa() {
+        quitarPiezas();
+        atrapa.puntos = 0;
+        atrapa.vidas = VIDAS_ATRAPA;
+        atrapa.velocidad = 130;
+        atrapa.intervalo = 1100;
+        atrapa.espera = 0;
+        atrapa.jugando = true;
+        $("#atrapaPortada").hidden = true;
+        pintarAtrapa();
+        atrapa.ultimo = performance.now();
+        atrapa.animacion = requestAnimationFrame(bucleAtrapa);
+    }
+
+    function finAtrapa() {
+        atrapa.jugando = false;
+        cancelAnimationFrame(atrapa.animacion);
+        quitarPiezas();
+        const anterior = recordAtrapa();
+        const nuevoRecord = atrapa.puntos > anterior;
+        if (nuevoRecord) escribirStorage(CLAVE_ATRAPA, atrapa.puntos);
+        pintarAtrapa();
+        $("#atrapaMensaje").innerHTML = "<b class=\"atrapa-total num\">" + atrapa.puntos + "</b>" +
+            (atrapa.puntos === 1 ? "pieza atrapada" : "piezas atrapadas") +
+            (nuevoRecord ? "<span class=\"adivina-record\">¡Nuevo récord!</span>" : "");
+        $("#atrapaEmpezar").innerHTML = "<i class=\"bi bi-arrow-repeat\" aria-hidden=\"true\"></i>Jugar otra vez";
+        $("#atrapaPortada").hidden = false;
+        if (nuevoRecord) vibrar([60, 40, 60, 40, 120]);
+    }
+
+    //Si se sale de la pantalla a mitad de partida, el juego se para (sin contar como record).
+    function detenerAtrapa() {
+        if (!atrapa.jugando) return;
+        atrapa.jugando = false;
+        cancelAnimationFrame(atrapa.animacion);
+        quitarPiezas();
+        $("#atrapaMensaje").textContent = "Partida interrumpida. ¿Otra?";
+        $("#atrapaEmpezar").innerHTML = "<i class=\"bi bi-play-fill\" aria-hidden=\"true\"></i>Empezar";
+        $("#atrapaPortada").hidden = false;
+    }
+
+    //Se atrapa al tocar (pointerdown responde al instante, sin esperar al "click").
+    zonaAtrapa.addEventListener("pointerdown", function (e) {
+        const el = e.target.closest(".pieza");
+        if (!el || !atrapa.jugando || el.classList.contains("atrapada")) return;
+        e.preventDefault();
+        atrapa.piezas = atrapa.piezas.filter(function (p) { return p.el !== el; });
+        el.classList.add("atrapada");
+        setTimeout(function () { el.remove(); }, 200);
+        atrapa.puntos++;
+        //Cada vez mas rapido y mas seguido, con un tope para que siga siendo posible.
+        atrapa.velocidad = Math.min(130 + atrapa.puntos * 7, 460);
+        atrapa.intervalo = Math.max(1100 - atrapa.puntos * 28, 360);
+        pitido(660 + Math.min(atrapa.puntos, 20) * 15, 0.06);
+        pintarAtrapa();
+    });
+
+    $("#atrapaEmpezar").addEventListener("click", empezarAtrapa);
+
+    document.addEventListener("visibilitychange", function () {
+        if (document.hidden) detenerAtrapa();
+    });
+
+    pintarAtrapa();
+
     window.addEventListener("hashchange", mostrarVista);
 
     //Si se cambia el pedido en otra pestaña (o en la Legacy abierta a la vez), lo recargamos.
@@ -1472,6 +2249,8 @@
     actualizarTodo();
     pintarRondas();
     importarPedidoCompartido();
+    //El plato sorpresa empieza sin plato (la incognita).
+    pintarPlatoSorpresa();
 
     setInterval(actualizarCuentaAtras, 1000);
 

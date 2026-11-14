@@ -215,6 +215,41 @@
                         <span class="extra-texto"><b>Ruleta rusa</b><small>Gira la ruleta y al que le toque, que cumpla el reto</small></span>
                         <i class="bi bi-chevron-right" aria-hidden="true"></i>
                     </a>
+                    <a class="extra-fila" href="#sorpresa">
+                        <span class="extra-emoji" aria-hidden="true">&#x1F3B2;</span>
+                        <span class="extra-texto"><b>Plato sorpresa</b><small>¿No sabes qué pedir? Que decida la suerte</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="extra-fila" href="#dedo">
+                        <span class="extra-emoji" aria-hidden="true">&#x261D;&#xFE0F;</span>
+                        <span class="extra-texto"><b>El dedo elegido</b><small>Todos ponen un dedo y la suerte elige</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="extra-fila" href="#moneda">
+                        <span class="extra-emoji" aria-hidden="true"><svg class="icono-moneda" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#c98a12"/><circle cx="12" cy="11" r="9.5" fill="#f5c542"/><circle cx="12" cy="11" r="6.5" fill="none" stroke="#d99a1e" stroke-width="1.4"/><path d="M8.6 7.2a5.2 5.2 0 0 1 4.6-1.6" fill="none" stroke="#fff3c4" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+                        <span class="extra-texto"><b>Cara o cruz</b><small>Lanza una moneda al aire</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="extra-fila" href="#duelo">
+                        <span class="extra-emoji" aria-hidden="true">&#x26A1;</span>
+                        <span class="extra-texto"><b>Duelo de reflejos</b><small>Dos jugadores, un móvil: el más rápido gana</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="extra-fila" href="#piedra-papel-tijera">
+                        <span class="extra-emoji" aria-hidden="true">&#x2702;&#xFE0F;</span>
+                        <span class="extra-texto"><b>Piedra, papel o tijera</b><small>Dos jugadores, un móvil: elegid por turnos</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="extra-fila" href="#adivina">
+                        <span class="extra-emoji" aria-hidden="true">&#x1F9E0;</span>
+                        <span class="extra-texto"><b>Adivina el plato</b><small>¿Qué número tiene cada plato?</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="extra-fila" href="#atrapa">
+                        <span class="extra-emoji" aria-hidden="true">&#x1F962;</span>
+                        <span class="extra-texto"><b>Atrapa el sushi</b><small>Tócalo antes de que caiga</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
                 </nav>
 
                 <!-- Easter egg como en la Legacy: 5 toques rapidos en el maki muestran una frase. -->
@@ -312,6 +347,162 @@
                 </div>
             </section>
 
+            <!-- ============================================================ EXTRAS: PLATO SORPRESA -->
+            <section class="vista" id="vista-sorpresa" data-vista="sorpresa" data-padre="extras" aria-labelledby="titulo-sorpresa" hidden>
+                <a class="volver" href="#extras"><i class="bi bi-chevron-left" aria-hidden="true"></i>Extras</a>
+                <div class="titulo-fila">
+                    <div>
+                        <h1 id="titulo-sorpresa">Plato sorpresa &#x1F3B2;</h1>
+                    </div>
+                </div>
+                <section class="panel juego-panel" aria-label="Plato al azar">
+                    <div class="sorpresa-plato" id="sorpresaPlato" aria-live="polite"></div>
+                    <div class="sorpresa-acciones">
+                        <button type="button" class="btn btn-secundario" id="sorpresaOtro"><i class="bi bi-shuffle" aria-hidden="true"></i>Otro plato</button>
+                        <button type="button" class="btn btn-principal" id="sorpresaAnadir"></button>
+                    </div>
+                </section>
+            </section>
+
+            <!-- ============================================================ EXTRAS: EL DEDO ELEGIDO -->
+            <section class="vista" id="vista-dedo" data-vista="dedo" data-padre="extras" aria-labelledby="titulo-dedo" hidden>
+                <a class="volver" href="#extras"><i class="bi bi-chevron-left" aria-hidden="true"></i>Extras</a>
+                <div class="titulo-fila">
+                    <div>
+                        <h1 id="titulo-dedo">El dedo elegido &#x261D;&#xFE0F;</h1>
+                        <p class="subtitulo">Cada uno pone un dedo en la pantalla. Sin moverlos, a los 3 segundos la suerte elige a uno.</p>
+                    </div>
+                </div>
+                <section class="panel juego-panel" aria-label="El dedo elegido">
+                    <p class="dedo-ultimo" id="dedoUltimo">Ideal para decidir quién paga o quién pide.</p>
+                    <button type="button" class="btn btn-principal juego-boton" id="dedoEmpezar"><i class="bi bi-hand-index" aria-hidden="true"></i>Empezar</button>
+                </section>
+            </section>
+
+            <!-- ============================================================ EXTRAS: CARA O CRUZ -->
+            <section class="vista" id="vista-moneda" data-vista="moneda" data-padre="extras" aria-labelledby="titulo-moneda" hidden>
+                <a class="volver" href="#extras"><i class="bi bi-chevron-left" aria-hidden="true"></i>Extras</a>
+                <div class="titulo-fila">
+                    <div>
+                        <h1 id="titulo-moneda">Cara o cruz <svg class="icono-moneda icono-moneda-titulo" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#c98a12"/><circle cx="12" cy="11" r="9.5" fill="#f5c542"/><circle cx="12" cy="11" r="6.5" fill="none" stroke="#d99a1e" stroke-width="1.4"/><path d="M8.6 7.2a5.2 5.2 0 0 1 4.6-1.6" fill="none" stroke="#fff3c4" stroke-width="1.4" stroke-linecap="round"/></svg></h1>
+                    </div>
+                </div>
+                <section class="panel juego-panel" aria-label="Cara o cruz">
+                    <div class="marcador" aria-live="polite">
+                        <span class="marcador-lado"><small>Caras</small><b class="num" id="monedaCaras">0</b></span>
+                        <span class="marcador-guion" aria-hidden="true">–</span>
+                        <span class="marcador-lado"><small>Cruces</small><b class="num" id="monedaCruces">0</b></span>
+                    </div>
+                    <div class="moneda-escena" aria-hidden="true">
+                        <div class="moneda-vuelo" id="monedaVuelo">
+                            <div class="moneda" id="moneda">
+                                <span class="moneda-cara">N</span>
+                                <span class="moneda-cruz"><i class="bi bi-x-lg"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="moneda-resultado" id="monedaResultado" aria-live="polite"></p>
+                    <button type="button" class="btn btn-principal juego-boton" id="monedaLanzar"><i class="bi bi-arrow-up-circle" aria-hidden="true"></i>Lanzar moneda</button>
+                    <button type="button" class="accion-texto" id="monedaReiniciar">Poner el marcador a cero</button>
+                </section>
+            </section>
+
+            <!-- ============================================================ EXTRAS: DUELO DE REFLEJOS -->
+            <section class="vista" id="vista-duelo" data-vista="duelo" data-padre="extras" aria-labelledby="titulo-duelo" hidden>
+                <a class="volver" href="#extras"><i class="bi bi-chevron-left" aria-hidden="true"></i>Extras</a>
+                <div class="titulo-fila">
+                    <div>
+                        <h1 id="titulo-duelo">Duelo de reflejos &#x26A1;</h1>
+                        <p class="subtitulo">Poned el móvil en medio de la mesa. Cuando se ponga rojo, gana el primero que toque su lado; si tocas antes de tiempo, pierdes la ronda. Al mejor de 3.</p>
+                    </div>
+                </div>
+                <section class="panel juego-panel" aria-label="Duelo de reflejos">
+                    <p class="marcador-titulo">Duelos ganados</p>
+                    <div class="marcador" aria-live="polite">
+                        <span class="marcador-lado"><small>Jugador de arriba</small><b class="num" id="dueloPuntos1">0</b></span>
+                        <span class="marcador-guion" aria-hidden="true">–</span>
+                        <span class="marcador-lado"><small>Jugador de abajo</small><b class="num" id="dueloPuntos2">0</b></span>
+                    </div>
+                    <p class="duelo-ultimo" id="dueloUltimo" aria-live="polite"></p>
+                    <button type="button" class="btn btn-principal juego-boton" id="dueloEmpezar"><i class="bi bi-lightning-charge" aria-hidden="true"></i>Empezar el duelo</button>
+                    <button type="button" class="accion-texto" id="dueloReiniciar">Poner el marcador a cero</button>
+                </section>
+            </section>
+
+            <!-- ============================================================ EXTRAS: PIEDRA, PAPEL O TIJERA -->
+            <section class="vista" id="vista-piedra-papel-tijera" data-vista="piedra-papel-tijera" data-padre="extras" aria-labelledby="titulo-ppt" hidden>
+                <a class="volver" href="#extras"><i class="bi bi-chevron-left" aria-hidden="true"></i>Extras</a>
+                <div class="titulo-fila">
+                    <div>
+                        <h1 id="titulo-ppt">Piedra, papel o tijera &#x2702;&#xFE0F;</h1>
+                        <p class="subtitulo">Dos jugadores, un móvil. Primero elige el jugador 1 sin que mire el otro; luego, el jugador 2.</p>
+                    </div>
+                </div>
+                <section class="panel juego-panel" aria-label="Piedra, papel o tijera">
+                    <div class="marcador" aria-live="polite">
+                        <span class="marcador-lado"><small>Jugador 1</small><b class="num" id="jkpPuntos1">0</b></span>
+                        <span class="marcador-guion" aria-hidden="true">–</span>
+                        <span class="marcador-lado"><small>Jugador 2</small><b class="num" id="jkpPuntos2">0</b></span>
+                    </div>
+                    <p class="jkp-rondas">Rondas jugadas: <b class="num" id="jkpRondas">0</b></p>
+                    <div class="jkp-mesa" aria-hidden="true">
+                        <span class="jkp-jugador" id="jkpLado1"><span class="jkp-mano" id="jkpMano1">&#x270A;</span><small>Jugador 1</small></span>
+                        <span class="jkp-texto" id="jkpTexto">VS</span>
+                        <span class="jkp-jugador" id="jkpLado2"><span class="jkp-mano jkp-mano-dos" id="jkpMano2">&#x270A;</span><small>Jugador 2</small></span>
+                    </div>
+                    <p class="jkp-turno" id="jkpTurno" aria-live="polite"></p>
+                    <div class="jkp-opciones" id="jkpOpciones" role="group" aria-label="Elige tu mano">
+                        <button type="button" class="jkp-opcion" data-mano="piedra"><span aria-hidden="true">&#x270A;</span>Piedra</button>
+                        <button type="button" class="jkp-opcion" data-mano="papel"><span aria-hidden="true">&#x270B;</span>Papel</button>
+                        <button type="button" class="jkp-opcion" data-mano="tijera"><span aria-hidden="true">&#x270C;&#xFE0F;</span>Tijera</button>
+                    </div>
+                    <button type="button" class="btn btn-principal juego-boton" id="jkpOtra" hidden><i class="bi bi-arrow-repeat" aria-hidden="true"></i>Otra ronda</button>
+                    <button type="button" class="accion-texto" id="jkpReiniciar">Poner el marcador a cero</button>
+                </section>
+            </section>
+
+            <!-- ============================================================ EXTRAS: ADIVINA EL PLATO -->
+            <section class="vista" id="vista-adivina" data-vista="adivina" data-padre="extras" aria-labelledby="titulo-adivina" hidden>
+                <a class="volver" href="#extras"><i class="bi bi-chevron-left" aria-hidden="true"></i>Extras</a>
+                <div class="titulo-fila">
+                    <div>
+                        <h1 id="titulo-adivina">Adivina el plato &#x1F9E0;</h1>
+                        <p class="subtitulo">Preguntas sin fin sobre los números de la carta. Así luego pides más rápido.</p>
+                    </div>
+                </div>
+                <section class="panel juego-panel adivina-panel" aria-label="Adivina el plato">
+                    <div class="adivina-cabecera">
+                        <span id="adivinaProgreso" class="num"></span>
+                        <span id="adivinaAciertos" class="num"></span>
+                    </div>
+                    <div id="adivinaJuego"></div>
+                    <button type="button" class="accion-texto adivina-reiniciar" id="adivinaReiniciar">Empezar de cero</button>
+                </section>
+            </section>
+
+            <!-- ============================================================ EXTRAS: ATRAPA EL SUSHI -->
+            <section class="vista" id="vista-atrapa" data-vista="atrapa" data-padre="extras" aria-labelledby="titulo-atrapa" hidden>
+                <a class="volver" href="#extras"><i class="bi bi-chevron-left" aria-hidden="true"></i>Extras</a>
+                <div class="titulo-fila">
+                    <div>
+                        <h1 id="titulo-atrapa">Atrapa el sushi &#x1F962;</h1>
+                    </div>
+                </div>
+                <section class="panel juego-panel atrapa-panel" aria-label="Atrapa el sushi">
+                    <div class="atrapa-cabecera">
+                        <span>Puntos <b class="num" id="atrapaPuntos">0</b></span>
+                        <span class="atrapa-vidas" id="atrapaVidas" aria-label="Vidas"></span>
+                        <span>Récord <b class="num" id="atrapaRecord">0</b></span>
+                    </div>
+                    <div class="atrapa-zona" id="atrapaZona">
+                        <div class="atrapa-portada" id="atrapaPortada">
+                            <p id="atrapaMensaje">Toca cada pieza antes de que llegue abajo. Tienes 3 vidas.</p>
+                            <button type="button" class="btn btn-principal juego-boton" id="atrapaEmpezar"><i class="bi bi-play-fill" aria-hidden="true"></i>Empezar</button>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
         </main>
     </div>
 
@@ -365,6 +556,19 @@
                 <button type="button" class="btn btn-principal" id="enviarEnlace"></button>
             </div>
         </div>
+    </dialog>
+
+    <!-- ARENA DEL DUELO: pantalla completa partida en dos (la mitad de arriba girada para quien esta enfrente) -->
+    <dialog class="arena" id="arena" aria-label="Duelo de reflejos">
+        <div class="arena-lado arena-arriba" data-lado="1"><span class="arena-texto"></span><span class="arena-jugador">Jugador de arriba</span></div>
+        <div class="arena-lado arena-abajo" data-lado="2"><span class="arena-texto"></span><span class="arena-jugador">Jugador de abajo</span></div>
+        <button type="button" class="arena-cerrar" id="arenaCerrar" aria-label="Salir del duelo"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+    </dialog>
+
+    <!-- EL DEDO ELEGIDO: pantalla completa donde cada uno pone un dedo -->
+    <dialog class="arena dedos" id="dedos" aria-label="El dedo elegido">
+        <p class="dedos-texto" id="dedosTexto"></p>
+        <button type="button" class="arena-cerrar" id="dedosCerrar" aria-label="Salir"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
     </dialog>
 
     <div class="aviso" id="aviso" role="status" aria-live="polite"></div>
