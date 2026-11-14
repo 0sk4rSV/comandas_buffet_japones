@@ -3243,6 +3243,20 @@ html.sin-scroll body {
    Las filas que tienen relleno propio (filas de listas, cabeceras de ronda...) lo pierden en el lado que
    toca el borde del panel, para que no se sumen los dos espacios. Las tablas (carta y postres) van aparte. */
 
+/* "Ningun plato coincide…" en la carta: mismo espacio arriba y abajo que el resto de paneles
+   (la tabla de la carta tiene 22px de relleno en escritorio y ninguno vertical en movil). */
+.lista-platos > .vacio {
+	padding: 0;
+	margin: -4px 0;
+}
+
+@media (max-width: 760px) {
+	.lista-platos > .vacio {
+		padding: var(--pad-y) 0;
+		margin: 0;
+	}
+}
+
 /* Ultima fila de Horario y contacto (o de cualquier lista simple que cierre un panel). */
 .panel > .lista-simple:last-child > li:last-child {
 	padding-bottom: 0;

@@ -494,7 +494,7 @@
             "<i class=\"bi bi-chevron-down\" aria-hidden=\"true\"></i></summary>" +
             htmlListaRondas(railAbiertas) +
             "<div class=\"rail-rondas-pie\"><button type=\"button\" class=\"accion-texto\" data-accion=\"borrar-rondas\">" +
-            (totalRondas === 1 ? "Borrar la ronda" : "Borrar todas") + "</button></div>" +
+            "Borrar todas</button></div>" +
             "</details>";
 
         $$("[data-pedido]").forEach(function (contenedor) {
@@ -848,7 +848,7 @@
     });
 
     let temporizadorAviso = null;
-    //Aviso de una linea. Si se pasa alDeshacer, lleva un boton "Deshacer" y dura algo mas (5 s).
+    //Aviso de una linea. Si se pasa alDeshacer, lleva un boton "Deshacer".
     //Con "largo" el texto puede ocupar varias lineas y se muestra mas tiempo (frases del easter egg).
     let accionDeshacer = null;
     function avisar(texto, alDeshacer, largo) {
@@ -866,7 +866,8 @@
             aviso.classList.add("nuevo");
         }
         clearTimeout(temporizadorAviso);
-        temporizadorAviso = setTimeout(cerrarAviso, accionDeshacer || largo ? 5000 : 2200);
+        //Duracion: 2,2 s los avisos normales, 3 s los que llevan "Deshacer" y 5 s las frases largas del easter egg.
+        temporizadorAviso = setTimeout(cerrarAviso, largo ? 5000 : (accionDeshacer ? 3000 : 2200));
     }
 
     function cerrarAviso() {
