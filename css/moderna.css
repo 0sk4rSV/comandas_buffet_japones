@@ -363,21 +363,49 @@ a {
 	min-height: calc(100dvh - var(--topbar) - 72px);
 }
 
-/* En escritorio, a la misma altura que la direccion del pie del menu lateral (32px del borde). */
-.extras-secreto {
+/* Pie de Extras: el maki secreto y el copyright, centrados al fondo de la pantalla.
+   En escritorio el copyright queda a la altura de la direccion del pie del menu lateral (32px del borde). */
+.extras-pie {
 	margin-top: auto;
-	margin-bottom: -27px;
-	align-self: center;
-	width: 44px;
-	height: 44px;
+	margin-bottom: -18px;
+	padding-top: 10px;
+	display: grid;
+	justify-items: center;
+}
+
+/* Separacion minima entre el menu de Extras y el maki cuando la lista llena la pantalla. */
+#vista-extras .lista-extras {
+	margin-bottom: 4px;
+}
+
+.copyright {
+	margin: 0;
+	font-size: 12px;
+	line-height: 18px;
+	color: var(--faint);
+	text-align: center;
+}
+
+/* El maki va al final de la linea del copyright, al tamano del texto (como en la Legacy),
+   con una zona tactil mas grande alrededor para acertar los 5 toques. */
+.extras-secreto {
+	position: relative;
+	display: inline-block;
 	padding: 0;
 	border: 0;
 	background: transparent;
-	font-size: 22px;
-	line-height: 1;
+	font-size: 15px;
+	line-height: 18px;
+	vertical-align: top;
 	-webkit-user-select: none;
 	user-select: none;
 	transition: transform 0.1s ease;
+}
+
+.extras-secreto::before {
+	content: "";
+	position: absolute;
+	inset: -14px;
 }
 
 .extras-secreto:active {
@@ -1700,6 +1728,16 @@ ul.normas li::before {
 	text-align: center;
 }
 
+.aviso.largo.nuevo {
+	animation: aviso-nuevo 0.3s ease;
+}
+
+@keyframes aviso-nuevo {
+	0% { scale: 0.85; }
+	60% { scale: 1.06; }
+	100% { scale: 1; }
+}
+
 /* Aviso con "Deshacer": texto a la izquierda (se recorta si es largo) y el boton a la derecha. */
 .aviso.con-accion {
 	display: flex;
@@ -1926,14 +1964,10 @@ ul.normas li::before {
 		bottom: calc(136px + env(safe-area-inset-bottom));
 	}
 
-	/* El maki secreto baja hasta casi tocar la barra de secciones (entra en el hueco reservado para ella). */
-	/* Mismo espacio por encima (hasta el panel) que por debajo (hasta el menu): unos 15px. */
-	.extras-secreto {
-		margin-bottom: -27px;
-	}
-
-	.lista-extras {
-		margin-bottom: 4px;
+	/* El pie baja hasta casi tocar la barra de secciones (entra en el hueco reservado para ella):
+	   unos 15px por encima del maki (hasta el panel) y por debajo del copyright (hasta el menu). */
+	.extras-pie {
+		margin-bottom: -14px;
 	}
 
 	/* Altura de Extras en movil: pantalla menos la barra superior (96px), el relleno de arriba (12px)
@@ -2109,6 +2143,54 @@ ul.normas li::before {
 
 	.aviso {
 		bottom: calc(72px + env(safe-area-inset-bottom));
+	}
+}
+
+/* ---------------------------------------------------------------- BOTON PARA SUBIR */
+
+/* Circulo con flecha abajo a la derecha. Oculto hasta que se baja por la pagina. */
+.subir {
+	position: fixed;
+	right: 24px;
+	bottom: 24px;
+	z-index: 25;
+	display: grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	border: 1px solid var(--control);
+	border-radius: 50%;
+	background: var(--raised);
+	color: var(--text);
+	font-size: 18px;
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45); /* taste-skill-ignore: flota sobre el contenido */
+	opacity: 0;
+	transform: translateY(8px);
+	pointer-events: none;
+	transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.subir.visible {
+	opacity: 1;
+	transform: none;
+	pointer-events: auto;
+}
+
+@media (hover: hover) {
+	.subir:hover {
+		background: #36322f;
+	}
+}
+
+/* En movil, pequeno y pegado a la esquina, justo encima de la barra de secciones. */
+@media (max-width: 760px) {
+	.subir {
+		right: 8px;
+		bottom: calc(57px + 6px + env(safe-area-inset-bottom));
+		width: 28px;
+		height: 28px;
+		font-size: 13px;
 	}
 }
 
@@ -2991,11 +3073,11 @@ html.sin-scroll body {
 	will-change: transform;
 }
 
-/* Zona tactil mas grande que el dibujo (84x84 en vez de 52x52): se ve igual pero es mas facil de tocar. */
+/* Zona tactil mas grande que el dibujo (96x96 en vez de 52x52): se ve igual pero es mas facil de tocar. */
 .pieza::before {
 	content: "";
 	position: absolute;
-	inset: -16px;
+	inset: -22px;
 	border-radius: 50%;
 }
 

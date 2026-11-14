@@ -425,6 +425,8 @@
     //VARIABLES EASTER EGG.
     let contadorClicks = 0;
     let ultimoTiempoClick = 0;
+    let ultimaFraseEE = -1;
+    let graciaEEHasta = 0;
 
     $(document).ready(function () {
 
@@ -722,6 +724,22 @@
         actualizarResumenPedidos();
     });
 
+    //Al pulsar en la cantidad se selecciona todo, para que lo que se escriba reemplace el numero.
+    //El setTimeout y el mouseup evitan que el navegador (sobre todo en movil) quite la seleccion al soltar.
+    $("#listaPedidos").on("focus", "input.inputCantPlato", function () {
+        const campo = this;
+        setTimeout(function () { campo.select(); }, 0);
+    });
+
+    $("#listaPedidos").on("mouseup", "input.inputCantPlato", function (e) {
+        e.preventDefault();
+    });
+
+    //Intro cierra el teclado y fija la cantidad.
+    $("#listaPedidos").on("keydown", "input.inputCantPlato", function (e) {
+        if (e.key === "Enter") this.blur();
+    });
+
     //Copia texto al portapapeles (con alternativa para navegadores antiguos o sin HTTPS).
     function copiarTexto(texto) {
         if (navigator.clipboard && window.isSecureContext) {
@@ -827,15 +845,31 @@
     //FUNCION PARA EL EASTER EGG.
     $("body").on("click", "#spanEE", function () {
         const frasesEE = ["¿Cavani te apetece japones o japonesa?", "Cavani la tiene chicken little.", "Cavani la tiene como un nigiri.", "Hassy.", "No cualquier harina hace hot cakes 🥞.", "#BarbaDura TATA V6 3.2 GASOLINE 4MATIC."];
-        let numeroAleatorio = Math.floor(Math.random() * frasesEE.length);
-
         const ahora = new Date().getTime();
+
+        //Justo despues de una frase se ignoran los toques un momento (0,6 s): al pulsar rapido se dan
+        //2 o 3 de mas sin querer y, si contaran, la siguiente frase saldria enseguida.
+        if (ahora < graciaEEHasta) {
+            contadorClicks = 0;
+            ultimoTiempoClick = 0;
+            return;
+        }
 
         if (ahora - ultimoTiempoClick < 3000) {
             contadorClicks++;
             if (contadorClicks >= 5) {
-                alert(frasesEE[numeroAleatorio]);
                 contadorClicks = 0;
+                //Al azar, pero sin repetir la ultima frase.
+                let numeroAleatorio;
+                do {
+                    numeroAleatorio = Math.floor(Math.random() * frasesEE.length);
+                } while (numeroAleatorio === ultimaFraseEE && frasesEE.length > 1);
+                ultimaFraseEE = numeroAleatorio;
+                alert(frasesEE[numeroAleatorio]);
+                //alert detiene la pagina: el margen cuenta desde que se cierra.
+                graciaEEHasta = new Date().getTime() + 600;
+                ultimoTiempoClick = 0;
+                return;
             }
         } else {
             contadorClicks = 1;

@@ -252,8 +252,10 @@
                     </a>
                 </nav>
 
-                <!-- Easter egg como en la Legacy: 5 toques rapidos en el maki muestran una frase. -->
-                <button type="button" class="extras-secreto" id="makiSecreto" aria-label="Maki">&#x1F363;</button>
+                <!-- Pie como en la Legacy: el maki del easter egg (5 toques rapidos muestran una frase) y el copyright. -->
+                <footer class="extras-pie">
+                    <p class="copyright"><span id="copyright"></span> <button type="button" class="extras-secreto" id="makiSecreto" aria-label="Maki">&#x1F363;</button></p>
+                </footer>
             </section>
 
             <!-- ============================================================ EXTRAS: HALL OF FAME -->
@@ -572,6 +574,9 @@
     </dialog>
 
     <div class="aviso" id="aviso" role="status" aria-live="polite"></div>
+
+    <!-- Boton para volver arriba: aparece al bajar por la pagina -->
+    <button type="button" class="subir" id="subir" aria-label="Subir al principio de la página" title="Subir" tabindex="-1"><i class="bi bi-arrow-up" aria-hidden="true"></i></button>
 
     <script src="js/carta.js"></script>
     <script src="js/almacen.js"></script>

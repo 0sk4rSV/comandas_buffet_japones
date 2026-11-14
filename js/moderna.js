@@ -859,6 +859,12 @@
         aviso.classList.toggle("con-accion", !!accionDeshacer);
         aviso.classList.toggle("largo", !!largo);
         aviso.classList.add("visible");
+        //Rebote al aparecer una frase nueva, para que se note el cambio aunque el aviso ya estuviera visible.
+        if (largo) {
+            aviso.classList.remove("nuevo");
+            void aviso.offsetWidth;
+            aviso.classList.add("nuevo");
+        }
         clearTimeout(temporizadorAviso);
         temporizadorAviso = setTimeout(cerrarAviso, accionDeshacer || largo ? 5000 : 2200);
     }
@@ -879,12 +885,24 @@
         "No cualquier harina hace hot cakes \u{1F95E}.",
         "#BarbaDura TATA V6 3.2 GASOLINE 4MATIC."
     ];
+    //Copyright del pie de Extras, como en la Legacy (el año se pone solo).
+    $("#copyright").textContent = "© " + new Date().getFullYear() + ", Desarrollado por Tito’s S.A.";
+
     let toquesSecreto = 0;
     let ultimoToqueSecreto = 0;
     let ultimaFrase = -1;
+    let fraseHasta = 0;
 
     $("#makiSecreto").addEventListener("click", function () {
         const ahora = Date.now();
+        //Justo despues de salir una frase se ignoran los toques un momento (0,6 s): al tocar rapido se dan
+        //2 o 3 de mas sin querer y, si contaran, la siguiente frase saldria enseguida. Pasado ese momento,
+        //otros 5 toques sacan una frase nueva aunque la anterior siga en pantalla.
+        if (ahora < fraseHasta) {
+            toquesSecreto = 0;
+            ultimoToqueSecreto = 0;
+            return;
+        }
         toquesSecreto = ahora - ultimoToqueSecreto < 3000 ? toquesSecreto + 1 : 1;
         ultimoToqueSecreto = ahora;
         if (navigator.vibrate) navigator.vibrate(30);
@@ -897,6 +915,7 @@
                 indice = Math.floor(Math.random() * FRASES_SECRETAS.length);
             } while (indice === ultimaFrase && FRASES_SECRETAS.length > 1);
             ultimaFrase = indice;
+            fraseHasta = ahora + 600;
             avisar(FRASES_SECRETAS[indice], null, true);
         }
     });
@@ -1007,6 +1026,7 @@
         if (vista !== "atrapa") detenerAtrapa();
         else requestAnimationFrame(ajustarZonaAtrapa);
         window.scrollTo(0, 0);
+        pintarBotonSubir();
     }
 
     // ------------------------------------------------------------------ CONTADOR MAKI
@@ -2391,6 +2411,21 @@
             contador = cargarContadorStorage();
             pintarContador();
         }
+    });
+
+    // ------------------------------------------------------------------ BOTON PARA SUBIR
+
+    //Solo en la Carta: aparece al bajar mas de 400px y al pulsarlo sube suavemente al principio.
+    const botonSubir = $("#subir");
+    function pintarBotonSubir() {
+        const visible = vistaActual === "carta" && window.scrollY > 400;
+        botonSubir.classList.toggle("visible", visible);
+        botonSubir.tabIndex = visible ? 0 : -1;
+    }
+    window.addEventListener("scroll", pintarBotonSubir, { passive: true });
+    botonSubir.addEventListener("click", function () {
+        const sinMovimiento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        window.scrollTo({ top: 0, behavior: sinMovimiento ? "auto" : "smooth" });
     });
 
     // ------------------------------------------------------------------ ARRANQUE
