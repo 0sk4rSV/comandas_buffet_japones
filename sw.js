@@ -7,7 +7,7 @@
 //
 //Si se anaden o renombran archivos de la app, actualizar la lista PRECARGA y subir el numero de VERSION.
 
-const VERSION = "nakoya-v3";
+const VERSION = "nakoya-v4";
 const ESPERA_RED = 3000; //ms antes de tirar de la copia guardada.
 
 //Todo lo que necesitan la Legacy y la Moderna para funcionar sin conexion.
