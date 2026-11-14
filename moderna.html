@@ -210,6 +210,11 @@
                         <span class="extra-texto"><b>Contador maki</b><small>Cuenta los makis que os vais a comer</small></span>
                         <i class="bi bi-chevron-right" aria-hidden="true"></i>
                     </a>
+                    <a class="extra-fila" href="#ruleta">
+                        <span class="extra-emoji" aria-hidden="true">&#x1F52B;</span>
+                        <span class="extra-texto"><b>Ruleta rusa</b><small>Gira la ruleta y al que le toque, que cumpla el reto</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
                 </nav>
 
                 <!-- Easter egg como en la Legacy: 5 toques rapidos en el maki muestran una frase. -->
@@ -257,6 +262,54 @@
                             </div>
                         </div>
                 </section>
+            </section>
+
+            <!-- ============================================================ EXTRAS: RULETA RUSA -->
+            <section class="vista" id="vista-ruleta" data-vista="ruleta" data-padre="extras" aria-labelledby="titulo-ruleta" hidden>
+                <a class="volver" href="#extras"><i class="bi bi-chevron-left" aria-hidden="true"></i>Extras</a>
+                <div class="titulo-fila">
+                    <div>
+                        <h1 id="titulo-ruleta">Ruleta rusa &#x1F52B;</h1>
+                        <p class="subtitulo">Apuntad quién come, decidid el reto y girad. Al que le toque, que lo cumpla.</p>
+                    </div>
+                </div>
+
+                <div class="ruleta-rejilla">
+                    <!-- Comensales: se guardan en el dispositivo para la proxima vez -->
+                    <section class="panel ruleta-mesa" aria-labelledby="titulo-mesa">
+                        <div class="panel-cabecera">
+                            <h2 id="titulo-mesa">En la mesa <span class="titulo-total num" id="ruletaTotal"></span></h2>
+                        </div>
+                        <form class="ruleta-form" id="ruletaForm">
+                            <label class="visually-hidden" for="ruletaNombre">Nombre de quien está en la mesa</label>
+                            <input class="campo" type="text" id="ruletaNombre" name="nombre" maxlength="20"
+                                autocomplete="off" autocapitalize="words" enterkeyhint="done" placeholder="Nombre…">
+                            <button type="submit" class="btn btn-secundario btn-peq"><i class="bi bi-plus-lg" aria-hidden="true"></i>Añadir</button>
+                        </form>
+                        <ul class="ruleta-jugadores" id="ruletaJugadores"></ul>
+                    </section>
+
+                    <!-- Reto para el que pierda -->
+                    <section class="panel ruleta-reto" aria-labelledby="titulo-reto">
+                        <div class="panel-cabecera">
+                            <h2 id="titulo-reto">El reto</h2>
+                        </div>
+                        <label class="visually-hidden" for="ruletaReto">Qué tiene que hacer al que le toque</label>
+                        <input class="campo" type="text" id="ruletaReto" name="reto" maxlength="80"
+                            autocomplete="off" enterkeyhint="done" placeholder="Escribe el reto o elige uno…">
+                        <div class="ruleta-sugerencias" id="ruletaSugerencias" role="group" aria-label="Retos propuestos"></div>
+                    </section>
+
+                    <!-- La ruleta -->
+                    <section class="panel ruleta-panel" aria-label="Ruleta">
+                        <div class="ruleta">
+                            <span class="ruleta-puntero" aria-hidden="true"></span>
+                            <div class="ruleta-rueda" id="ruletaRueda"></div>
+                        </div>
+                        <button type="button" class="btn btn-principal ruleta-girar" id="ruletaGirar"><i class="bi bi-arrow-repeat" aria-hidden="true"></i>Girar la ruleta</button>
+                        <div class="ruleta-resultado" id="ruletaResultado" aria-live="polite"></div>
+                    </section>
+                </div>
             </section>
 
         </main>

@@ -1,0 +1,12 @@
+# Archivos que estan en GitHub pero NO se publican en la web (Vercel).
+
+# Documentacion del proyecto para retomarlo en otro equipo.
+CLAUDE.md
+
+# Robot de la carta oficial (se ejecuta en GitHub, no en la web).
+.github/
+herramientas/
+
+# Archivos de trabajo y fuentes de diseno.
+*.psd
+*.map

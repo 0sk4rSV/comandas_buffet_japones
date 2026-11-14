@@ -1253,6 +1253,198 @@
     });
     $("#makiBoton").addEventListener("contextmenu", function (e) { e.preventDefault(); });
 
+    // ------------------------------------------------------------------ RULETA RUSA
+
+    //Los nombres y el ultimo reto se guardan en el dispositivo (la proxima vez suele ser la misma mesa).
+    const CLAVE_RULETA = "ruletaNakoya";
+    const MAX_JUGADORES = 12;
+    const RETOS_PROPUESTOS = [
+        "¿Quién canta la comanda?",
+        "¿Quién se pide un chupito para cerrar con broche de oro?",
+        "¿Quién se pide para antes del postre unas bolitas de arroz?",
+        "¿Quién paga la cena?"
+    ];
+    //Colores de los trozos: rojo de la casa y grises de la app, alternos.
+    const COLORES_RULETA = ["#e23b2e", "#2a2725"];
+    const COLOR_RULETA_EXTRA = "#4a4644";
+
+    let ruleta = cargarRuleta();
+    let giroRuleta = 0;
+    let ruletaGirando = false;
+
+    function cargarRuleta() {
+        try {
+            const datos = JSON.parse(leerStorage(CLAVE_RULETA));
+            if (datos && Array.isArray(datos.nombres)) {
+                return {
+                    nombres: datos.nombres.filter(function (n) { return typeof n === "string" && n.trim(); }).slice(0, MAX_JUGADORES),
+                    reto: typeof datos.reto === "string" ? datos.reto : ""
+                };
+            }
+        } catch (e) { }
+        return { nombres: [], reto: "" };
+    }
+
+    function guardarRuleta() {
+        escribirStorage(CLAVE_RULETA, JSON.stringify(ruleta));
+    }
+
+    //Numero al azar entre 0 y n-1 con el generador criptografico (sorteo justo).
+    function numeroAlAzar(n) {
+        if (window.crypto && window.crypto.getRandomValues) {
+            return window.crypto.getRandomValues(new Uint32Array(1))[0] % n;
+        }
+        return Math.floor(Math.random() * n);
+    }
+
+    function pintarJugadores() {
+        const n = ruleta.nombres.length;
+        $("#ruletaTotal").textContent = n > 0 ? n + (n === 1 ? " persona" : " personas") : "";
+        $("#ruletaJugadores").innerHTML = n === 0
+            ? "<li class=\"ruleta-vacio\">Añade al menos 2 nombres para poder girar.</li>"
+            : ruleta.nombres.map(function (nombre, i) {
+                const visible = escaparHtml(nombre.trim());
+                return "<li class=\"jugador\"><span>" + visible + "</span>" +
+                    "<button type=\"button\" data-quitar-jugador=\"" + i + "\" aria-label=\"Quitar a " + visible + "\"><i class=\"bi bi-x\" aria-hidden=\"true\"></i></button></li>";
+            }).join("");
+        const lleno = n >= MAX_JUGADORES;
+        $("#ruletaNombre").disabled = lleno;
+        $("#ruletaNombre").placeholder = lleno ? "Máximo " + MAX_JUGADORES + " personas" : "Nombre…";
+        $("#ruletaGirar").disabled = n < 2 || ruletaGirando;
+        pintarRueda();
+    }
+
+    function pintarSugerencias() {
+        $("#ruletaSugerencias").innerHTML = RETOS_PROPUESTOS.map(function (reto) {
+            return "<button type=\"button\" class=\"sugerencia\" data-reto=\"" + escaparHtml(reto) + "\"" +
+                (reto === ruleta.reto ? " aria-pressed=\"true\"" : " aria-pressed=\"false\"") + ">" + escaparHtml(reto) + "</button>";
+        }).join("");
+    }
+
+    //Punto de la circunferencia: angulo en grados desde arriba, en sentido horario.
+    function puntoRueda(angulo, radio) {
+        const rad = angulo * Math.PI / 180;
+        return (radio * Math.sin(rad)).toFixed(2) + " " + (-radio * Math.cos(rad)).toFixed(2);
+    }
+
+    //La rueda en SVG: un trozo por persona con su nombre en el radio.
+    function pintarRueda() {
+        const nombres = ruleta.nombres;
+        const n = nombres.length;
+        let svg = "<svg viewBox=\"-100 -100 200 200\" role=\"img\" aria-label=\"Ruleta con " + n + (n === 1 ? " nombre" : " nombres") + "\">";
+
+        if (n < 2) {
+            svg += "<circle r=\"98\" fill=\"#2a2725\"/><text class=\"ruleta-texto-vacio\" text-anchor=\"middle\" dominant-baseline=\"middle\">Añade nombres</text>";
+        } else {
+            const paso = 360 / n;
+            const tamLetra = n <= 4 ? 13 : (n <= 8 ? 11 : 9);
+            nombres.forEach(function (nombre, i) {
+                const desde = i * paso;
+                const hasta = desde + paso;
+                //Con un numero impar de personas, el ultimo trozo usa un tercer color para no repetir junto al primero.
+                const color = (n % 2 === 1 && i === n - 1) ? COLOR_RULETA_EXTRA : COLORES_RULETA[i % 2];
+                svg += "<path d=\"M0 0 L" + puntoRueda(desde, 98) + " A98 98 0 0 1 " + puntoRueda(hasta, 98) + " Z\" fill=\"" + color + "\"/>";
+                const medio = desde + paso / 2;
+                const limpio = nombre.trim();
+                const etiqueta = limpio.length > 10 ? limpio.slice(0, 9) + "…" : limpio;
+                //En la mitad izquierda el texto se gira media vuelta para que no quede boca abajo.
+                const izquierda = medio > 180;
+                const giroTexto = izquierda ? medio + 90 : medio - 90;
+                svg += "<text transform=\"rotate(" + giroTexto + ") translate(" + (izquierda ? -58 : 58) + " 0)\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"" + tamLetra + "\">" + escaparHtml(etiqueta) + "</text>";
+            });
+        }
+        svg += "<circle r=\"14\" fill=\"#0b0a09\" stroke=\"#ffffff\" stroke-width=\"2\"/></svg>";
+        $("#ruletaRueda").innerHTML = svg;
+    }
+
+    function girarRuleta() {
+        const n = ruleta.nombres.length;
+        if (ruletaGirando || n < 2) return;
+
+        const paso = 360 / n;
+        //Truco secreto: quien se apunto con un espacio al final ("Cavani ") nunca pierde.
+        //Si todos lo tienen, se sortea entre todos para que la ruleta siempre de un resultado.
+        const elegibles = [];
+        ruleta.nombres.forEach(function (nombre, i) {
+            if (!/\s$/.test(nombre)) elegibles.push(i);
+        });
+        const ganador = elegibles.length > 0 ? elegibles[numeroAlAzar(elegibles.length)] : numeroAlAzar(n);
+        //Punto al azar dentro del trozo ganador (sin caer justo en la raya entre dos trozos).
+        const destino = ganador * paso + paso * (0.15 + 0.7 * Math.random());
+        const sinMovimiento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const duracion = sinMovimiento ? 600 : 4200;
+        const vueltas = sinMovimiento ? 1 : 6;
+
+        //Girar en sentido horario lleva el punto "destino" de la rueda hasta el puntero de arriba.
+        giroRuleta = giroRuleta - (giroRuleta % 360) + vueltas * 360 + (360 - destino);
+        const rueda = $("#ruletaRueda");
+        rueda.style.transition = "transform " + duracion + "ms cubic-bezier(0.12, 0.8, 0.18, 1)";
+        rueda.style.transform = "rotate(" + giroRuleta + "deg)";
+
+        ruletaGirando = true;
+        $("#ruletaGirar").disabled = true;
+        $("#ruletaResultado").innerHTML = "";
+
+        setTimeout(function () {
+            ruletaGirando = false;
+            $("#ruletaGirar").disabled = ruleta.nombres.length < 2;
+            mostrarResultadoRuleta(ruleta.nombres[ganador]);
+        }, duracion);
+    }
+
+    function mostrarResultadoRuleta(nombre) {
+        if (navigator.vibrate) navigator.vibrate([80, 60, 160]);
+        const reto = ruleta.reto.trim();
+        //Primero el reto (suele ser una pregunta: "¿Quién paga la cena?") y debajo la respuesta.
+        $("#ruletaResultado").innerHTML =
+            (reto ? "<p class=\"ruleta-castigo\">" + escaparHtml(reto) + "</p>" : "") +
+            "<p class=\"ruleta-ganador\">Le toca a <b>" + escaparHtml(nombre.trim()) + "</b></p>";
+    }
+
+    $("#ruletaForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const campo = $("#ruletaNombre");
+        //Se limpian los espacios, pero si el nombre terminaba en espacio se conserva uno (el truco secreto).
+        const limpio = campo.value.replace(/\s+/g, " ").trim();
+        const nombre = limpio && /\s$/.test(campo.value) ? limpio + " " : limpio;
+        if (!nombre || ruleta.nombres.length >= MAX_JUGADORES || ruletaGirando) return;
+        ruleta.nombres.push(nombre);
+        guardarRuleta();
+        campo.value = "";
+        pintarJugadores();
+        if (!campo.disabled) campo.focus();
+    });
+
+    $("#ruletaJugadores").addEventListener("click", function (e) {
+        const boton = e.target.closest("[data-quitar-jugador]");
+        if (!boton || ruletaGirando) return;
+        ruleta.nombres.splice(parseInt(boton.dataset.quitarJugador, 10), 1);
+        guardarRuleta();
+        $("#ruletaResultado").innerHTML = "";
+        pintarJugadores();
+    });
+
+    $("#ruletaReto").addEventListener("input", function () {
+        ruleta.reto = this.value;
+        guardarRuleta();
+        pintarSugerencias();
+    });
+
+    $("#ruletaSugerencias").addEventListener("click", function (e) {
+        const boton = e.target.closest("[data-reto]");
+        if (!boton) return;
+        ruleta.reto = boton.dataset.reto;
+        $("#ruletaReto").value = ruleta.reto;
+        guardarRuleta();
+        pintarSugerencias();
+    });
+
+    $("#ruletaGirar").addEventListener("click", girarRuleta);
+
+    $("#ruletaReto").value = ruleta.reto;
+    pintarSugerencias();
+    pintarJugadores();
+
     window.addEventListener("hashchange", mostrarVista);
 
     //Si se cambia el pedido en otra pestaña (o en la Legacy abierta a la vez), lo recargamos.

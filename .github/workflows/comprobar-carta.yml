@@ -1,0 +1,58 @@
+# ROBOT QUE COMPRUEBA SI LA CARTA DE LA WEB OFICIAL DEL NAKOYA HA CAMBIADO.
+# Si ha cambiado, abre una Pull Request con js/carta.js ya actualizado y un informe de los cambios.
+# Al aceptarla (Merge), Vercel publica la carta nueva. El script esta en herramientas/comprobar-carta.mjs.
+
+name: Comprobar carta oficial
+
+on:
+  schedule:
+    # GitHub usa hora UTC. Se ejecuta antes de cada apertura del restaurante:
+    - cron: "0 10 * * *"   # 11:00 en invierno / 12:00 en verano (hora de Espana)
+    - cron: "30 17 * * *"  # 18:30 en invierno / 19:30 en verano
+  push:
+    branches: [main]
+  workflow_dispatch:       # Boton "Run workflow" en la pestana Actions para lanzarlo a mano.
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: comprobar-carta
+  cancel-in-progress: false
+
+jobs:
+  comprobar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Comparar la web oficial con la ultima foto
+        id: carta
+        run: node herramientas/comprobar-carta.mjs
+
+      - name: Abrir o actualizar la Pull Request con los cambios
+        if: steps.carta.outputs.cambios == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: carta-oficial
+          delete-branch: true
+          title: "La carta oficial ha cambiado"
+          body-path: herramientas/informe-carta.md
+          commit-message: "Actualizar la carta con los cambios de la web oficial"
+          add-paths: |
+            js/carta.js
+            herramientas/carta-oficial.json
+
+      # GitHub desactiva las tareas programadas de los repositorios sin actividad en 60 dias.
+      # Este paso lo evita sin hacer commits.
+      - name: Mantener activa la tarea programada
+        if: github.event_name == 'schedule'
+        uses: gautamkrishnar/keepalive-workflow@v2

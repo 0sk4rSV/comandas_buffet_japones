@@ -1,0 +1,327 @@
+{
+  "platos": {
+    "A2": {
+      "nombre": "Ensalada de la casa(algas)",
+      "noche": false
+    },
+    "A3": {
+      "nombre": "Ensalada china de lechuga",
+      "noche": false
+    },
+    "A4": {
+      "nombre": "Ensalada china de col",
+      "noche": false
+    },
+    "A5": {
+      "nombre": "Sopa miso",
+      "noche": false
+    },
+    "A6": {
+      "nombre": "Sopa de maíz con carne de cangrejo",
+      "noche": false
+    },
+    "A7": {
+      "nombre": "Sopa de aleta de tiburón",
+      "noche": false
+    },
+    "A9": {
+      "nombre": "Rollitos de gambas",
+      "noche": false
+    },
+    "A10": {
+      "nombre": "Rollitos vietnamitas",
+      "noche": false
+    },
+    "A11": {
+      "nombre": "Rollitos de pollo con queso fundido",
+      "noche": false
+    },
+    "A12": {
+      "nombre": "Rollo de primavera",
+      "noche": false
+    },
+    "A13": {
+      "nombre": "Medallones de pollo con trufa",
+      "noche": true
+    },
+    "A14": {
+      "nombre": "Wan-Tun frito",
+      "noche": false
+    },
+    "A15": {
+      "nombre": "Langostinos crujientes",
+      "noche": true
+    },
+    "A17": {
+      "nombre": "Bolas de arroz frito",
+      "noche": false
+    },
+    "A18": {
+      "nombre": "Pan chino frito",
+      "noche": false
+    },
+    "A20": {
+      "nombre": "Entrecot rollo con queso",
+      "noche": true
+    },
+    "A21": {
+      "nombre": "Bao crujiente ternera y queso",
+      "noche": true
+    },
+    "A22": {
+      "nombre": "Tempura de langostinos",
+      "noche": false
+    },
+    "A23": {
+      "nombre": "Tempura Atún",
+      "noche": false
+    },
+    "A25": {
+      "nombre": "Bolas de queso fundido",
+      "noche": true
+    },
+    "A26": {
+      "nombre": "Sau mai frito",
+      "noche": false
+    },
+    "A28": {
+      "nombre": "Yakitori de gambas",
+      "noche": true
+    },
+    "A29": {
+      "nombre": "Gambas laquedas",
+      "noche": true
+    },
+    "A30": {
+      "nombre": "Pollos laqueados",
+      "noche": false
+    },
+    "A31": {
+      "nombre": "Triángulos de ternera con curry",
+      "noche": false
+    },
+    "A33": {
+      "nombre": "Tallarines teppanyaki",
+      "noche": false
+    },
+    "A34": {
+      "nombre": "Arroz teppanyaki",
+      "noche": false
+    },
+    "A35": {
+      "nombre": "Teppanyaki de pollo",
+      "noche": false
+    },
+    "A36": {
+      "nombre": "Teppanyaki de gambas",
+      "noche": true
+    },
+    "A41": {
+      "nombre": "Arroz frito tres delicias",
+      "noche": false
+    },
+    "A42": {
+      "nombre": "Arroz de la casa",
+      "noche": false
+    },
+    "A43": {
+      "nombre": "Arroz coreano(picante)",
+      "noche": false
+    },
+    "A44": {
+      "nombre": "Tallarines tres delicias",
+      "noche": false
+    },
+    "A47": {
+      "nombre": "Fideos de arroz",
+      "noche": false
+    },
+    "A50": {
+      "nombre": "Pollo con sésamo",
+      "noche": false
+    },
+    "A52": {
+      "nombre": "Pollo con almendras",
+      "noche": false
+    },
+    "A53": {
+      "nombre": "Pollo al limón",
+      "noche": false
+    },
+    "A54": {
+      "nombre": "Pollo picante",
+      "noche": false
+    },
+    "A55": {
+      "nombre": "Bolas de pollo frito",
+      "noche": false
+    },
+    "A57": {
+      "nombre": "Carne de cerdo agridulce",
+      "noche": false
+    },
+    "A58": {
+      "nombre": "Gambas con bambú y setas",
+      "noche": true
+    },
+    "A61": {
+      "nombre": "Ternera crujiente",
+      "noche": false
+    },
+    "A63": {
+      "nombre": "Ternera con bambú y setas",
+      "noche": false
+    },
+    "A66": {
+      "nombre": "Pato asado \"PeKin\"",
+      "noche": true
+    },
+    "A67": {
+      "nombre": "Pato japonesa",
+      "noche": true
+    },
+    "A74": {
+      "nombre": "Empanadillas con carne",
+      "noche": false
+    },
+    "A78": {
+      "nombre": "Sushi salmón y aguacate",
+      "noche": false
+    },
+    "A79": {
+      "nombre": "Tempura maki Nakoya",
+      "noche": false
+    },
+    "A81": {
+      "nombre": "Sushi variados",
+      "noche": false
+    },
+    "A85": {
+      "nombre": "Salmón maki",
+      "noche": false
+    },
+    "A86": {
+      "nombre": "Atún maki",
+      "noche": false
+    },
+    "A87": {
+      "nombre": "Maki aguacate y pepino",
+      "noche": false
+    },
+    "A88": {
+      "nombre": "Gambas maki",
+      "noche": false
+    },
+    "A89": {
+      "nombre": "California maki",
+      "noche": false
+    },
+    "A90": {
+      "nombre": "Futo maki",
+      "noche": false
+    },
+    "A91": {
+      "nombre": "Tempura maki",
+      "noche": false
+    },
+    "A92": {
+      "nombre": "Salmón sashimi",
+      "noche": true
+    },
+    "A93": {
+      "nombre": "Atún sashimi",
+      "noche": true
+    },
+    "A94": {
+      "nombre": "Maki cono",
+      "noche": false
+    },
+    "A98": {
+      "nombre": "Maki queso cremoso",
+      "noche": false
+    },
+    "A99": {
+      "nombre": "Tarta sushi",
+      "noche": true
+    },
+    "A101": {
+      "nombre": "Aburi sushi salmón",
+      "noche": true
+    },
+    "A105": {
+      "nombre": "Maki pollo desmenuzado",
+      "noche": false
+    },
+    "A106": {
+      "nombre": "Maki pollo mayonesa",
+      "noche": false
+    },
+    "A107": {
+      "nombre": "Maki pollo desmenuzado y salmón",
+      "noche": true
+    },
+    "A109": {
+      "nombre": "Maki atún picante",
+      "noche": false
+    },
+    "A111": {
+      "nombre": "Maki salmón y aguacate",
+      "noche": false
+    },
+    "A112": {
+      "nombre": "Maki palito cangrejo, pepino y aguacate",
+      "noche": false
+    },
+    "A196": {
+      "nombre": "Sushi salmón con trufa",
+      "noche": true
+    },
+    "A201": {
+      "nombre": "Taco de salmón y mango",
+      "noche": true
+    },
+    "A202": {
+      "nombre": "Gunkan sushi",
+      "noche": true
+    },
+    "A204": {
+      "nombre": "Sushi de salmón glaseado",
+      "noche": true
+    },
+    "A207": {
+      "nombre": "Maki de atún crujiente",
+      "noche": false
+    },
+    "A209": {
+      "nombre": "Sushi de plátano flameado",
+      "noche": false
+    }
+  },
+  "postres": [
+    "Bola de helado",
+    "Flan",
+    "Pastel de calabaza con chocolate",
+    "Mini rollito de platano y chocolate (2 uds)",
+    "Profiteroles (2 uds)",
+    "Crepe con nata y chocolate"
+  ],
+  "precios": {
+    "mediodia": {
+      "adultos": 15.8,
+      "ninos": 9
+    },
+    "noche": {
+      "adultos": 18.8,
+      "ninos": 10
+    }
+  },
+  "normas": [
+    "Obligatorio un pedido mínimo de 1 bebida por persona.",
+    "Pide lo que vas a consumir. Por cada plato no consumido, penalización de 2€.",
+    "Antes de hacer su pedido, por favor avisarnos sus alérgenos; de lo contrario, no nos hacemos responsables."
+  ],
+  "horario": [
+    "12:00-16:00",
+    "19:30-24:00"
+  ]
+}

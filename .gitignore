@@ -1,3 +1,6 @@
 .taste-skill/
 .vercel/
 .playwright-cli/
+
+# Informe temporal del robot de la carta (va en la Pull Request, no en el repositorio).
+herramientas/informe-carta.md

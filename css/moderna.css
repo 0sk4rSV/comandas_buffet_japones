@@ -2092,6 +2092,240 @@ ul.normas li::before {
 	}
 }
 
+/* ---------------------------------------------------------------- RULETA RUSA */
+
+/* Campo de texto de la app (nombres y reto). */
+.campo {
+	width: 100%;
+	min-width: 0;
+	height: 36px;
+	padding: 0 14px;
+	border-radius: var(--radius-control);
+	border: 1px solid var(--control);
+	background: var(--ground);
+	color: var(--text);
+	font-size: 14px;
+}
+
+.campo::placeholder {
+	color: var(--faint);
+}
+
+.campo:disabled {
+	opacity: 0.6;
+}
+
+/* Movil: una columna (mesa, reto y ruleta). Escritorio: mesa y reto a la izquierda, ruleta a la derecha. */
+.ruleta-rejilla {
+	display: grid;
+	gap: var(--gap);
+	max-width: 760px;
+	align-items: start;
+}
+
+@media (min-width: 761px) {
+	.ruleta-rejilla {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	}
+
+	.ruleta-panel {
+		grid-column: 2;
+		grid-row: 1 / span 2;
+	}
+}
+
+.ruleta-form {
+	display: flex;
+	gap: 8px;
+}
+
+.ruleta-form .btn {
+	flex: none;
+	height: 36px;
+}
+
+/* Nombres como etiquetas con su ✕. */
+.ruleta-jugadores {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	list-style: none;
+	margin: 12px 0 0;
+	padding: 0;
+}
+
+.jugador {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	height: 30px;
+	padding: 0 2px 0 12px;
+	border-radius: var(--radius-control);
+	background: var(--raised);
+	font-size: 13px;
+	max-width: 100%;
+}
+
+.jugador span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.jugador button {
+	display: grid;
+	place-items: center;
+	flex: none;
+	width: 26px;
+	height: 26px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--muted);
+	font-size: 16px;
+}
+
+@media (hover: hover) {
+	.jugador button:hover {
+		background: #36322f;
+		color: var(--text);
+	}
+}
+
+.ruleta-vacio {
+	color: var(--faint);
+	font-size: 13px;
+	line-height: 18px;
+}
+
+/* Retos propuestos: pildoras pequenas; la elegida, en blanco. */
+.ruleta-sugerencias {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 12px;
+}
+
+/* Los retos pueden ser largos: si no caben en una linea, la pildora crece en alto. */
+.sugerencia {
+	min-height: 28px;
+	padding: 5px 12px;
+	border: 1px solid var(--control);
+	border-radius: 14px;
+	line-height: 16px;
+	text-align: left;
+	background: transparent;
+	color: var(--muted);
+	font-size: 12px;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sugerencia[aria-pressed="true"] {
+	background: #ffffff;
+	border-color: #ffffff;
+	color: #000000;
+}
+
+@media (hover: hover) {
+	.sugerencia:not([aria-pressed="true"]):hover {
+		color: var(--text);
+		border-color: var(--faint);
+	}
+}
+
+/* La rueda: gira el contenedor; el puntero blanco de arriba se queda quieto. */
+.ruleta-panel {
+	display: grid;
+	justify-items: center;
+	gap: 16px;
+}
+
+/* Al girar, las esquinas (invisibles) del cuadrado de la rueda se salen de su sitio: se recortan para que
+   no tapen el boton de girar ni provoquen scroll horizontal en el movil, y la rueda no captura toques. */
+.ruleta {
+	position: relative;
+	width: min(280px, 100%);
+	aspect-ratio: 1;
+	overflow: hidden;
+}
+
+.ruleta-rueda {
+	width: 100%;
+	height: 100%;
+	transform-origin: 50% 50%;
+	will-change: transform;
+	pointer-events: none;
+}
+
+.ruleta-rueda svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.ruleta-rueda text {
+	fill: #ffffff;
+	font-family: var(--font);
+	font-weight: 600;
+}
+
+.ruleta-texto-vacio {
+	font-size: 13px;
+	fill: var(--faint) !important;
+	font-weight: 500 !important;
+}
+
+.ruleta-puntero {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	z-index: 1;
+	width: 0;
+	height: 0;
+	margin-left: -11px;
+	border-left: 11px solid transparent;
+	border-right: 11px solid transparent;
+	border-top: 20px solid #ffffff;
+	filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5)); /* taste-skill-ignore: el puntero tiene que separarse de la rueda */
+}
+
+.ruleta-girar {
+	width: 100%;
+	max-width: 280px;
+	height: 40px;
+}
+
+.ruleta-resultado {
+	text-align: center;
+	min-height: 0;
+}
+
+.ruleta-resultado:empty {
+	display: none;
+}
+
+.ruleta-ganador {
+	margin: 0;
+	font-size: 18px;
+	line-height: 24px;
+	color: var(--muted);
+	animation: aparecer-modal 0.25s ease;
+}
+
+.ruleta-ganador b {
+	color: var(--text);
+	font-size: 22px;
+}
+
+.ruleta-castigo {
+	margin: 0 0 6px;
+	color: #ff8b80;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 20px;
+}
+
 /* ---------------------------------------------------------------- NORMA DE ESPACIADO DE LOS PANELES
    El espacio entre el borde de un panel y su contenido es SIEMPRE el relleno del panel (--pad-y / --pad-x).
    Las filas que tienen relleno propio (filas de listas, cabeceras de ronda...) lo pierden en el lado que
