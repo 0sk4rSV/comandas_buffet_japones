@@ -2943,6 +2943,14 @@ ul.normas li::before {
 	will-change: transform;
 }
 
+/* Zona tactil mas grande que el dibujo (84x84 en vez de 52x52): se ve igual pero es mas facil de tocar. */
+.pieza::before {
+	content: "";
+	position: absolute;
+	inset: -16px;
+	border-radius: 50%;
+}
+
 .pieza.atrapada {
 	animation: atrapar-pieza 0.2s ease forwards;
 }
