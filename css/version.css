@@ -1,0 +1,111 @@
+/* SELECTOR DE VERSION LEGACY / MODERNA (compartido por ambas paginas). */
+
+#divCabecera {
+	position: relative;
+}
+
+/* Pildora segmentada: dos opciones del mismo ancho y un indicador azul que se desliza. */
+div#divSwitchVersion {
+	position: absolute;
+	top: 50%;
+	right: 12px;
+	transform: translateY(-50%);
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	padding: 2px;
+	background-color: #eef1f5;
+	border: 1px solid #d5dbe3;
+	border-radius: 999px;
+	user-select: none;
+	z-index: 1;
+}
+
+span.indicadorVersion {
+	position: absolute;
+	top: 2px;
+	bottom: 2px;
+	left: 2px;
+	width: calc(50% - 2px);
+	background-color: #0d6efd;
+	border-radius: 999px;
+	box-shadow: 0 1px 3px rgba(13, 110, 253, 0.35);
+	transition: transform 0.25s ease;
+}
+
+div#divSwitchVersion[data-activa="moderna"] span.indicadorVersion {
+	transform: translateX(100%);
+}
+
+button.opcionVersion {
+	position: relative;
+	z-index: 1;
+	border: 0;
+	background: transparent;
+	padding: 3px 9px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 700;
+	line-height: 1.2;
+	color: #6c757d;
+	cursor: pointer;
+	transition: color 0.25s ease;
+}
+
+button.opcionVersion:hover {
+	color: #0d6efd;
+}
+
+button.opcionVersion[aria-pressed="true"] {
+	color: #fff;
+	cursor: default;
+}
+
+button.opcionVersion:focus-visible {
+	outline: 2px solid #0d6efd;
+	outline-offset: 2px;
+}
+
+/* En pantallas medianas y pequeñas: pildora compacta en la esquina superior derecha. */
+/* (Solo en la cabecera de la Legacy; la Moderna coloca el selector en su barra superior.) */
+@media only screen and (max-width: 991px) {
+	html[data-version="legacy"] header {
+		padding-top: 40px !important;
+	}
+
+	#divCabecera div#divSwitchVersion {
+		top: -30px;
+		transform: none;
+	}
+}
+
+/* TRANSICION AL CAMBIAR DE VERSION: la pagina se desvanece al salir y aparece al entrar. */
+html.transicionSalida body {
+	opacity: 0;
+	transition: opacity 0.25s ease;
+}
+
+html.transicionEntrada body {
+	animation: aparecerVersion 0.3s ease;
+}
+
+@keyframes aparecerVersion {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	span.indicadorVersion,
+	html.transicionSalida body {
+		transition: none;
+	}
+
+	html.transicionEntrada body {
+		animation: none;
+	}
+}

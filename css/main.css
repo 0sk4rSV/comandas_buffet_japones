@@ -58,7 +58,12 @@ button.btnImagenPlato {
 	background-color: #fdc4be !important;
 }
 
-p#pInfoMenu {
+/* Plato favorito y de sushi a la vez: degradado verde (arriba) -> rosa (abajo) en toda la fila. */
+.fav.sushi {
+	background: linear-gradient(to bottom, #7feb7f 30%, #fdc4be 70%) !important;
+}
+
+p.pInfoMenu {
 	margin-bottom: 0px;
 	font-size: small;
 }
@@ -108,11 +113,28 @@ button.btnEliminarPedido i::before {
 
 button.btn-rounded {
 	border-radius: 50%;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
 }
 
 div#divComplementariaBtns {
 	display: flex;
+	align-items: center;
 	gap: 16px;
+}
+
+/* Ancla invisible del tooltip "Listado copiado": no debe ocupar espacio ni descentrar el icono. */
+button#btnCopiarPedidos span.tooltip {
+	position: absolute;
+	width: 0;
+	height: 0;
+	padding: 0;
+	margin: 0;
 }
 
 .accordion-item {

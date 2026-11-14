@@ -1,0 +1,2145 @@
+/* VERSION MODERNA — estilo "true-black-flat" (tasteskill), cara samurai: negro tinta + sol rojo hinomaru.
+   Elevacion solo por luminosidad (suelo, superficie, panel); sin bordes ni sombras en reposo.
+   El rojo es el unico color y solo va en datos: el sol, la disponibilidad y el filtro seleccionado.
+
+   Rejilla (escritorio, 1440): barra lateral 210 + 1px de regla; lienzo con 29px de margen a cada lado.
+   Carta: columna principal 1fr + carril derecho 360px con 14px de separacion (una sola separacion, --gap). */
+
+@font-face {
+	font-family: 'GangOfThree';
+	src: url('../fonts/GangOfThree.ttf');
+	font-display: swap;
+}
+
+:root {
+	color-scheme: dark;
+
+	--ground: #0b0a09;
+	--surface: #161413;
+	--raised: #2a2725;
+	--border: #1f1d1b;
+	--rule: #1f1d1b;
+	--control: #4a4644;
+	--text: #ffffff;
+	--muted: #b4b4b4;
+	--faint: #9a9692;
+	--accent: #e23b2e;
+	--accent-tint: #2c1311;
+	--negative: #ff6f61;
+	--pill-neutral-bg: #2a2725;
+	--pill-warning-bg: #2b2414;
+	--pill-warning-ink: #e5a93b;
+
+	--radius-card: 20px;
+	--radius-inner: 12px;
+	--radius-control: 999px;
+	--gap: 14px;
+	/* Relleno estandar de TODOS los paneles (menos las tablas de carta y postres). En movil se reduce. */
+	--pad-y: 18px;
+	--pad-x: 20px;
+	--control-height: 36px;
+	--sidebar-width: 210px;
+	--topbar: 64px;
+
+	--font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+	--fs-title: 20px;
+	--fs-section: 16px;
+	--fs-kpi: 24px;
+	--fs-lead: 30px;
+	--fs-body: 14px;
+	--fs-small: 12px;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html {
+	background: var(--ground);
+	-webkit-text-size-adjust: 100%;
+	/* Al moverse con el teclado, el elemento con foco no queda tapado por la barra superior fija. */
+	scroll-padding-top: calc(var(--topbar) + 12px);
+}
+
+/* En movil la barra superior ocupa dos filas (96px) y abajo esta la barra de secciones (57px). */
+@media (max-width: 760px) {
+	html {
+		scroll-padding-top: 108px;
+		scroll-padding-bottom: calc(69px + env(safe-area-inset-bottom));
+	}
+}
+
+body {
+	margin: 0;
+	background: var(--ground);
+	color: var(--text);
+	font-family: var(--font);
+	font-size: var(--fs-body);
+	line-height: 20px;
+	-webkit-font-smoothing: antialiased;
+	touch-action: manipulation;
+	-webkit-tap-highlight-color: transparent;
+}
+
+button,
+input {
+	font: inherit;
+	color: inherit;
+}
+
+button {
+	cursor: pointer;
+}
+
+a {
+	color: inherit;
+}
+
+.num {
+	font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+	outline: 2px solid #ffffff;
+	outline-offset: 2px;
+}
+
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+.saltar {
+	position: absolute;
+	left: 12px;
+	top: -60px;
+	z-index: 50;
+	padding: 8px 14px;
+	background: #fff;
+	color: #000;
+	border-radius: var(--radius-control);
+	text-decoration: none;
+	font-weight: 600;
+}
+
+.saltar:focus {
+	top: 12px;
+}
+
+/* ---------------------------------------------------------------- SHELL (T-frame con reglas) */
+
+.shell {
+	display: grid;
+	grid-template-columns: var(--sidebar-width) 1fr;
+	grid-template-rows: var(--topbar) 1fr;
+	min-height: 100vh;
+}
+
+.topbar {
+	grid-column: 1 / -1;
+	display: grid;
+	grid-template-columns: var(--sidebar-width) 1fr auto;
+	align-items: center;
+	border-bottom: 1px solid var(--rule);
+	position: sticky;
+	top: 0;
+	z-index: 20;
+	background: var(--ground);
+}
+
+.marca {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	height: 100%;
+	padding-left: 22px;
+	border-right: 1px solid var(--rule);
+	text-decoration: none;
+}
+
+.marca-sol {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: var(--accent);
+	flex: none;
+}
+
+.marca-nombre {
+	font-family: 'GangOfThree', var(--font);
+	font-size: 24px;
+	line-height: 1;
+	letter-spacing: 0.02em;
+	padding-top: 3px;
+}
+
+.topbar-centro {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 0 29px;
+	min-width: 0;
+}
+
+/* Linea de estado: el punto rojo es el sol (relleno abierto, anillo cerrado). */
+.estado {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+	min-width: 0;
+	font-size: 14px;
+	line-height: 20px;
+	color: var(--muted);
+}
+
+.estado-sol {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: var(--accent);
+	flex: none;
+}
+
+.estado-sol.cerrado {
+	background: transparent;
+	border: 2px solid var(--accent);
+}
+
+.estado-texto b {
+	color: var(--text);
+	font-weight: 600;
+}
+
+.estado-aviso {
+	color: var(--pill-warning-ink);
+}
+
+/* Cuenta atras con cifras de ancho fijo para que no baile al cambiar cada segundo. */
+.estado-cuenta {
+	color: var(--text);
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
+/* TEXTO DE ACCION: texto subrayado que hace de boton o enlace ("Ver carta oficial", "Ver completo",
+   "Borrar", "Borrar todas", "¿Hoy es festivo?"). Todos con el mismo tamano, color y subrayado. */
+.accion-texto {
+	display: inline-flex;
+	align-items: center;
+	min-height: 32px;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--muted);
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 18px;
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 3px;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: color 0.15s ease;
+}
+
+@media (hover: hover) {
+	.accion-texto:hover {
+		color: var(--text);
+	}
+}
+
+/* Dentro de la linea de estado va en medio del texto: sin altura minima para no descolocar la linea. */
+.estado .accion-texto {
+	display: inline;
+	min-height: 0;
+}
+
+.titulo-fila.titulo-compacto {
+	margin-bottom: 0;
+	align-items: baseline;
+}
+
+.titulo-derecha {
+	display: flex;
+	align-items: baseline;
+	gap: 12px;
+	white-space: nowrap;
+}
+
+
+/* Tablas (carta y postres): cada fila lleva su propio espacio, asi que tienen su relleno aparte. */
+.panel.panel-lista {
+	padding: 22px;
+}
+
+.topbar-derecha {
+	display: flex;
+	align-items: center;
+	height: 100%;
+	padding: 0 29px;
+	border-left: 1px solid var(--rule);
+}
+
+.sidebar {
+	border-right: 1px solid var(--rule);
+	padding: 18px 12px;
+	position: sticky;
+	top: var(--topbar);
+	height: calc(100vh - var(--topbar));
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.nav-enlace {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	height: 34px;
+	padding: 0 10px;
+	border-radius: 10px;
+	text-decoration: none;
+	color: #bbbbbb;
+	font-size: 14px;
+	transition: color 0.15s ease;
+}
+
+.nav-enlace i {
+	font-size: 16px;
+	color: inherit;
+}
+.nav-enlace:hover,
+.nav-enlace[aria-current="page"] {
+	color: #ffffff;
+}
+
+.nav-contador {
+	display: inline-block;
+	margin-left: auto;
+	font-size: 12px;
+	color: var(--muted);
+}
+
+.sidebar-pie {
+	margin-top: auto;
+	padding: 0 10px;
+	font-size: 12px;
+	line-height: 18px;
+	color: var(--faint);
+}
+
+.lienzo {
+	padding: 24px 29px 48px;
+	min-width: 0;
+}
+
+.vista[hidden] {
+	display: none;
+}
+
+/* Extras ocupa toda la altura disponible para dejar el maki secreto al fondo (como el pie de la Legacy). */
+#vista-extras:not([hidden]) {
+	display: flex;
+	flex-direction: column;
+	min-height: calc(100vh - var(--topbar) - 72px);
+	min-height: calc(100dvh - var(--topbar) - 72px);
+}
+
+.extras-secreto {
+	margin-top: auto;
+	align-self: center;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	font-size: 22px;
+	line-height: 1;
+	-webkit-user-select: none;
+	user-select: none;
+	transition: transform 0.1s ease;
+}
+
+.extras-secreto:active {
+	transform: scale(0.85);
+}
+
+/* Cambio de pantalla: deslizamiento corto y fundido (la direccion la pone el JS en --entrada).
+   Sin "forwards": al terminar no queda ningun transform que afecte al carril fijo de la carta. */
+.vista.entrando {
+	animation: entrar-vista 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes entrar-vista {
+	from {
+		opacity: 0;
+		transform: translateX(var(--entrada, 0));
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+.titulo-fila {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 18px;
+}
+
+h1 {
+	font-size: var(--fs-title);
+	line-height: 28px;
+	font-weight: 600;
+	margin: 0;
+	text-wrap: balance;
+}
+
+h2 {
+	font-size: var(--fs-section);
+	line-height: 24px;
+	font-weight: 600;
+	margin: 0;
+	text-wrap: balance;
+}
+
+.subtitulo {
+	color: var(--muted);
+	margin: 4px 0 0;
+}
+
+.panel {
+	background: var(--surface);
+	border-radius: var(--radius-card);
+	padding: var(--pad-y) var(--pad-x);
+}
+
+.panel-cabecera {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 14px;
+}
+
+.panel-meta {
+	font-size: 12px;
+	color: var(--faint);
+}
+
+/* Botones: el principal es una pildora blanca invertida; el secundario, gris; el terciario, texto. */
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	height: var(--control-height);
+	padding: 0 16px;
+	border-radius: var(--radius-control);
+	border: 0;
+	font-size: 14px;
+	font-weight: 500;
+	white-space: nowrap;
+	transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.btn:active {
+	transform: scale(0.97);
+}
+
+.btn-principal {
+	background: #ffffff;
+	color: #000000;
+}
+
+.btn-principal:hover {
+	background: #e6e6e6;
+}
+
+.btn-secundario {
+	background: var(--raised);
+	color: var(--text);
+}
+
+.btn-secundario:hover {
+	background: #36322f;
+}
+
+.btn-peligro {
+	color: var(--negative);
+}
+
+.btn-peligro:hover {
+	color: #ff9a90;
+}
+
+.btn[disabled] {
+	opacity: 0.55;
+	cursor: default;
+}
+
+.pildora {
+	display: inline-flex;
+	align-items: center;
+	flex: none;
+	height: 20px;
+	padding: 0 8px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 500;
+	white-space: nowrap;
+	background: var(--pill-neutral-bg);
+	color: var(--muted);
+}
+
+.pildora-sol {
+	background: var(--accent-tint);
+	color: #ff8b80;
+}
+
+.pildora-aviso {
+	background: var(--pill-warning-bg);
+	color: var(--pill-warning-ink);
+}
+
+/* ---------------------------------------------------------------- CARTA */
+
+.panel .interruptor {
+	margin-top: 12px;
+}
+
+.carta-rejilla {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 360px;
+	gap: var(--gap);
+	align-items: start;
+}
+
+.carta-principal {
+	display: grid;
+	gap: var(--gap);
+	min-width: 0;
+}
+
+.interruptor {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	cursor: pointer;
+	color: var(--muted);
+	font-size: 13px;
+	min-height: 32px;
+}
+
+.interruptor input {
+	appearance: none;
+	width: 32px;
+	height: 18px;
+	border-radius: 999px;
+	background: var(--control);
+	position: relative;
+	margin: 0;
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+	flex: none;
+}
+
+.interruptor input::after {
+	content: "";
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: #fff;
+	transition: transform 0.15s ease;
+}
+
+.interruptor input:checked {
+	background: #ffffff;
+}
+
+.interruptor input:checked::after {
+	background: #000;
+	transform: translateX(14px);
+}
+
+/* ---------------------------------------------------------------- FILTROS (tarjetas de recuento) */
+
+.filtros {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 8px;
+}
+
+.filtro {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: center;
+	gap: 2px;
+	height: 61px;
+	padding: 12px;
+	border-radius: var(--radius-inner);
+	border: 1.5px solid transparent;
+	background: var(--surface);
+	text-align: left;
+	transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.filtro:hover {
+	background: #1e1b1a;
+}
+
+.filtro-etiqueta {
+	font-size: 13px;
+	color: var(--muted);
+	line-height: 18px;
+}
+
+.filtro-valor {
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 20px;
+}
+
+.filtro[aria-pressed="true"] {
+	border-color: var(--accent);
+	background: var(--accent-tint);
+}
+
+.filtro[aria-pressed="true"] .filtro-etiqueta {
+	color: #ffffff;
+}
+
+.buscador {
+	position: relative;
+}
+
+.buscador i {
+	position: absolute;
+	left: 14px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: var(--faint);
+	font-size: 14px;
+	pointer-events: none;
+}
+
+.buscador input {
+	width: 100%;
+	height: 40px;
+	padding: 0 14px 0 38px;
+	border-radius: var(--radius-control);
+	border: 1px solid var(--control);
+	background: var(--surface);
+	color: var(--text);
+}
+
+.buscador input::placeholder {
+	color: var(--faint);
+}
+
+/* ---------------------------------------------------------------- LISTA DE PLATOS */
+
+.lista-platos {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.plato {
+	display: grid;
+	grid-template-columns: 48px minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 8px;
+	min-height: 52px;
+	padding: 6px 0;
+	border-top: 1px solid var(--rule);
+}
+
+/* Emojis detras del nombre, como texto: pegados a la ultima palabra y alineados con la letra. */
+.sin-corte {
+	white-space: nowrap;
+}
+
+.plato-iconos {
+	padding-left: 3px;
+}
+
+.ico-aviso {
+	color: var(--pill-warning-ink);
+}
+
+/* Emojis como en la Legacy. */
+.emoji {
+	display: inline-block;
+	font-size: 0.9em;
+	line-height: 1;
+	margin-left: 1px;
+	vertical-align: baseline;
+}
+
+.emoji-noche.apagada {
+	filter: grayscale(1);
+	opacity: 0.55;
+}
+
+/* Llama de los favoritos: parpadea como una vela (solo transform y opacity). */
+.llama {
+	transform-origin: 50% 85%;
+	animation: llama 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes llama {
+	0% {
+		transform: scale(1) rotate(-5deg);
+		opacity: 0.85;
+	}
+
+	50% {
+		transform: scale(1.14, 1.2) rotate(3deg);
+		opacity: 1;
+	}
+
+	100% {
+		transform: scale(0.94, 1) rotate(-2deg);
+		opacity: 0.9;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.llama {
+		animation: none;
+	}
+}
+
+.ico-podio {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	color: #ff8b80;
+	font-weight: 600;
+}
+
+.ico-fav {
+	color: #b4b4b4;
+}
+
+.leyenda {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 14px;
+	margin: 0;
+	padding: 0 4px;
+	font-size: 12px;
+	line-height: 16px;
+	color: var(--faint);
+}
+
+.leyenda span {
+	white-space: nowrap;
+}
+
+.leyenda span:first-child {
+	color: var(--muted);
+}
+
+.plato:first-child {
+	border-top: 0;
+}
+
+.plato-codigo {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--faint);
+	text-align: left;
+}
+
+.plato-cuerpo {
+	min-width: 0;
+}
+
+.plato-nombre {
+	display: block;
+	font-size: 14px;
+	line-height: 19px;
+	overflow-wrap: anywhere;
+}
+
+/* Segunda linea pequena y gris (p. ej. los sabores de la bola de helado). */
+.plato-detalle {
+	display: block;
+	margin-top: 2px;
+	font-size: 12px;
+	line-height: 16px;
+	color: var(--faint);
+}
+
+.plato.no-disponible .plato-nombre {
+	color: var(--muted);
+}
+
+.plato-accion {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+/* "+ Añadir" y "✓ Añadido" con el mismo ancho, para que la columna no se mueva al añadir. */
+.plato-accion [data-alternar] {
+	width: 118px;
+	padding: 0;
+}
+
+.btn-icono {
+	width: var(--control-height);
+	padding: 0;
+	color: var(--muted);
+	background: transparent;
+}
+
+.btn-icono:hover {
+	color: var(--text);
+	background: var(--raised);
+}
+
+.vacio {
+	padding: 22px 0 6px;
+	color: var(--muted);
+	text-align: left;
+}
+
+/* ---------------------------------------------------------------- PEDIDO */
+
+.pedido-lista {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+/* Fila del pedido: codigo · nombre · [− cantidad +] · ✕ */
+.pedido-fila {
+	display: grid;
+	grid-template-columns: 38px minmax(0, 1fr) auto auto;
+	align-items: center;
+	gap: 8px;
+	min-height: 46px;
+	padding: 6px 0;
+	border-top: 1px solid var(--rule);
+	font-size: 14px;
+	line-height: 19px;
+}
+
+.titulo-total {
+	font-size: 13px;
+	font-weight: 400;
+	color: var(--faint);
+	margin-left: 4px;
+}
+
+.btn-quitar {
+	width: 30px;
+	height: 30px;
+	font-size: 13px;
+}
+
+.btn-quitar:hover {
+	color: var(--negative);
+}
+
+.pedido-fila:first-child {
+	border-top: 0;
+}
+
+.pedido-nombre {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.pedido-nombre .pildora {
+	margin-left: 6px;
+	vertical-align: 1px;
+}
+
+.paso {
+	display: inline-flex;
+	align-items: center;
+	background: var(--raised);
+	border-radius: var(--radius-control);
+	height: 30px;
+}
+
+.paso button {
+	width: 26px;
+	height: 100%;
+	border: 0;
+	background: transparent;
+	color: var(--text);
+	border-radius: var(--radius-control);
+	font-size: 15px;
+	line-height: 1;
+	padding: 0;
+}
+
+.paso button:hover {
+	background: #36322f;
+}
+
+.paso button[disabled] {
+	color: var(--control);
+	cursor: default;
+	background: transparent;
+}
+
+/* La cantidad se puede escribir directamente (p. ej. 30). */
+.paso input {
+	width: 30px;
+	height: 24px;
+	border: 0;
+	border-radius: 6px;
+	background: transparent;
+	color: var(--text);
+	text-align: center;
+	font-weight: 600;
+	font-size: 14px;
+	padding: 0;
+}
+
+.paso input:focus {
+	background: var(--ground);
+	outline: 1px solid #ffffff;
+}
+
+.pedido-acciones {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+.btn-peq {
+	height: 32px;
+	padding: 0 12px;
+	font-size: 13px;
+	gap: 6px;
+}
+
+.btn-icono-peq {
+	width: 32px;
+	padding: 0;
+	margin-left: auto;
+}
+
+a.btn {
+	text-decoration: none;
+}
+
+
+/* En pantallas estrechas (y en el carril de la carta) los tres botones se reparten el ancho
+   y pierden el icono para caber en una fila. */
+.rail .pedido-acciones .btn-peq:not(.btn-icono-peq) {
+	flex: 1 1 auto;
+	padding: 0 8px;
+}
+
+.rail .pedido-acciones .btn-peq:not(.btn-icono-peq) .bi {
+	display: none;
+}
+
+.rail .pedido-acciones {
+	gap: 6px;
+}
+
+@media (max-width: 420px) {
+	.pedido-acciones .btn-peq:not(.btn-icono-peq) {
+		flex: 1 1 auto;
+		padding: 0 8px;
+	}
+
+	.pedido-acciones .btn-peq:not(.btn-icono-peq) .bi {
+		display: none;
+	}
+
+	.pedido-acciones {
+		gap: 6px;
+	}
+}
+
+/* "Ya lo he pedido": el paso final del pedido, a todo el ancho. */
+.btn-ronda {
+	width: 100%;
+	margin-top: 16px;
+	height: 40px;
+}
+
+/* "· ronda N" pegado al texto: se compensa el hueco que el boton deja entre sus elementos. */
+.btn-nota {
+	font-weight: 400;
+	color: #5c5856;
+	margin-left: -4px;
+}
+
+.btn-nota::before {
+	content: "· ";
+}
+
+/* Acceso a las rondas desde el carril de la carta. */
+/* Rondas ya pedidas dentro del panel del pedido de la carta: se despliegan ahi mismo.
+   Es lo ultimo del panel: el margen negativo recorta el hueco que dejaba debajo al estar plegado. */
+.rail-rondas {
+	margin-top: 14px;
+	margin-bottom: -12px;
+	border-top: 1px solid var(--rule);
+}
+
+.rail-rondas[open] {
+	margin-bottom: 0;
+}
+
+/* "Borrar todas" al final de la lista de rondas, a la derecha y subrayado. */
+.rail-rondas-pie {
+	display: flex;
+	justify-content: flex-end;
+	padding-top: 2px;
+	border-top: 1px solid var(--rule);
+}
+
+.rail-rondas > summary {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 44px;
+	color: var(--muted);
+	font-size: 13px;
+	cursor: pointer;
+	list-style: none;
+	transition: color 0.15s ease;
+}
+
+.rail-rondas > summary::-webkit-details-marker {
+	display: none;
+}
+
+.rail-rondas[open] > summary {
+	color: var(--text);
+}
+
+@media (hover: hover) {
+	.rail-rondas > summary:hover {
+		color: var(--text);
+	}
+}
+
+.rail-rondas > summary .bi-chevron-down {
+	margin-left: auto;
+	font-size: 11px;
+	transition: transform 0.15s ease;
+}
+
+.rail-rondas[open] > summary .bi-chevron-down {
+	transform: rotate(180deg);
+}
+
+/* Las rondas de dentro, separadas del resumen por una linea fina. */
+.rail-rondas .rondas {
+	border-top: 1px solid var(--rule);
+}
+
+/* ---------------------------------------------------------------- RONDAS */
+
+.panel-rondas {
+	margin-top: var(--gap);
+}
+
+.panel-rondas .panel-cabecera {
+	align-items: center;
+	margin-bottom: 6px;
+}
+
+.panel-rondas h2 {
+	font-size: var(--fs-section);
+}
+
+.rondas {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.rondas > li + li {
+	border-top: 1px solid var(--rule);
+}
+
+.ronda summary {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-height: 44px;
+	cursor: pointer;
+	list-style: none;
+	font-size: 14px;
+}
+
+.ronda summary::-webkit-details-marker {
+	display: none;
+}
+
+/* Al pasar el raton por la cabecera de una ronda, el nombre y la flecha se iluminan (como en Extras). */
+/* Solo con raton: en el movil el :hover se queda "pegado" tras tocar y el nombre seguiria en rojo. */
+@media (hover: hover) {
+	.ronda summary:hover .ronda-nombre {
+		color: #ff8b80;
+	}
+
+	.ronda summary:hover .bi-chevron-down {
+		color: var(--text);
+	}
+}
+
+.ronda-nombre {
+	transition: color 0.15s ease;
+	font-weight: 600;
+}
+
+.ronda-meta {
+	color: var(--faint);
+	font-size: 13px;
+}
+
+.ronda summary .bi-chevron-down {
+	margin-left: auto;
+	color: var(--faint);
+	font-size: 12px;
+	transition: transform 0.15s ease;
+}
+
+.ronda[open] summary .bi-chevron-down {
+	transform: rotate(180deg);
+}
+
+.ronda-lista {
+	list-style: none;
+	margin: 0 0 10px;
+	padding: 0;
+}
+
+.ronda-lista li {
+	display: grid;
+	grid-template-columns: 38px minmax(0, 1fr) auto;
+	align-items: baseline;
+	gap: 8px;
+	padding: 5px 0;
+	font-size: 14px;
+	line-height: 19px;
+	color: var(--muted);
+}
+
+.ronda-cantidad {
+	color: var(--faint);
+	font-size: 13px;
+}
+
+/* "Volver a pedir esta ronda" y, al otro extremo, la papelera para borrar solo esa ronda. */
+.ronda-acciones {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
+
+/* "Pedido en la ronda 1" bajo el nombre del plato en la carta. */
+.plato-detalle.ya-pedido {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+/* ---------------------------------------------------------------- COMPARTIR */
+
+.compartir-contenido {
+	padding: 22px;
+}
+
+.compartir h2 {
+	font-size: 17px;
+	line-height: 24px;
+}
+
+.compartir p {
+	margin: 6px 0 16px;
+	color: var(--muted);
+	font-size: 14px;
+	line-height: 20px;
+}
+
+/* El QR siempre oscuro sobre blanco para que lo lea cualquier camara.
+   La tarjeta blanca deja margen de sobra, asi las esquinas redondeadas no tocan el codigo. */
+.qr {
+	display: grid;
+	place-items: center;
+	width: min(236px, 100%);
+	aspect-ratio: 1;
+	margin: 0 auto 20px;
+	padding: 8px;
+	border-radius: 18px;
+	background: #ffffff;
+}
+
+/* Pedidos muy largos: QR con mas puntos, se muestra mas grande para que la camara lo lea. */
+.qr.denso {
+	width: min(300px, 100%);
+	padding: 6px;
+}
+
+.qr svg {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.qr-estado {
+	padding: 16px;
+	color: #000000;
+	font-size: 13px;
+	line-height: 18px;
+	text-align: center;
+}
+
+.pedido-aviso {
+	margin: 0 0 14px;
+	padding: 10px 12px;
+	border-radius: var(--radius-inner);
+	background: var(--pill-warning-bg);
+	color: var(--pill-warning-ink);
+	font-size: 13px;
+	line-height: 18px;
+}
+
+.rail {
+	position: sticky;
+	top: calc(var(--topbar) + 24px);
+}
+
+/* Paneles de lectura que no conviene estirar a todo el ancho (p. ej. los postres). */
+.panel-estrecho {
+	max-width: 760px;
+}
+
+.vista-pedido .panel {
+	max-width: 760px;
+}
+
+/* ---------------------------------------------------------------- POSTRES, INFO Y EXTRAS */
+
+.rejilla-dos {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--gap);
+	align-items: start;
+}
+
+.lista-simple {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.lista-simple li {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: 12px;
+	min-height: 44px;
+	padding: 12px 0;
+	border-top: 1px solid var(--rule);
+}
+
+.lista-simple li:first-child {
+	border-top: 0;
+}
+
+.lista-simple .valor {
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.lista-simple .actual {
+	color: #ff8b80;
+}
+
+.nota {
+	margin: 14px 0 0;
+	font-size: 13px;
+	line-height: 18px;
+	color: var(--muted);
+}
+
+/* Normas del buffet: una por linea, con vineta y alineadas a la izquierda. */
+ul.normas {
+	list-style: none;
+	margin-left: 0;
+	padding-left: 0;
+	display: grid;
+	gap: 6px;
+}
+
+/* Vineta propia pegada al borde izquierdo; el texto que salta de linea queda alineado con el de arriba. */
+ul.normas li {
+	position: relative;
+	padding-left: 14px;
+}
+
+ul.normas li::before {
+	content: "\2022";
+	position: absolute;
+	left: 0;
+}
+
+.panel figure {
+	margin: 0;
+}
+
+.panel img {
+	display: block;
+	max-width: 100%;
+	height: auto;
+	border-radius: var(--radius-inner);
+}
+
+/* MENU DE EXTRAS: una fila por extra, cada una abre su pantalla. */
+/* Usa el relleno estandar de los paneles, como el resto. */
+.lista-extras {
+	display: block;
+	max-width: 760px;
+}
+
+.extra-fila {
+	display: grid;
+	grid-template-columns: 36px minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 12px;
+	min-height: 60px;
+	padding: 10px 0;
+	border-top: 1px solid var(--rule);
+	text-decoration: none;
+	color: var(--text);
+}
+
+.extra-fila:first-child {
+	border-top: 0;
+}
+
+@media (hover: hover) {
+	.extra-fila:hover b {
+		color: #ff8b80;
+	}
+}
+
+.extra-emoji {
+	font-size: 22px;
+	line-height: 1;
+	text-align: center;
+}
+
+.extra-texto b {
+	display: block;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 20px;
+	transition: color 0.15s ease;
+}
+
+.extra-texto small {
+	display: block;
+	font-size: 13px;
+	line-height: 18px;
+	color: var(--faint);
+}
+
+.extra-fila .bi-chevron-right {
+	color: var(--faint);
+	font-size: 14px;
+}
+
+/* Enlace "‹ Extras" para volver al menu. */
+.volver {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin-bottom: 10px;
+	font-size: 13px;
+	color: var(--muted);
+	text-decoration: none;
+}
+
+.volver:hover {
+	color: var(--text);
+}
+
+.extra-panel {
+	max-width: 760px;
+}
+
+.contador-maki {
+	display: grid;
+	justify-items: center;
+	gap: 16px;
+	padding: 6px 0;
+}
+
+.maki-boton {
+	border: 0;
+	background: transparent;
+	padding: 0;
+	border-radius: 50%;
+	transition: transform 0.08s ease;
+	touch-action: manipulation;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+.maki-boton:active {
+	transform: scale(0.95);
+}
+
+/* Pulsacion del maki al tocarlo (como la animacion de la Legacy). */
+.maki-boton img.pulso {
+	animation: pulso-maki 0.16s ease;
+}
+
+@keyframes pulso-maki {
+	0% {
+		transform: scale(1);
+	}
+
+	50% {
+		transform: scale(0.94);
+	}
+
+	100% {
+		transform: scale(1);
+	}
+}
+
+.maki-boton img {
+	width: 168px;
+	height: 168px;
+	object-fit: contain;
+	border-radius: 0;
+}
+
+.maki-marcador {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+}
+
+.maki-valor {
+	font-family: 'GangOfThree', var(--font);
+	font-size: 40px;
+	line-height: 1;
+	min-width: 72px;
+	text-align: center;
+}
+
+.maki-progreso {
+	width: 100%;
+	max-width: 320px;
+}
+
+.maki-barra {
+	height: 6px;
+	border-radius: 999px;
+	background: var(--raised);
+	overflow: hidden;
+}
+
+/* La barra ocupa todo el ancho y se escala desde la izquierda (el JS pone scaleX): solo se anima transform. */
+.maki-barra span {
+	display: block;
+	height: 100%;
+	width: 100%;
+	background: var(--accent);
+	transform: scaleX(0);
+	transform-origin: left center;
+	transition: transform 0.15s ease;
+}
+
+.maki-ejes {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 6px;
+	font-size: 12px;
+	color: var(--faint);
+}
+
+/* ---------------------------------------------------------------- MODO DISCRETO */
+
+/* Como en la Legacy: pantalla negra, texto gris y apagado, que no llame la atencion en la mesa. */
+.discreto {
+	border: 0;
+	padding: 0;
+	margin: 0;
+	width: 100vw;
+	height: 100dvh;
+	max-width: none;
+	max-height: none;
+	background: #000;
+	color: #808080;
+	overscroll-behavior: contain;
+}
+
+.discreto::backdrop {
+	background: #000;
+}
+
+.discreto-contenido {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	max-width: 760px;
+	margin: 0 auto;
+}
+
+.discreto-cabecera {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	padding: max(16px, env(safe-area-inset-top)) 20px 14px;
+	border-bottom: 1px solid #1a1a1a;
+}
+
+.discreto-cabecera h2 {
+	font-size: 16px;
+	font-weight: 600;
+	color: #9a9a9a;
+	letter-spacing: 0.02em;
+}
+
+.discreto-x {
+	width: 36px;
+	height: 36px;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: #808080;
+	font-size: 16px;
+}
+
+.discreto-x:hover {
+	color: #ffffff;
+}
+
+.discreto-lista {
+	flex: 1;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	padding: 16px 20px;
+	font-size: 16px;
+	line-height: 22px;
+}
+
+.discreto-lista p {
+	margin: 0 0 8px;
+}
+
+.discreto-pie {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 20px max(16px, env(safe-area-inset-bottom));
+	border-top: 1px solid #1a1a1a;
+	font-size: 14px;
+}
+
+.discreto-pie b {
+	color: #b4b4b4;
+}
+
+.discreto-botones {
+	display: flex;
+	gap: 8px;
+}
+
+.discreto-pie .btn {
+	background: #1a1a1a;
+	color: #9a9a9a;
+	height: 34px;
+	padding: 0 14px;
+	font-size: 13px;
+	gap: 6px;
+}
+
+.discreto-pie .btn:hover {
+	color: #ffffff;
+}
+
+/* ---------------------------------------------------------------- AVISOS */
+
+/* MODAL DE CONFIRMACION */
+.confirmar {
+	width: min(340px, calc(100vw - 32px));
+	padding: 0;
+	border: 0;
+	border-radius: var(--radius-card);
+	background: var(--surface);
+	color: var(--text);
+	box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6); /* taste-skill-ignore: el modal flota sobre la pagina */
+	overscroll-behavior: contain;
+}
+
+.confirmar::backdrop {
+	background: rgba(0, 0, 0, 0.65);
+}
+
+.confirmar[open] {
+	animation: aparecer-modal 0.18s ease;
+}
+
+@keyframes aparecer-modal {
+	from {
+		opacity: 0;
+		transform: translateY(8px) scale(0.98);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+.confirmar form {
+	padding: 22px;
+}
+
+.confirmar h2 {
+	font-size: 17px;
+	line-height: 24px;
+}
+
+.confirmar p {
+	margin: 6px 0 20px;
+	color: var(--muted);
+	font-size: 14px;
+	line-height: 20px;
+}
+
+.confirmar-acciones {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+.btn-borrar {
+	background: #d93a3f;
+	color: #ffffff;
+}
+
+.btn-borrar:hover {
+	background: #c22f34;
+}
+
+/* Aviso: pildora oscura pequena de una sola linea (solo para copiar, habituales y borrar). */
+.aviso {
+	position: fixed;
+	left: 50%;
+	bottom: 24px;
+	transform: translate(-50%, 8px);
+	opacity: 0;
+	z-index: 60;
+	max-width: min(300px, calc(100vw - 48px));
+	padding: 7px 14px;
+	border-radius: var(--radius-control);
+	background: var(--raised);
+	color: var(--text);
+	font-size: 13px;
+	line-height: 18px;
+	font-weight: 500;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	transition: opacity 0.2s ease, transform 0.2s ease;
+	pointer-events: none;
+}
+
+/* Aviso largo (frases del easter egg): varias lineas, centrado y algo mas arriba para no tapar el maki. */
+.aviso.largo {
+	bottom: 104px;
+	max-width: min(320px, calc(100vw - 48px));
+	padding: 10px 16px;
+	border-radius: 16px;
+	white-space: normal;
+	text-align: center;
+}
+
+/* Aviso con "Deshacer": texto a la izquierda (se recorta si es largo) y el boton a la derecha. */
+.aviso.con-accion {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	max-width: min(340px, calc(100vw - 32px));
+	padding: 4px 6px 4px 16px;
+}
+
+.aviso.con-accion.visible {
+	pointer-events: auto;
+}
+
+.aviso-texto {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.aviso-deshacer {
+	flex: none;
+	height: 30px;
+	padding: 0 12px;
+	border: 0;
+	border-radius: var(--radius-control);
+	background: transparent;
+	color: #ff8b80;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.aviso-deshacer:hover {
+	background: #36322f;
+	color: #ffffff;
+}
+
+.aviso.visible {
+	opacity: 1;
+	transform: translate(-50%, 0);
+}
+
+/* Rebote del contador del pedido al anadir o quitar platos. */
+.rebote {
+	animation: rebote 0.35s ease;
+}
+
+@keyframes rebote {
+	0% {
+		transform: scale(1);
+	}
+
+	40% {
+		transform: scale(1.35);
+	}
+
+	100% {
+		transform: scale(1);
+	}
+}
+
+/* ---------------------------------------------------------------- BARRA INFERIOR (movil) */
+
+.barra-inferior {
+	display: none;
+}
+
+/* ---------------------------------------------------------------- SELECTOR DE VERSION EN OSCURO */
+
+.topbar div#divSwitchVersion {
+	position: relative;
+	top: auto;
+	right: auto;
+	transform: none;
+	background-color: var(--surface);
+	border-color: var(--raised);
+}
+
+/* En oscuro la opcion activa lleva su propio fondo blanco (texto negro, contraste 21:1). */
+.topbar span.indicadorVersion {
+	display: none;
+}
+
+.topbar button.opcionVersion {
+	color: var(--muted);
+}
+
+.topbar button.opcionVersion:hover {
+	color: #ffffff;
+}
+
+.topbar button.opcionVersion[aria-pressed="true"] {
+	background-color: #ffffff;
+	color: #000000;
+}
+
+[data-pedido] .vacio {
+	padding-top: 0;
+	margin: 0;
+	line-height: 24px;
+}
+
+/* El mismo boton de la carta, en pequeno dentro del texto, para que se reconozca:
+   "+ Añadir" en pantallas grandes y solo el circulo "+" en movil. */
+.mas-ejemplo {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	height: 22px;
+	padding: 0 9px;
+	border-radius: 999px;
+	background: var(--raised);
+	color: var(--text);
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1;
+	vertical-align: baseline;
+	margin: 0 2px;
+	white-space: nowrap;
+}
+
+/* El texto va primero en la alineacion: asi "Añadir" comparte linea base con el resto de la frase. */
+.mas-ejemplo .etq {
+	order: 2;
+}
+
+.mas-ejemplo i {
+	order: 1;
+	font-size: 11px;
+	align-self: center;
+}
+
+@media (max-width: 760px) {
+	.mas-ejemplo {
+		width: 22px;
+		padding: 0;
+	}
+
+	.mas-ejemplo .etq {
+		display: none;
+	}
+}
+
+.lista-habituales {
+	margin-bottom: 16px;
+}
+
+.lista-habituales li {
+	min-height: 40px;
+	padding: 10px 0;
+	align-items: center;
+}
+
+.lista-habituales .plato-codigo {
+	display: inline-block;
+	min-width: 40px;
+	text-align: left;
+}
+
+/* ---------------------------------------------------------------- TABLETA */
+
+@media (max-width: 1100px) {
+	.carta-rejilla {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.rail {
+		position: static;
+	}
+}
+
+/* ---------------------------------------------------------------- MOVIL */
+
+@media (max-width: 760px) {
+	.shell {
+		display: block;
+	}
+
+	/* Barra superior en dos filas: marca y selector arriba, linea de estado debajo (siempre visible). */
+	.topbar {
+		grid-template-columns: 1fr auto;
+		grid-template-areas: "marca derecha" "estado estado";
+		height: auto;
+	}
+
+	.marca {
+		grid-area: marca;
+		height: 50px;
+		border-right: 0;
+		padding-left: 16px;
+	}
+
+	.topbar-centro {
+		grid-area: estado;
+		padding: 0 16px 9px;
+	}
+
+	.estado {
+		font-size: 13px;
+		line-height: 18px;
+		align-items: flex-start;
+	}
+
+	.estado-sol {
+		margin-top: 4px;
+	}
+
+	.topbar-derecha {
+		grid-area: derecha;
+		height: 50px;
+		border-left: 0;
+		padding: 0 16px;
+	}
+
+	.sidebar {
+		display: none;
+	}
+
+	.lienzo {
+		padding: 12px 16px calc(84px + env(safe-area-inset-bottom));
+	}
+
+	.aviso.largo {
+		bottom: calc(136px + env(safe-area-inset-bottom));
+	}
+
+	/* El maki secreto baja hasta casi tocar la barra de secciones (entra en el hueco reservado para ella). */
+	.extras-secreto {
+		margin-bottom: -22px;
+	}
+
+	/* Altura de Extras en movil: pantalla menos la barra superior (96px), el relleno de arriba (12px)
+	   y el de abajo, que deja sitio a la barra de secciones (84px). */
+	#vista-extras:not([hidden]) {
+		min-height: calc(100vh - 192px - env(safe-area-inset-bottom));
+		min-height: calc(100dvh - 192px - env(safe-area-inset-bottom));
+	}
+
+	:root {
+		--pad-y: 14px;
+		--pad-x: 16px;
+	}
+
+	.carta-principal {
+		gap: 10px;
+	}
+
+	.panel.panel-lista {
+		padding: 0 12px;
+		border-radius: 16px;
+	}
+
+	.plato {
+		grid-template-columns: 38px minmax(0, 1fr) auto;
+		gap: 10px;
+		min-height: 46px;
+		padding: 5px 0;
+	}
+
+	/* En movil: icono de foto sin fondo y, separado, un circulo pequeno "+" (o "✓"), que es lo unico que anade. */
+	.plato-accion {
+		gap: 12px;
+	}
+
+	.plato-accion a.btn-icono {
+		width: 30px;
+		height: 30px;
+		font-size: 15px;
+		color: var(--faint);
+		background: transparent;
+	}
+
+	.plato-accion .btn {
+		width: 30px;
+		height: 30px;
+		padding: 0;
+		font-size: 14px;
+	}
+
+	.plato-accion .btn .etq {
+		display: none;
+	}
+
+	.marca-sol {
+		display: none;
+	}
+
+	h1 {
+		font-size: 16px;
+		line-height: 22px;
+	}
+
+	.buscador input {
+		height: 36px;
+		font-size: 14px;
+	}
+
+	/* Tres filtros del mismo ancho en una fila: todos a la vista, sin desplazamiento lateral. */
+	.filtros {
+		gap: 6px;
+	}
+
+	.filtro {
+		height: 32px;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		padding: 0 8px;
+		border-radius: var(--radius-control);
+	}
+
+	.filtro-etiqueta,
+	.filtro-valor {
+		font-size: 13px;
+	}
+
+	.rejilla-dos {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.barra-inferior {
+		display: grid;
+		grid-template-columns: repeat(5, 1fr);
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 30;
+		background: var(--ground);
+		border-top: 1px solid var(--rule);
+		padding-bottom: env(safe-area-inset-bottom);
+	}
+
+	.barra-inferior a {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 2px;
+		min-height: 56px;
+		text-decoration: none;
+		color: var(--faint);
+		font-size: 11px;
+		line-height: 14px;
+		position: relative;
+	}
+
+	.barra-inferior a i {
+		display: grid;
+		place-items: center;
+		height: 26px;
+		font-size: 17px;
+	}
+
+	/* La pieza de puzle se dibuja mas pequena y algo mas arriba que el resto de iconos.
+	   Medido al pixel: con 22.2px y bajandola 0.75px ocupa exactamente el mismo alto y posicion (17px). */
+	.barra-inferior a i.bi-puzzle,
+	.barra-inferior a i.bi-puzzle-fill {
+		font-size: 22.2px;
+		transform: translateY(0.75px);
+	}
+
+	/* Seccion activa: raya roja en el borde superior, icono relleno (lo cambia el JS) y texto en blanco y negrita. */
+	.barra-inferior a[aria-current="page"] {
+		color: #ffffff;
+		font-weight: 600;
+	}
+
+	.barra-inferior a[aria-current="page"]::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 24%;
+		right: 24%;
+		height: 3px;
+		border-radius: 0 0 3px 3px;
+		background: var(--accent);
+	}
+
+	/* Contador de platos en la esquina superior derecha del icono, sin taparlo. */
+	.barra-inferior .nav-contador {
+		position: absolute;
+		top: 8px;
+		left: calc(50% + 12px);
+		margin: 0;
+		min-width: 18px;
+		height: 18px;
+		padding: 0 5px;
+		border-radius: 999px;
+		background: #ffffff;
+		color: #000000;
+		font-size: 11px;
+		line-height: 18px;
+		font-weight: 600;
+		text-align: center;
+	}
+
+	.barra-inferior .nav-contador:empty {
+		display: none;
+	}
+
+	.aviso {
+		bottom: calc(72px + env(safe-area-inset-bottom));
+	}
+}
+
+/* ---------------------------------------------------------------- NORMA DE ESPACIADO DE LOS PANELES
+   El espacio entre el borde de un panel y su contenido es SIEMPRE el relleno del panel (--pad-y / --pad-x).
+   Las filas que tienen relleno propio (filas de listas, cabeceras de ronda...) lo pierden en el lado que
+   toca el borde del panel, para que no se sumen los dos espacios. Las tablas (carta y postres) van aparte. */
+
+/* Ultima fila de Horario y contacto (o de cualquier lista simple que cierre un panel). */
+.panel > .lista-simple:last-child > li:last-child {
+	padding-bottom: 0;
+	min-height: 0;
+}
+
+/* Menu de Extras: primera y ultima fila pegadas al relleno del panel. */
+.lista-extras > .extra-fila:first-child {
+	padding-top: 0;
+	min-height: 0;
+}
+
+.lista-extras > .extra-fila:last-child {
+	padding-bottom: 0;
+	min-height: 0;
+}
+
+/* Pedido (pantalla Pedido): la primera fila arranca en el relleno del panel. */
+.panel > [data-pedido="completo"] > .pedido-lista:first-child > .pedido-fila:first-child {
+	padding-top: 0;
+	min-height: 0;
+}
+
+/* Ya pedido: la ultima ronda no suma el alto minimo de su cabecera (sigue siendo facil de tocar)
+   ni, si esta desplegada, el margen de sus botones. */
+.panel-rondas .rondas > li:last-child > .ronda:not([open]) > summary {
+	margin-bottom: -12px;
+}
+
+.panel-rondas .rondas > li:last-child .ronda-acciones {
+	margin-bottom: 0;
+}
+
+/* Contador maki: sin relleno extra alrededor. */
+.contador-maki {
+	padding: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		transition-duration: 0.01ms !important;
+		animation-duration: 0.01ms !important;
+	}
+}

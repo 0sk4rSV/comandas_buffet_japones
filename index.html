@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" data-version="legacy">
 
 <head>
 
@@ -9,14 +9,15 @@
     <meta name="description" content="Carta buffet libre Nakoya">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <!-- Switch Legacy / Moderna (va primero para redirigir antes de pintar si hace falta). -->
+    <script src="js/version.js"></script>
+
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link href="css/main.css" rel="stylesheet">
 
     <!-- Bootstrap. -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap icons. -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
 
     <!-- DataTables plug-in. -->
@@ -27,6 +28,9 @@
     <link href="css/tooltipster.bundle.min.css" rel="stylesheet">
     <link href="css/tooltipster-sideTip-borderless.min.css" rel="stylesheet">
 
+    <!-- Estilos del switch Legacy / Moderna. -->
+    <link href="css/version.css" rel="stylesheet">
+
 </head>
 
 <body>
@@ -36,7 +40,16 @@
     </div>
 
     <header>
-        <div class="container text-center">
+        <div class="container text-center" id="divCabecera">
+
+            <!-- SELECTOR DE VERSION LEGACY / MODERNA -->
+            <div id="divSwitchVersion" data-activa="legacy" role="group" aria-label="Versión de la carta">
+                <span class="indicadorVersion" aria-hidden="true"></span>
+                <button type="button" class="opcionVersion" data-version="legacy" aria-pressed="true"
+                    title="Versión Legacy.">Legacy</button>
+                <button type="button" class="opcionVersion" data-version="moderna" aria-pressed="false"
+                    title="Versión Moderna.">Moderna</button>
+            </div>
 
             <div id="div-titulo">
                 <h2>CARTA BUFFET LIBRE <a href="http://m.restaurantejaponesnakoya.com/col.jsp?id=112" target="_blank"
@@ -89,11 +102,11 @@
 
                         <div id="footerMenu">
                             <div>
-                                <p class="mt-3" id="pInfoMenu"><b>*</b> Los platos que llevan ⭐ solo están disponibles
-                                    por la
-                                    noche, fines
-                                    de
-                                    semana y festivos.</p>
+                                <p class="mt-3 pInfoMenu"><b>*</b> Los platos que llevan ⭐ solo están disponibles
+                                    por la noche, fines de semana y festivos.</p>
+                                <p class="mt-1 pInfoMenu"><b>*</b> Pide solo lo que vayas a comer: <b>2 &euro; de
+                                        penalización</b> por cada plato no consumido.</p>
+                                <p class="mt-1 pInfoMenu"><b>*</b> Avisa de tus alérgenos antes de hacer el pedido.</p>
                             </div>
 
                         </div>
@@ -158,7 +171,7 @@
                             <div class="table-responsive" id="divTablaPostrres">
                                 <table class="table table-sm table-bordered table-striped mb-0 w-100" id="tablaPostres">
                                 </table>
-                                <p class="mt-2" id="pInfoMenu"><b>*</b> Solo 1 postre por persona.</p>
+                                <p class="mt-2 pInfoMenu"><b>*</b> Solo 1 postre por persona.</p>
                             </div>
                         </div>
                         <!-- FIN CUERPO POSTRES -->
@@ -186,8 +199,8 @@
                                 <div class="row border-bottom">
                                     <label>MEDIODÍA:</label>
                                     <ul>
-                                        <li><u>Adultos</u>: <b>13,80 &euro;</b></li>
-                                        <li><u>Niños menores de 7 años</u>: <b>8,00 &euro;</b></li>
+                                        <li><u>Adultos</u>: <b data-precio="mediodia.adultos"></b></li>
+                                        <li><u>Niños menores de 7 años</u>: <b data-precio="mediodia.ninos"></b></li>
                                     </ul>
                                 </div>
 
@@ -195,8 +208,8 @@
                                     <label style="padding-top: 12px;">NOCHES, FINES DE SEMANA Y
                                         FESTIVOS:</label>
                                     <ul>
-                                        <li><u>Adultos</u>: <b>16,80 &euro;</b></li>
-                                        <li><u>Niños menores de 7 años</u>: <b>9,50 &euro;</b></li>
+                                        <li><u>Adultos</u>: <b data-precio="noche.adultos"></b></li>
+                                        <li><u>Niños menores de 7 años</u>: <b data-precio="noche.ninos"></b></li>
                                     </ul>
                                 </div>
 
@@ -204,8 +217,9 @@
                                     <label style="padding-top: 12px;">BEBIDAS:<span id="spanInfoBebida"
                                             style="margin-left: 13px;">¡No abusar!</span></label>
                                     <ul>
-                                        <li><u>Botella de agua grande</u>: <b>3,50 &euro;</b></li>
-                                        <li><u>Lata de refresco</u>: <b>2,20 &euro;</b></li>
+                                        <li>Bebida no incluida en el precio. <b>Mínimo 1 bebida por persona.</b></li>
+                                        <li><u>Botella de agua grande</u>: <b data-precio="bebidas.agua"></b></li>
+                                        <li><u>Lata de refresco</u>: <b data-precio="bebidas.refresco"></b></li>
                                     </ul>
                                 </div>
                             </div>
@@ -324,6 +338,7 @@
             </div>
 
         </div>
+    </div>
 
         <!-- FOOTER -->
         <div class="container">
@@ -381,178 +396,66 @@
 <!-- TOOLTIPSTER PLUGIN -->
 <script src="js/tooltipster.bundle.min.js"></script>
 
+<!-- DATOS DE LA CARTA Y GUARDADO DEL PEDIDO (compartidos con la version moderna) -->
+<script src="js/carta.js"></script>
+<script src="js/almacen.js"></script>
+
 
 <script type="text/javascript">
     //VARIABLES GLOBALES
 
-    //MAPA CON LOS PLATOS DEL MENU Y SU CORRESPONDIENTE CODIGO.
-    const mapMenu = new Map([
-        ["A2", "Ensalada de la casa (algas)"],
-        ["A3", "Ensalada china de lechuga"],
-        ["A4", "Ensalada china de col"],
-        ["A5", "Sopa miso"],
-        ["A6", "Sopa de maíz con carne de cangrejo"],
-        ["A7", "Sopa de aleta de tiburón"],
-        ["A9", "Rollitos de gambas"],
-        ["A10", "Rollitos vietnamitas"],
-        ["A11", "Rollito de pollo con queso fundido"],
-        ["A12", "Rollo de primavera"],
-        ["A13", "Palitos crujientes tres delicias"],
-        ["A14", "Wan Tun frito"],
-        ["A15", "Langostinos crujientes ⭐"],
-        ["A17", "Bolas de arroz frito"],
-        ["A18", "Pan chino frito"],
-        ["A20", "Entrecot rollo con queso ⭐🥈"],
-        ["A21", "Tempura de verduras"],
-        ["A22", "Tempura de langostinos"],
-        ["A23", "Tempura de atún"],
-        ["A24", "Rollo de ternera con queso ⭐"],
-        ["A25", "Bolas de queso fundido ⭐"],
-        ["A26", "Sau mai frito"],
-        ["A27", "Tostada de gambas ⭐"],
-        ["A28", "Yakitori de gambas ⭐"],
-        ["A29", "Gambas laqueadas ⭐"],
-        ["A30", "Pollo laqueado"],
-        ["A31", "Triángulos de ternera con curry"],
-        ["A33", "Tallarines teppanyaki"],
-        ["A34", "Arroz teppanyaki"],
-        ["A35", "Teppanyaki de pollo"],
-        ["A36", "Teppanyaki de gambas ⭐"],
-        ["A37", "Entrecot al ajo braseado ⭐"],
-        ["A41", "Arroz frito tres delicias"],
-        ["A42", "Arroz de la casa"],
-        ["A43", "Arroz coreano (picante)"],
-        ["A44", "Tallarines tres delicias"],
-        ["A47", "Fideos de arroz"],
-        ["A50", "Pollo con sésamo"],
-        ["A52", "Pollo con almendras"],
-        ["A53", "Pollo al limón"],
-        ["A54", "Pollo picante"],
-        ["A55", "Bolas de pollo frito"],
-        ["A57", "Carne de cerdo agridulce"],
-        ["A58", "Gambas con bambú y setas ⭐"],
-        ["A61", "Ternera crujiente"],
-        ["A63", "Ternera con bambú y setas"],
-        ["A66", "Pato asado \"PeKin\" ⭐"],
-        ["A67", "Pato japonés ⭐🥉"],
-        ["A74", "Empanadillas con carne"],
-        ["A78", "Sushi salmón y aguacate"],
-        ["A79", "Maki tempura Nakoya"],
-        ["A81", "Sushis variados"],
-        ["A85", "Maki salmón"],
-        ["A86", "Maki atún"],
-        ["A87", "Maki aguacate y pepino"],
-        ["A88", "Maki gambas"],
-        ["A89", "California maki"],
-        ["A90", "Futo maki"],
-        ["A91", "Maki tempura"],
-        ["A92", "Sashimi salmón ⭐"],
-        ["A93", "Sashimi atún ⭐"],
-        ["A94", "Maki cono"],
-        ["A98", "Maki queso cremoso"],
-        ["A99", "Tarta sushi ⭐🤢"],
-        ["A105", "Maki pollo desmenuzado ⭐"],
-        ["A106", "Maki pollo mayonesa"],
-        ["A107", "Maki pollo desmenuzado y salmón ⭐"],
-        ["A108", "Maki pollo tropical ⭐"],
-        ["A109", "Maki atún picante"],
-        ["A111", "Maki salmón y aguacate 🥇"],
-        ["A112", "Maki palito de cangrejo, pepino y aguacate"],
+    //LOS DATOS DE LA CARTA (platos, postres, favoritos, sushi, habituales y precios) ESTAN EN js/carta.js
+    //Y EL GUARDADO DEL PEDIDO Y DEL CONTADOR MAKI EN js/almacen.js (compartidos con la version moderna).
 
-    ]);
+    //TABLA DATATABLES DEL MENU.
+    let table;
 
-    //MAPA CON LOS POSTRES.
-    const mapPostres = new Map([
-        ["1.", "Bola de helado (chocolate, fresa, vainilla o limón)"],
-        ["2.", "Flan"],
-        ["3.", "Plátano frito"],
-        ["4.", "Pastel de calabaza con chocolate"],
-        ["5.", "Mini rollito de plátano y chocolate (2 uds.)"],
-        ["6.", "Profiteroles (2 uds.)"],
-        ["7.", "Crepe con nata y chocolate"]
-    ]);
+    //VALOR DEL CONTADOR MAKI.
+    let contador = 0;
 
     //VARIABLES EASTER EGG.
     let contadorClicks = 0;
     let ultimoTiempoClick = 0;
 
-    var valorContador;
-
     $(document).ready(function () {
-
-
 
         $("body div:last").hide();
 
-        //Creamos las tablas. 
+        //Creamos las tablas.
         crearTablaMenu(mapMenu);
         crearTablaPostres(mapPostres);
         crearDataTable();
 
-        document.getElementById("copyright").innerHTML = "&copy " + new Date().getFullYear() + ", Desarrollado por Tito's S.A. <span id='spanEE'>🍣<span>";
-
-        // Función para guardar en caché
-        function guardarEnCache() {
-            var contenido = $('#listaPedidos').html();
-            // Guardar los valores de los inputs junto con el HTML
-            var valoresInputs = {};
-            $('#listaPedidos input').each(function () {
-                valoresInputs[$(this).closest('li').attr('id')] = $(this).val();
-            });
-            localStorage.setItem('contenidoListaPedidos', contenido);
-            localStorage.setItem('valoresInputsListaPedidos', JSON.stringify(valoresInputs));
-            localStorage.setItem('valorContador', $('#contador').text());
-            var timestamp = new Date().getTime();
-            localStorage.setItem('timestampListaPedidos', timestamp);
-        }
-
-        // Función para cargar desde caché
-        function cargarDesdeCache() {
-            var contenidoGuardado = localStorage.getItem('contenidoListaPedidos');
-            var valoresInputsGuardados = JSON.parse(localStorage.getItem('valoresInputsListaPedidos'));
-            contador = (localStorage.getItem('valorContador') != null ? localStorage.getItem('valorContador') : 0);
-            $('#contador').text(contador);
-
-            var timestampGuardado = localStorage.getItem('timestampListaPedidos');
-            var timestampActual = new Date().getTime();
-            if (contenidoGuardado && (timestampActual - timestampGuardado < 24 * 60 * 60 * 1000)) {
-                $("#pInfoSeleccionPlatos").hide();
-                $('#listaPedidos').html(contenidoGuardado);
-                // Restaurar los valores de los inputs
-                if (valoresInputsGuardados) {
-
-                    $.each(valoresInputsGuardados, function (id, valor) {
-                        $('#' + id + ' .inputCantPlato').val((valor != "" ? valor : "1"));
-                    });
-                }
-                document.getElementById("textoTotalPedidos").innerHTML = "Platos seleccionados: <b>" + $("#divListaPedidos #listaPedidos li").length + "</b>";
-                $("#divComplementariaPedidos").show();
-
-
-
-
-            }
-
-        }
-
-        // Llamar a la función para cargar desde caché al cargar la página
-        cargarDesdeCache();
-
-        // Llamar a la función para guardar en caché al salir de la página o al recargar
-        $(window).on('beforeunload', function () {
-            guardarEnCache();
+        //Rellenamos los precios con los datos de js/carta.js.
+        $("[data-precio]").each(function () {
+            const [grupo, tipo] = $(this).data("precio").split(".");
+            $(this).text(formatoPrecio(precios[grupo][tipo]));
         });
+
+        document.getElementById("copyright").innerHTML = "&copy " + new Date().getFullYear() + ", Desarrollado por Tito's S.A. <span id='spanEE'>🍣</span>";
+
+        //Recuperamos el listado de pedidos y el contador maki guardados.
+        cargarPedidos();
+        cargarContador();
 
         //Configuramos el plugin de Tooltipster para los tooltips.
         $(".tooltip").tooltipster({
             theme: ["tooltipster-borderless", "tooltipster-noir", "tooltipster-noir-customized"],
             maxWidth: 300,
-            trigger: "click",
+            trigger: "custom",
             timer: 1500,
             animation: "grow"
         });
 
+        //Arrancamos el reloj.
+        actualizarReloj();
+        setInterval(actualizarReloj, 500);
+
     });
+
+    // ----------------------------------------------------------------------------------
+    // TABLAS
+    // ----------------------------------------------------------------------------------
 
     //FUNCION PARA CREAR LA TABLA DEL MENU.
     function crearTablaMenu(mapMenu) {
@@ -563,15 +466,17 @@
             "<th scope='col'>PLATO</th>" +
             "</tr></thead><tbody>";
 
+        let index = 0;
         for (let [key, value] of mapMenu.entries()) {
-            let index = Array.from(mapMenu.keys()).indexOf(key);
             tablaMenu += "<tr class='align-middle'>" +
                 "<td style='display: none;'>" + index + "</td>" +
                 "<td align='center' style='font-weight: bold;'>" + key + "</td>" +
-                "<td class='d-flex justify-content-between'><span class='align-self-start my-auto'>" + value + "</span><button class='btn btn-sm bg-transparent align-self-end my-auto btnImagenPlato' title='Buscar plato.'><i class='bi bi-image'></i></button></td>";
+                "<td class='d-flex justify-content-between'><span class='align-self-start my-auto'>" + value + "</span><button class='btn btn-sm bg-transparent align-self-end my-auto btnImagenPlato' title='Buscar plato.'><i class='bi bi-image'></i></button></td>" +
+                "</tr>";
+            index++;
         }
 
-        tablaMenu += "</tr></tbody>";
+        tablaMenu += "</tbody>";
 
         document.getElementById("tablaMenu").innerHTML = tablaMenu;
     }
@@ -579,32 +484,23 @@
     //FUNCION PARA CREAR LA TABLA DE POSTRES.
     function crearTablaPostres(mapPostres) {
 
-        let tablaPostres = "<thead style='display: none;>" +
+        let tablaPostres = "<thead style='display: none;'>" +
             "<tr class='align-middle'>" +
-            "<th scope='col' style='display: none;'>ID_FILA</th>" +
             "<th scope='col' style='text-align:center; width:90px;'>NÚMERO</th>" +
             "<th scope='col'>POSTRE</th>" +
             "</tr></thead><tbody>";
 
-        // let tablaPostres = "<thead>";
-
         for (let [key, value] of mapPostres.entries()) {
-            let index = Array.from(mapPostres.keys()).indexOf(key);
             tablaPostres += "<tr class='align-middle'>" +
-                "<td style='display: none;'>" + index + "</td>" +
                 "<td align='center' style='font-weight: bold; width: 36px;'>" + key + "</td>" +
-                "<td class='d-flex justify-content-between'><span class='align-self-start my-auto'>" + value + "</span><button class='btn btn-sm bg-transparent align-self-end my-auto btnImagenPlato' title='Buscar plato.'><i class='bi bi-image'></i></button></td>";
+                "<td class='d-flex justify-content-between'><span class='align-self-start my-auto'>" + value + "</span><button class='btn btn-sm bg-transparent align-self-end my-auto btnImagenPlato' title='Buscar plato.'><i class='bi bi-image'></i></button></td>" +
+                "</tr>";
         }
 
-        tablaPostres += "</tr></tbody>";
+        tablaPostres += "</tbody>";
 
         document.getElementById("tablaPostres").innerHTML = tablaPostres;
     }
-
-    //ESTA FUNCION SE EJECUTA CUANDO TERMINA DE CARGAR LA PAGINA.
-    $(window).on("load", function () {
-
-    });
 
     //FUNCION PARA USAR EL PLUGIN DATATABLES Y DARLE FORMATO A LA TABLA DEL MENU.
     function crearDataTable() {
@@ -637,27 +533,25 @@
             ],
 
             paging: false,
-            //info: false,
             rowId: '0',
             stateSave: false,
+            //Textos en castellano definidos aqui, asi no dependemos de descargarlos de internet.
             language: {
-                url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json",
                 search: '<i class="bi bi-search"></i>',
-                searchPlaceholder: "Buscar..."
+                searchPlaceholder: "Buscar...",
+                info: "Mostrando _TOTAL_ platos",
+                infoEmpty: "Mostrando 0 platos",
+                infoFiltered: "(filtrado de un total de _MAX_ platos)",
+                zeroRecords: "No se encontraron platos",
+                emptyTable: "No hay platos disponibles"
             },
 
         });
 
-        //** SOLUCION TEMPORAL PARA CORREGIR EL DESAJUSTE DEL ENCABEZADO DE LA TABLA Y LAS COLUMNAS AL INICIALIZAR DATATABLES.
-        setTimeout(function () {
-            table.columns.adjust().responsive.recalc();
-            $("#divTablaMenu").show();
-            $("#div-loading").hide();
-        }, 480);
-
-        //Borramos la cadena del filtro de bUsqueda cada vez que se cree la tabla.
-        //$("#table").DataTable().search("").draw(false);
-
+        //Mostramos la tabla y recalculamos el ancho de las columnas ahora que es visible.
+        $("#divTablaMenu").show();
+        $("#div-loading").hide();
+        table.columns.adjust().responsive.recalc();
     }
 
     //FUNCION PARA RECALCULAR EL ANCHO DE LAS COLUMNAS RESPONSIVAS AL HACER ZOOM EN EL NAVEGADOR.
@@ -667,96 +561,230 @@
         }
     }
 
-    //LISTENER PARA REMARCAR LOS PLATOS FAVORITOS.
-    $("#switchFiltroFavoritos").on("change", function () {
-        const platosFavoritos = ["A15", "A20", "A22", "A25", "A28", "A43", "A50", "A53", "A67", "A78", "A86", "A106", "A109"];
+    // ----------------------------------------------------------------------------------
+    // FILTROS
+    // ----------------------------------------------------------------------------------
 
-        $("#switchFiltroSushi").prop("checked", false);
-        $("td").closest("tr").removeClass("sushi");
+    //Remarca en la tabla del menu los platos favoritos y/o de sushi segun los switches activos
+    //(incluidos los ocultos por la busqueda). Si un plato es las dos cosas lleva ambas clases.
+    function aplicarFiltros() {
+        const verFavoritos = $("#switchFiltroFavoritos").is(":checked");
+        const verSushi = $("#switchFiltroSushi").is(":checked");
 
-        if ($(this).is(":checked")) {
+        table.rows().every(function () {
+            const codigo = this.data()[1];
+            $(this.node())
+                .toggleClass("fav", verFavoritos && platosFavoritos.includes(codigo))
+                .toggleClass("sushi", verSushi && platosSushi.includes(codigo));
+        });
+    }
 
-            for (let i = 0; i < platosFavoritos.length; i++) {
-                $("td:contains(" + platosFavoritos[i] + ")").closest("tr").addClass("fav");
-            }
+    //LISTENER DE LOS SWITCHES DE FAVORITOS Y SUSHI (se pueden activar a la vez).
+    $("#switchFiltroFavoritos, #switchFiltroSushi").on("change", aplicarFiltros);
 
-        } else {
-            $("td").closest("tr").removeClass("fav");
+    // ----------------------------------------------------------------------------------
+    // LISTADO DE PEDIDOS
+    // ----------------------------------------------------------------------------------
+
+    //Quita los emojis (⭐, 🥇...) del nombre del plato, conservando letras (con tildes y ñ), numeros y puntuacion.
+    function limpiarNombre(nombre) {
+        return nombre.replace(/[^\p{L}\p{N}\s.,:()'\-]/gu, "").replace(/\s+/g, " ").trim();
+    }
+
+    //Devuelve el HTML de un elemento del listado de pedidos.
+    function crearItemPedido(codigo, cantidad) {
+        return "<li id='pedido-" + codigo + "' class='list-group-item' data-codigo='" + codigo + "'>" +
+            "<span class='spanPlatoCant'><b>" + codigo + "</b> - " +
+            "<input class='form-control inputCantPlato' type='text' inputmode='numeric' pattern='[0-9]*' maxlength='2' value='" + cantidad + "' aria-label='Cantidad.'>" +
+            "<span class='spanNombrePlato'>" + mapMenu.get(codigo) + "</span></span>" +
+            "<div><button class='btn btn-sm bg-transparent align-self-end my-auto btnImagenPlato' title='Buscar plato.'><i class='bi bi-image'></i></button>" +
+            "<button class='btn bg-transparent btnEliminarPedido' title='Eliminar pedido.'><i class='bi bi-x-lg'></i></button></div></li>";
+    }
+
+    //Añade un plato al listado. Devuelve false si ya estaba añadido o no existe.
+    function añadirPedido(codigo, cantidad) {
+        if (!mapMenu.has(codigo) || $("#pedido-" + codigo).length) {
+            return false;
         }
 
-    });
+        $("#listaPedidos").append(crearItemPedido(codigo, cantidad || 1));
+        return true;
+    }
 
-    //LISTENER PARA REMARCAR LOS PLATOS DE SUSHI.
-    $("#switchFiltroSushi").on("change", function () {
-        const platosSushi = ["A78", "A79", "A81", "A85", "A86", "A87", "A88", "A89", "A90", "A91",
-            "A92", "A93", "A94", "A98", "A99", "A105", "A106", "A107", "A108", "A109", "A111", "A112"];
+    //Devuelve los pedidos del listado como [{codigo, cantidad}].
+    function obtenerPedidos() {
+        return $("#listaPedidos li").map(function () {
+            let cantidad = parseInt($(this).find("input.inputCantPlato").val(), 10);
+            return {
+                codigo: $(this).data("codigo"),
+                cantidad: cantidad > 0 ? cantidad : 1
+            };
+        }).get();
+    }
 
-        $("#switchFiltroFavoritos").prop("checked", false);
-        $("td").closest("tr").removeClass("fav");
+    //Texto de un pedido para copiarlo o mostrarlo en el modo discreto.
+    function textoPedido(pedido) {
+        return pedido.codigo + " - " + limpiarNombre(mapMenu.get(pedido.codigo)) +
+            " ~ (" + pedido.cantidad + (pedido.cantidad > 1 ? " uds." : " ud.") + ")";
+    }
 
-        if ($(this).is(":checked")) {
+    //Actualiza los totales, la visibilidad de los bloques y guarda el listado.
+    function actualizarResumenPedidos() {
+        const pedidos = obtenerPedidos();
 
-            for (let i = 0; i < platosSushi.length; i++) {
-                $("td:contains(" + platosSushi[i] + ")").closest("tr").addClass("sushi");
-            }
+        $("#textoTotalPedidos").html("Platos seleccionados: <b>" + pedidos.length + "</b>");
 
-        } else {
-            $("td").closest("tr").removeClass("sushi");
-        }
-    });
+        $("#divComplementariaPedidos").toggle(pedidos.length > 0);
+        $("#pInfoSeleccionPlatos").toggle(pedidos.length == 0);
+
+        guardarPedidosStorage(pedidos);
+    }
+
+    //Carga el listado de pedidos guardado (compartido con la version moderna).
+    function cargarPedidos() {
+        cargarPedidosStorage().forEach(function (pedido) {
+            añadirPedido(pedido.codigo, pedido.cantidad);
+        });
+
+        actualizarResumenPedidos();
+    }
 
     //LISTENER PARA AÑADIR AL LISTADO DE PEDIDOS EL PLATO SELECCIONADO.
     $("body").on("click", "#tablaMenu tbody tr", function () {
-        var index = $(this).index();
-        var columna1 = $(this).find("td:eq(0)").text();
-        var columna2 = $(this).find("td:eq(1)").text();
+        const codigo = $(this).find("td:eq(0)").text();
 
-        var pedido = "<li id='pedido" + index + "' class='list-group-item' ><span class='spanPlatoCant'><b>" + columna1 + "</b> - " + "<input class='form-control inputCantPlato' type='number' inputmode='numeric' value='1' step='1' min='1' max='99' onkeypress='return isNumeric(event)' oninput='maxLengthCheck(this)' onchange='minCantValue(this)'>" + columna2 + "</span><div><button class='btn btn-sm bg-transparent align-self-end my-auto btnImagenPlato' title='Buscar plato.'><i class='bi bi-image'></i></button><button class='btn bg-transparent btnEliminarPedido' title='Eliminar pedido.'><i class='bi bi-x-lg'></i></button></div></li>";
-
-
-        $("#pInfoSeleccionPlatos").hide();
-
-
-
-        var arrayNumPlatos = [];
-
-        // Selecciona todas las etiquetas <b> dentro del div con id="divPedidos"
-        $("#divPedidos b").each(function () {
-            arrayNumPlatos.push($(this).text());
-        });
-
-        if (!arrayNumPlatos.includes(columna1)) {
-
-            $("#listaPedidos").append(pedido);
-            document.getElementById("textoTotalPedidos").innerHTML = "Platos seleccionados: <b>" + $("#listaPedidos li").length + "</b>";
-
-
-
-            mostrarAlerta("success", "Plato añadido<br><span class='platoAlerta'>("+ columna1 + " - " + columna2 + ")</span>");
-
-        } else {
-
-            mostrarAlerta("warning", "El plato ya está añadido<br><span class='platoAlerta'>("+ columna1 + " - " + columna2 + ")</span>");
-
+        //Ignoramos filas que no son platos (p. ej. la fila "No se encontraron platos").
+        if (!mapMenu.has(codigo)) {
+            return;
         }
 
-        console.log(columna1)
-        console.log(pedido)
+        const textoPlato = "<br><span class='platoAlerta'>(" + codigo + " - " + mapMenu.get(codigo) + ")</span>";
 
-        $("#divComplementariaPedidos").show();
+        if (añadirPedido(codigo, 1)) {
+            mostrarAlerta("success", "Plato añadido" + textoPlato);
+        } else {
+            mostrarAlerta("warning", "El plato ya está añadido" + textoPlato);
+        }
 
-
-
-
-
-
-
+        actualizarResumenPedidos();
     });
+
+    //LISTENER PARA AÑADIR AL LISTADO LOS PLATOS HABITUALES.
+    $("#añadirHabituales").click(function () {
+        platosHabituales.forEach(function (codigo) {
+            añadirPedido(codigo, 1);
+        });
+
+        actualizarResumenPedidos();
+
+        // Desplazar la vista hasta el div.
+        var posicionDiv = $("#divListaPedidos").offset().top - 10;
+        $("html, body").animate({ scrollTop: posicionDiv }, 0);
+    });
+
+    //LISTENER PARA ELIMINAR ELEMENTOS DEL LISTADO DE PEDIDOS.
+    $("#divListaPedidos").on("click", "button.btnEliminarPedido", function () {
+        $(this).closest("li").remove();
+        actualizarResumenPedidos();
+    });
+
+    //LISTENER PARA ELIMINAR TODOS LOS PLATOS DEL LISTADO DE PEDIDOS.
+    $("#divListaPedidos").on("click", "button#btnBorrarListaPedidos", function () {
+        if (!confirm("¿Seguro que quieres borrar todo el listado de pedidos?")) {
+            return;
+        }
+
+        $("#listaPedidos").empty();
+        actualizarResumenPedidos();
+    });
+
+    //LISTENERS PARA CONTROLAR EL VALOR DEL INPUT DE LA CANTIDAD DEL PLATO (solo numeros del 1 al 99).
+    $("#listaPedidos").on("input", "input.inputCantPlato", function () {
+        const limpio = this.value.replace(/\D/g, "").slice(0, 2);
+        if (this.value !== limpio) {
+            this.value = limpio;
+        }
+        actualizarResumenPedidos();
+    });
+
+    $("#listaPedidos").on("change blur", "input.inputCantPlato", function () {
+        const cantidad = parseInt(this.value, 10);
+        this.value = cantidad > 0 ? cantidad : 1;
+        actualizarResumenPedidos();
+    });
+
+    //Copia texto al portapapeles (con alternativa para navegadores antiguos o sin HTTPS).
+    function copiarTexto(texto) {
+        if (navigator.clipboard && window.isSecureContext) {
+            return navigator.clipboard.writeText(texto);
+        }
+
+        return new Promise(function (resolve, reject) {
+            const textarea = document.createElement("textarea");
+            textarea.value = texto;
+            textarea.setAttribute("readonly", "");
+            textarea.style.position = "fixed";
+            textarea.style.opacity = "0";
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            let copiado = false;
+            try {
+                copiado = document.execCommand("copy");
+            } catch (e) { }
+
+            document.body.removeChild(textarea);
+            copiado ? resolve() : reject();
+        });
+    }
+
+    //LISTENER DEL BOTON PARA COPIAR AL PORTAPAPELES EL LISTADO DE PEDIDOS.
+    $("#divListaPedidos").on("click", "button#btnCopiarPedidos", function () {
+        const textoCopiado = obtenerPedidos().map(textoPedido).join("\n");
+
+        copiarTexto(textoCopiado).then(function () {
+            $(".tooltip").tooltipster("open");
+        }).catch(function () {
+            mostrarAlerta("danger", "No se ha podido copiar el listado.");
+        });
+    });
+
+    //LISTENER PARA ABRIR UN MODAL CON EL LISTADO DE PLATOS SELECCIONADO EN "MODO DISCRETO".
+    $("#divListaPedidos").on("click", "span#totalPedidos", function () {
+        const pedidos = obtenerPedidos();
+
+        const listadoPedidos = pedidos.map(function (pedido) {
+            return "<p class='pListadoPedidosModal'>" + textoPedido(pedido) + "</p>";
+        }).join("");
+
+        $("#listadoPedidosModal").html(listadoPedidos);
+        $("#totalPlatosModal").html("Total de platos pedidos: <b>" + pedidos.length + "</b>");
+
+        $("#modalPedido").modal("show");
+    });
+
+    //LISTENER PARA BUSCAR EN GOOGLE IMAGENES, EL PLATO DEL BOTON PULSADO.
+    $("body").on("click", ".btnImagenPlato", function (event) {
+        event.stopPropagation();
+
+        //Si se pulsa desde el listado de pedidos cogemos el nombre del mapa; si no, de la propia fila.
+        const li = $(this).closest("li");
+        const nombre = li.length ? mapMenu.get(li.data("codigo")) : $(this).siblings("span").text();
+
+        const plato = limpiarNombre(nombre || "").replace(/'/g, "").toLowerCase();
+        const url = "https://www.google.com/search?q=" + encodeURIComponent(plato) + "&tbm=isch";
+
+        window.open(url, "_blank");
+    });
+
+    // ----------------------------------------------------------------------------------
+    // ALERTAS
+    // ----------------------------------------------------------------------------------
 
     //Funcion para crear alertas dinamicas.
     function mostrarAlerta(tipoAlerta, textoAlerta) {
         //Verifica si hay una alerta visible y la elimina si la hay.
-        $(".alert").remove();
+        $("#divAlerta").remove();
 
         var icono = "";
         if (tipoAlerta == "success") {
@@ -768,131 +796,24 @@
         }
 
         // Creamos la alerta.
-        var alert = $("<div id='divAlerta'>" + "<div class='alert alert-" + tipoAlerta + " alert-dismissible fade show' id='divContenidoAlerta' role='alert'>" + icono + "&nbsp;&nbsp;" + textoAlerta
-            + "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>");
+        var alerta = $("<div id='divAlerta'>" + "<div class='alert alert-" + tipoAlerta + " alert-dismissible fade show' id='divContenidoAlerta' role='alert'>" + icono + "&nbsp;&nbsp;" + textoAlerta
+            + "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button></div></div>");
 
         //Agregamos la alerta al cuerpo del documento.
-        $("body").append(alert);
+        $("body").append(alerta);
 
         //Cierra la alerta automaticamente despues x segundos.
         setTimeout(function () {
-            alert.fadeOut(750, function () {
-                alert.remove();
+            alerta.fadeOut(750, function () {
+                alerta.remove();
             });
         }, 2500);
 
     }
 
-    //Agrega un manejador de eventos para el boton "close" de las alertas.
-    $('.btn-close').click(function () {
-        alert.fadeOut(750, function () {
-            alert.remove();
-        });
-    });
-
-
-
-
-    //LISTENER PARA BUSCAR EN GOOGLE IMAGENES, EL PLATO DEL BOTON PULSADO. 
-    $("body").on("click", ".btnImagenPlato", function (event) {
-        event.stopPropagation();
-        var plato = $(this).closest("tr").find("span").text().replace(/"/g, '').replace(/[^A-Za-z0-9áéíóúÁÉÍÓÚ.,\-:"'()\s]/g, '');
-
-
-        //Si el boton de buscar plato es pulsado desde el listado de pedidos.
-        if (plato === "") {
-            var spanElement = $(this).parent().parent().find("span");
-            var spanContent = spanElement.text().replace(/"/g, '').replace(/[^A-Za-z0-9áéíóúÁÉÍÓÚ.,\-:"'()\s]/g, '');
-
-
-            plato = spanContent.replace(spanElement.find('b').text() + ' - ', '');
-
-        }
-
-        var url = "https://www.google.com/search?q=" + plato.toLowerCase() + "&tbm=isch";
-
-        window.open(url, "_blank");
-    });
-
-    //LISTENER PARA ELIMINAR ELEMENTOS DEL LISTADO DE PEDIDOS.
-    $("#divListaPedidos").on("click", "button.btnEliminarPedido", function () {
-        var index = $(this).closest("li").index();
-        $("#listaPedidos li").eq(index).remove();
-        document.getElementById("textoTotalPedidos").innerHTML = "Platos seleccionados: <b>" + $("#listaPedidos li").length + "</b>";
-
-        if ($("#listaPedidos li").length == 0) {
-            $("#divComplementariaPedidos").hide();
-            $("#pInfoSeleccionPlatos").show();
-        }
-
-    });
-
-    //LISTENER DEL BOTON PARA COPIAR AL PORTAPAPELES EL LISTADO DE PEDIDOS.
-    $("#divListaPedidos").on("click", "button#btnCopiarPedidos", function () {
-
-
-
-        let textoCopiado = "";
-        const elementosLista = $("#listaPedidos li");
-
-        elementosLista.each(function (index) {
-            let textoSpan = $(this).find("span").text().replace(/[^A-Za-z0-9áéíóúÁÉÍÓÚ.,-:"'\(\)\s]/g, '');
-
-            let cantidadPlato = $(this).find("input").val();
-            cantidadPlato = " ~ (" + cantidadPlato + (cantidadPlato > 1 ? " uds." : "ud.") + ")";
-
-            textoCopiado += textoSpan + cantidadPlato;
-
-            if (index !== elementosLista.length - 1) {
-                textoCopiado += "\n";
-            }
-        });
-
-        //Copiar el texto al portapapeles
-        navigator.clipboard.writeText(textoCopiado);
-
-        $(".tooltip").tooltipster("open");
-
-    });
-
-    //LISTENER PARA ELIMINAR TODOS LOS PLATOS DEL LISTADO DE PEDIDOS.
-    $("#divListaPedidos").on("click", "button#btnBorrarListaPedidos", function () {
-        $("#listaPedidos").empty();
-        $("#divComplementariaPedidos").hide();
-        $("#pInfoSeleccionPlatos").show();
-    });
-
-    //LISTENER PARA AÑADIR AL LISTADO LOS PLATOS HABITUALES.
-    $("#añadirHabituales").click(function () {
-        const platosFavoritos = ["A15", "A20", "A28", "A50", "A56", "A67", "A78", "A86", "A109"];
-        var pedidoHabitual = "";
-
-        $("#pInfoSeleccionPlatos").hide();
-
-        var arrayNumPlatos = [];
-
-        // Selecciona todas las etiquetas <b> dentro del div con id="divPedidos"
-        $("#divPedidos b").each(function () {
-            arrayNumPlatos.push($(this).text());
-        });
-
-        for (let i = 0; i < platosFavoritos.length; i++) {
-            if (!arrayNumPlatos.includes(platosFavoritos[i])) {
-                pedidoHabitual += "<li id='pedido" + i + "' class='list-group-item' ><span class='spanPlatoCant'><b>" + platosFavoritos[i] + "</b> - " + "<input class='form-control inputCantPlato' type='number' inputmode='numeric' value='1' step='1' min='1' max='99' onkeypress='return isNumeric(event)' oninput='maxLengthCheck(this)' onchange='minCantValue(this)'>" + mapMenu.get(platosFavoritos[i]) + "</span><div><button class='btn btn-sm bg-transparent align-self-end my-auto btnImagenPlato' title='Buscar plato.'><i class='bi bi-image'></i></button><button class='btn bg-transparent btnEliminarPedido' title='Eliminar pedido.'><i class='bi bi-x-lg'></i></button></div></li>";
-            }
-        }
-
-        $("#listaPedidos").append(pedidoHabitual);
-        document.getElementById("textoTotalPedidos").innerHTML = "Platos seleccionados: <b>" + $("#listaPedidos li").length + "</b>";
-
-        $("#divComplementariaPedidos").show();
-
-        // Desplazar la vista hasta el div.
-        var posicionDiv = $("#divListaPedidos").offset().top - 10;
-        $("html, body").animate({ scrollTop: posicionDiv }, 0);
-
-
-    });
+    // ----------------------------------------------------------------------------------
+    // OTROS
+    // ----------------------------------------------------------------------------------
 
     //FUNCION PARA EL EASTER EGG.
     $("body").on("click", "#spanEE", function () {
@@ -905,35 +826,12 @@
             contadorClicks++;
             if (contadorClicks >= 5) {
                 alert(frasesEE[numeroAleatorio]);
-                //$("#tooltipEE").tooltipster("open");
                 contadorClicks = 0;
             }
         } else {
             contadorClicks = 1;
         }
         ultimoTiempoClick = ahora;
-    });
-
-    //LISTENER PARA ABRIR UN MODAL CON EL LISTADO DE PLATOS SELECCIONADO EN "MODO DISCRETO".
-    $("#divListaPedidos").on("click", "span#totalPedidos", function () {
-
-
-        let listadoPedidos = "";
-        const elementosLista = $("#listaPedidos li");
-
-        elementosLista.each(function (index) {
-            let textoSpan = $(this).find("span").text().replace(/[^A-Za-z0-9áéíóúÁÉÍÓÚ.,-:"'\(\)\s]/g, '');
-
-            let cantidadPlato = $(this).find("input").val();
-            cantidadPlato = " ~ (" + cantidadPlato + (cantidadPlato > 1 ? " uds." : "ud.") + ")";
-
-            listadoPedidos += "<p class='pListadoPedidosModal'>" + textoSpan + cantidadPlato + "</p>";
-        });
-
-        $("#listadoPedidosModal").html(listadoPedidos);
-        $("#totalPlatosModal").html("Total de platos pedidos: <b>" + $("#listaPedidos li").length + "</b>");
-
-        $("#modalPedido").modal("show");
     });
 
     //LISTENER PARA VOLVER A LA PARTE SUPERIOR DEL MENU DE PLATOS.
@@ -949,39 +847,6 @@
             $("#btnPrincipioMenu").fadeOut(100);
         }
     });
-
-    //ESTAS 2 FUNCIONES SIRVEN PARA CONTROLAR EL VALOR DEL INPUT DE LA CANTIDAD DEL PLATO.
-    function maxLengthCheck(object) {
-        if (object.value.length > object.max.length) {
-            object.value = object.value.slice(0, object.max.length);
-        }
-    }
-
-    function isNumeric(evt) {
-        var theEvent = evt || window.event;
-        var key = theEvent.keyCode || theEvent.which;
-        key = String.fromCharCode(key);
-
-        var regex = /^[0-9][0-9]?$/;
-        if (!regex.test(key)) {
-            theEvent.returnValue = false;
-            if (theEvent.preventDefault) theEvent.preventDefault();
-        }
-    }
-
-    function minCantValue(object) {
-        if (object.value === "" || object.value === "0") {
-            object.value = "1";
-        }
-    }
-
-    $("#divListaPedidos").on("change", "input.inputCantPlato", function () {
-        var value = $(this).val();
-        value = value.replace(",", "").replace(".", "").replace("-", "");
-        $(this).val(value);
-    });
-
-    //
 
     //ESTAS 3 FUNCIONES SON PARA EL FUNCIONAMIENTO DEL BOTON GO-UP.
     window.onscroll = function () {
@@ -1000,104 +865,76 @@
         document.body.scrollTop = 0;
         document.documentElement.scrollTop = 0;
     }
-    //
+
+    // ----------------------------------------------------------------------------------
+    // RELOJ Y HORARIO
+    // ----------------------------------------------------------------------------------
+
+    //Devuelve una copia de la fecha indicada con la hora y minutos fijados (segundos a 0).
+    function crearHora(fecha, horas, minutos) {
+        let hora = new Date(fecha.getTime());
+        hora.setHours(horas, minutos, 0, 0);
+        return hora;
+    }
+
+    //Formatea milisegundos como H:MM:SS.
+    function formatoTiempoRestante(milisegundos) {
+        const totalSegundos = Math.floor(milisegundos / 1000);
+        const horas = Math.floor(totalSegundos / 3600);
+        const minutos = Math.floor(totalSegundos / 60) % 60;
+        const segundos = totalSegundos % 60;
+        return horas + ":" + formatoHora(minutos) + ":" + formatoHora(segundos);
+    }
 
     //ESTA FUNCION SE ENCARGA DE MOSTRAR LA FECHA Y HORA EN TIEMPO REAL.
     function actualizarReloj() {
-        let fecha = new Date();
+        const fecha = new Date();
 
-        //TIEMPO ACTUAL
-        let horas = fecha.getHours();
-        let minutos = fecha.getMinutes();
-        let segundos = fecha.getSeconds();
-        let horaActual = formatoHora(horas) + ":" + formatoHora(minutos) + ":" + formatoHora(segundos);
+        const fechaActual = formatoHora(fecha.getDate()) + "/" + formatoHora(fecha.getMonth() + 1) + "/" + fecha.getFullYear();
+        const horaActual = formatoHora(fecha.getHours()) + ":" + formatoHora(fecha.getMinutes()) + ":" + formatoHora(fecha.getSeconds());
+        $("#tiempoActual").text(fechaActual + " - " + horaActual);
 
-        //FECHA ACTUAL
-        let dia = fecha.getDate();
-        let mes = fecha.getMonth() + 1;
-        let año = fecha.getFullYear();
-        let fechaActual = formatoHora(dia) + "/" + formatoHora(mes) + "/" + año;
+        const aperturaMediodia = crearHora(fecha, 12, 0);
+        const cierreMediodia = crearHora(fecha, 16, 0);
+        const aperturaNoche = crearHora(fecha, 19, 30);
+        const cierreNoche = crearHora(fecha, 24, 0);
 
-        $("#tiempoActual").html(fechaActual + " - " + horaActual);
+        let tiempoRestante;
 
-        let tiempoRestante = "";
-
-        // Crear objetos Date para las 12:00 PM y las 16:00 PM
-        let horaMediodia1 = new Date();
-        horaMediodia1.setHours(12);
-        horaMediodia1.setMinutes(0);
-
-        let horaMediodia2 = new Date();
-        horaMediodia2.setHours(16);
-        horaMediodia2.setMinutes(0);
-        horaMediodia2.setSeconds(0);
-
-        // Comparar la hora actual con las 12:00 PM y las 16:00 PM
-        if (fecha.getTime() > horaMediodia1.getTime() && fecha.getTime() < horaMediodia2.getTime()) {
-
-            // Calcular la diferencia de tiempo en segundos
-            let diferenciaTiempo = horaMediodia2.getTime() - fecha.getTime();
-
-            // Calcular la diferencia de tiempo en horas, minutos y segundos
-            let horasRestantes = Math.floor(diferenciaTiempo / 1000 / 60 / 60);
-            let minutosRestantes = Math.floor(diferenciaTiempo / 1000 / 60) % 60;
-            let segundosRestantes = Math.floor(diferenciaTiempo / 1000) % 60;
-
-            tiempoRestante = "Cierran a las <b>16:00</b>. <b>Tiempo restante:</b> " + horasRestantes + ":" + formatoHora(minutosRestantes) + ":" + formatoHora(segundosRestantes);
+        if (fecha >= aperturaMediodia && fecha < cierreMediodia) {
+            tiempoRestante = "Cierran a las <b>16:00</b>. <b>Tiempo restante:</b> " + formatoTiempoRestante(cierreMediodia - fecha);
+        } else if (fecha >= aperturaNoche && fecha < cierreNoche) {
+            tiempoRestante = "Cierran a las <b>00:00</b>. <b>Tiempo restante:</b> " + formatoTiempoRestante(cierreNoche - fecha);
+        } else if (fecha < aperturaMediodia) {
+            tiempoRestante = "<b>Japonés cerrado.</b> Volverá a abrir a las <b>12:00</b>. 😞";
         } else {
-            // Crear objetos Date para las 19:30 PM y las 24:00 PM
-            let horaNoche1 = new Date();
-            horaNoche1.setHours(19);
-            horaNoche1.setMinutes(30);
-
-            let horaNoche2 = new Date();
-            horaNoche2.setHours(24);
-            horaNoche2.setMinutes(0);
-            horaNoche2.setSeconds(0);
-
-            // Comparar la hora actual con las 19:30 PM y las 24:00 PM
-            if (fecha.getTime() > horaNoche1.getTime() && fecha.getTime() < horaNoche2.getTime()) {
-
-                // Calcular la diferencia de tiempo en segundos
-                let diferenciaTiempo = horaNoche2.getTime() - fecha.getTime();
-
-                // Calcular la diferencia de tiempo en horas, minutos y segundos
-                let horasRestantes = Math.floor(diferenciaTiempo / 1000 / 60 / 60);
-                let minutosRestantes = Math.floor(diferenciaTiempo / 1000 / 60) % 60;
-                let segundosRestantes = Math.floor(diferenciaTiempo / 1000) % 60;
-
-                tiempoRestante = "Cierran a las <b>00:00</b>. <b>Tiempo restante:</b> " + horasRestantes + ":" + formatoHora(minutosRestantes) + ":" + formatoHora(segundosRestantes);
-
-            } else {
-                tiempoRestante = "<b>Japonés cerrado.</b> ";
-
-                if (fecha.getTime() < horaMediodia1.getTime() || fecha.getTime() > horaNoche2.getTime()) {
-                    tiempoRestante += "Volverá a abrir a las <b>12:00</b>. 😞";
-                } else if (fecha.getTime() > horaMediodia2.getTime()) {
-                    tiempoRestante += "Volverá a abrir a las <b>19:30</b>. 😞";
-                }
-            }
-
+            tiempoRestante = "<b>Japonés cerrado.</b> Volverá a abrir a las <b>19:30</b>. 😞";
         }
 
         $("#tiempoCierre").html(tiempoRestante);
-
-        window.requestAnimationFrame(actualizarReloj);
     }
 
     // Formatear un valor numerico (horas, minutos, segundos) para que siempre tenga dos digitos.
     function formatoHora(valor) {
-        if (valor < 10) {
-            return "0" + valor;
-        } else {
-            return valor;
-        }
+        return valor < 10 ? "0" + valor : String(valor);
     }
 
-    actualizarReloj();
+    // ----------------------------------------------------------------------------------
+    // CONTADOR MAKI
+    // ----------------------------------------------------------------------------------
 
+    //Carga el valor guardado del contador maki.
+    function cargarContador() {
+        contador = cargarContadorStorage();
+        $("#contador").text(contador);
+    }
 
-
+    //Cambia el valor del contador maki, lo muestra y lo guarda.
+    function setContador(valor) {
+        contador = valor;
+        $("#contador").text(contador);
+        guardarContadorStorage(contador);
+    }
 
 </script>
 
@@ -1105,7 +942,8 @@
     $(document).ready(function () {
 
         var anchoOriginal = $('#imgMaki').css('width');
-        var intervalId;
+        var intervalId = null;
+        var delayTimer = null;
         var buttonReleased = true;
 
         // AUDIOS
@@ -1119,7 +957,7 @@
 
         $('#imgMaki').click(function () {
 
-            // Detener la animación actual y restaurar el tamaño original y el margen original
+            // Detener la animación actual y restaurar el tamaño original
             $(this).stop().width(anchoOriginal);
 
             // Hacer vibrar el dispositivo móvil
@@ -1127,13 +965,11 @@
                 navigator.vibrate(100); // Vibrar durante 100 milisegundos
             }
 
-            // Hacer la imagen un poco más pequeña y ajustar el margen para mantener el mismo espacio en la página
+            // Hacer la imagen un poco más pequeña y volver al tamaño original
             $(this).animate({ width: '-=10px' }, 80).animate({ width: anchoOriginal }, 80);
 
             if (contador < 100) {
-                // Incrementar el contador
-                contador++;
-                $('#contador').text(contador);
+                setContador(contador + 1);
             }
 
             accionesContador();
@@ -1143,50 +979,38 @@
         // Función para decrementar el contador
         $('#btnDecrecer').click(function () {
             if (contador > 0) {
-                contador--;
-                $('#contador').text(contador);
+                setContador(contador - 1);
             }
 
-            if (contador != 100) {
-                accionesContador();
-            }
+            accionesContador();
         });
 
         // Función para reiniciar el contador
         $('#btnReset').click(function () {
-            contador = 0;
-            $('#contador').text(contador);
-
+            setContador(0);
             accionesContador();
-
         });
 
         // Función para decrementar el contador cuando se mantiene pulsado el botón
         $('#btnDecrecer').on('mousedown touchstart', function () {
 
-
-            accionesContador();
-
             if (buttonReleased) {
 
                 buttonReleased = false; // Indicar que se ha pulsado el botón
-                // Temporizador de retraso para iniciar el decremento después de 1.5 segundos
+                // Temporizador de retraso para iniciar el decremento
                 delayTimer = setTimeout(function () {
 
                     intervalId = setInterval(function () {
                         if (contador > 0) {
-                            contador--;
-                            $('#contador').text(contador);
-
+                            setContador(contador - 1);
                         }
                     }, 160); // Intervalo de decremento
-                }, 220); // Retraso de 1.5 segundos
+                }, 220); // Retraso antes de empezar a decrementar
             }
-        }).on('mouseup touchend', function () {
+        }).on('mouseup touchend mouseleave touchcancel', function () {
             clearTimeout(delayTimer); // Limpiar el temporizador de retraso
             clearInterval(intervalId); // Limpiar el intervalo de decremento
             buttonReleased = true; // Indicar que se ha soltado el botón
-
         });
 
 
@@ -1210,20 +1034,12 @@
             }
 
             function reproducirAudio(audio) {
-                // Verifica si el audio está reproduciéndose
-                if (!audio.paused) {
-                    audio.pause(); // Pausa el audio si ya está sonando
-                    audio.currentTime = 0; // Reinicia la reproducción al principio
-                }
-
-                audio.play(); // Reproduce el audio
+                audio.currentTime = 0;
+                audio.play().catch(function () { }); // Evita errores si el navegador bloquea el audio
             }
         }
 
-
-
     });
-
 
 </script>
 

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es" data-version="moderna">
+
+<head>
+
+    <title>Carta buffet libre Nakoya</title>
+
+    <meta charset="utf-8">
+    <meta name="description" content="Carta del buffet libre Nakoya: qué se puede pedir ahora, precios y tu pedido.">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0b0a09">
+
+    <!-- Selector Legacy / Moderna (va primero para redirigir antes de pintar si hace falta). -->
+    <script src="js/version.js"></script>
+
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <!-- La fuente de los iconos se precarga para que el menu no aparezca sin iconos un instante.
+         La URL tiene que ser exactamente la que pide bootstrap-icons.css (con su ?hash). -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/fonts/bootstrap-icons.woff2?dd67030699838ea613ee6dbda90effa6" as="font" type="font/woff2" crossorigin>
+
+    <link href="css/version.css" rel="stylesheet">
+    <link href="css/moderna.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+    <a class="saltar" href="#contenido">Saltar al contenido</a>
+
+    <div class="shell">
+
+        <!-- BARRA SUPERIOR: marca, estado del restaurante y selector de version -->
+        <header class="topbar">
+            <a class="marca" href="#carta" aria-label="Nakoya, ir a la carta" translate="no">
+                <span class="marca-sol" aria-hidden="true"></span>
+                <span class="marca-nombre">NAKOYA</span>
+            </a>
+
+            <!-- Linea de estado: que tarifa toca ahora, precio y cierre (el punto rojo es el sol) -->
+            <div class="topbar-centro">
+                <!-- Sin aria-live: la cuenta atras cambia cada segundo y un lector de pantalla la anunciaria sin parar. -->
+                <p class="estado" id="estado">
+                    <span class="estado-sol" id="estadoSol" aria-hidden="true"></span>
+                    <span class="estado-texto" id="estadoTexto">…</span>
+                </p>
+            </div>
+
+            <div class="topbar-derecha">
+                <div id="divSwitchVersion" data-activa="moderna" role="group" aria-label="Versión de la carta">
+                    <span class="indicadorVersion" aria-hidden="true"></span>
+                    <button type="button" class="opcionVersion" data-version="legacy" aria-pressed="false"
+                        title="Versión Legacy.">Legacy</button>
+                    <button type="button" class="opcionVersion" data-version="moderna" aria-pressed="true"
+                        title="Versión Moderna.">Moderna</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- BARRA LATERAL (escritorio y tableta) -->
+        <nav class="sidebar" aria-label="Secciones">
+            <a class="nav-enlace" href="#carta" data-vista="carta"><i class="bi bi-journal-bookmark" aria-hidden="true"></i>Carta</a>
+            <a class="nav-enlace" href="#pedido" data-vista="pedido"><i class="bi bi-bag" aria-hidden="true"></i>Tu pedido<span class="nav-contador num" data-contador-pedido></span></a>
+            <a class="nav-enlace" href="#postres" data-vista="postres"><i class="bi bi-cake2" aria-hidden="true"></i>Postres</a>
+            <a class="nav-enlace" href="#info" data-vista="info"><i class="bi bi-clock" aria-hidden="true"></i>Precios y horario</a>
+            <a class="nav-enlace" href="#extras" data-vista="extras"><i class="bi bi-puzzle" aria-hidden="true"></i>Extras</a>
+
+            <p class="sidebar-pie">Pl. de Juan Grandia, 3<br>46340 Requena, Valencia</p>
+        </nav>
+
+        <main class="lienzo" id="contenido" tabindex="-1">
+
+            <!-- ============================================================ CARTA -->
+            <section class="vista" id="vista-carta" data-vista="carta" aria-labelledby="titulo-carta">
+                <div class="carta-rejilla">
+                    <div class="carta-principal">
+
+                        <div class="titulo-fila titulo-compacto">
+                            <h1 id="titulo-carta">Carta <span class="titulo-total num" id="totalLista"></span></h1>
+                            <div class="titulo-derecha">
+                                <a class="accion-texto" href="http://m.restaurantejaponesnakoya.com/col.jsp?id=112"
+                                    target="_blank" rel="noopener" title="Abrir la carta del buffet en la web del restaurante">Ver carta oficial</a>
+                            </div>
+                        </div>
+
+                        <!-- Filtros: tarjetas de recuento que filtran la lista -->
+                        <div class="filtros" id="filtros" role="group" aria-label="Filtrar platos"></div>
+
+                        <div class="buscador">
+                            <i class="bi bi-search" aria-hidden="true"></i>
+                            <label class="visually-hidden" for="buscar">Buscar plato por nombre o número</label>
+                            <input type="search" id="buscar" name="buscar" placeholder="Buscar plato o número…"
+                                autocomplete="off" spellcheck="false">
+                        </div>
+                        <section class="panel panel-lista" aria-label="Platos">
+                            <ul class="lista-platos" id="listaPlatos"></ul>
+                        </section>
+                    </div>
+
+                    <!-- Carril derecho: el pedido siempre a la vista -->
+                    <aside class="rail" aria-labelledby="titulo-rail">
+                        <section class="panel">
+                            <div class="panel-cabecera">
+                                <h2 id="titulo-rail">Tu pedido <span class="titulo-total num" data-total-pedido></span></h2>
+                                <a class="accion-texto" href="#pedido">Ver completo</a>
+                            </div>
+                            <div data-pedido="rail"></div>
+                        </section>
+                    </aside>
+                </div>
+            </section>
+
+            <!-- ============================================================ PEDIDO -->
+            <section class="vista vista-pedido" id="vista-pedido" data-vista="pedido" aria-labelledby="titulo-pedido" hidden>
+                <div class="titulo-fila">
+                    <div>
+                        <h1 id="titulo-pedido">Tu pedido <span class="titulo-total num" data-total-pedido></span></h1>
+                        <p class="subtitulo">Se guardará en este dispositivo durante 24 horas.</p>
+                    </div>
+                </div>
+                <section class="panel" aria-label="Platos del pedido">
+                    <div data-pedido="completo"></div>
+                </section>
+                <section class="panel panel-rondas" id="panelRondas" aria-labelledby="titulo-rondas" hidden></section>
+            </section>
+
+            <!-- ============================================================ POSTRES -->
+            <section class="vista" id="vista-postres" data-vista="postres" aria-labelledby="titulo-postres" hidden>
+                <div class="titulo-fila">
+                    <div>
+                        <h1 id="titulo-postres">Postres</h1>
+                        <p class="subtitulo">Solo se permite un postre por persona.</p>
+                    </div>
+                </div>
+                <section class="panel panel-lista panel-estrecho" aria-label="Lista de postres">
+                    <ul class="lista-platos" id="listaPostres"></ul>
+                </section>
+            </section>
+
+            <!-- ============================================================ PRECIOS Y HORARIO -->
+            <section class="vista" id="vista-info" data-vista="info" aria-labelledby="titulo-info" hidden>
+                <div class="titulo-fila">
+                    <div>
+                        <h1 id="titulo-info">Precios y horario</h1>
+                        <p class="subtitulo" id="subtituloInfo">…</p>
+                    </div>
+                </div>
+
+                <div class="rejilla-dos">
+                    <section class="panel" aria-labelledby="titulo-precios">
+                        <div class="panel-cabecera">
+                            <h2 id="titulo-precios">Precios del buffet</h2>
+                            <span class="panel-meta">Bebida no incluida</span>
+                        </div>
+                        <ul class="lista-simple" id="listaPrecios"></ul>
+                        <ul class="nota normas">
+                            <li>Mínimo 1 bebida por persona.</li>
+                            <li>Pide solo lo que vayas a comer: 2&nbsp;€ de penalización por cada plato no consumido.</li>
+                            <li>Avisa de tus alérgenos antes de pedir.</li>
+                        </ul>
+                    </section>
+
+                    <section class="panel" aria-labelledby="titulo-horario">
+                        <div class="panel-cabecera">
+                            <h2 id="titulo-horario">Horario y contacto</h2>
+                            <span class="panel-meta">Todos los días</span>
+                        </div>
+                        <ul class="lista-simple">
+                            <li><span>Mediodía</span><span class="valor num">12:00 – 16:00</span></li>
+                            <li><span>Noche</span><span class="valor num">19:30 – 00:00</span></li>
+                            <li><span>Teléfono</span><span class="valor num"><a href="tel:+34960704136">960&nbsp;70&nbsp;41&nbsp;36</a> · <a href="tel:+34685917657">685&nbsp;91&nbsp;76&nbsp;57</a></span></li>
+                            <li><span>Dirección</span><span class="valor"><a href="https://goo.gl/maps/NCEefxuxbUPxLFX68" target="_blank" rel="noopener">Pl. de Juan Grandia, 3, Requena</a></span></li>
+                            <li><span>Web</span><span class="valor"><a href="http://m.restaurantejaponesnakoya.com" target="_blank" rel="noopener" translate="no">restaurantejaponesnakoya.com</a></span></li>
+                        </ul>
+                    </section>
+                </div>
+            </section>
+
+            <!-- ============================================================ EXTRAS -->
+            <section class="vista" id="vista-extras" data-vista="extras" aria-labelledby="titulo-extras" hidden>
+                <div class="titulo-fila">
+                    <div>
+                        <h1 id="titulo-extras">Extras</h1>
+                    </div>
+                </div>
+
+                <!-- Menu de extras: cada uno abre su propia pantalla. Para anadir uno nuevo, una fila mas. -->
+                <nav class="panel lista-extras" aria-label="Extras">
+                    <a class="extra-fila" href="#podio">
+                        <span class="extra-emoji" aria-hidden="true">&#x1F3C6;</span>
+                        <span class="extra-texto"><b>Hall of Fame</b><small>Récord de makis de atún picante en una noche</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="extra-fila" href="#maki">
+                        <span class="extra-emoji" aria-hidden="true">&#x1F3B0;</span>
+                        <span class="extra-texto"><b>Contador maki</b><small>Cuenta los makis que os vais a comer</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
+                </nav>
+
+                <!-- Easter egg como en la Legacy: 5 toques rapidos en el maki muestran una frase. -->
+                <button type="button" class="extras-secreto" id="makiSecreto" aria-label="Maki">&#x1F363;</button>
+            </section>
+
+            <!-- ============================================================ EXTRAS: HALL OF FAME -->
+            <section class="vista" id="vista-podio" data-vista="podio" data-padre="extras" aria-labelledby="titulo-podio" hidden>
+                <a class="volver" href="#extras"><i class="bi bi-chevron-left" aria-hidden="true"></i>Extras</a>
+                <div class="titulo-fila">
+                    <div>
+                        <h1 id="titulo-podio">Hall of Fame &#x1F3C6;</h1>
+                        <p class="subtitulo">Quién se comió más makis de atún picante en una sola noche.</p>
+                    </div>
+                </div>
+                <section class="panel extra-panel" aria-label="Podio">
+                    <figure>
+                        <img src="images/podio.png" alt="Podio de quién se comió más makis de atún picante en una noche." width="912" height="658" loading="lazy">
+                    </figure>
+                </section>
+            </section>
+
+            <!-- ============================================================ EXTRAS: CONTADOR MAKI -->
+            <section class="vista" id="vista-maki" data-vista="maki" data-padre="extras" aria-labelledby="titulo-maki" hidden>
+                <a class="volver" href="#extras"><i class="bi bi-chevron-left" aria-hidden="true"></i>Extras</a>
+                <div class="titulo-fila">
+                    <div>
+                        <h1 id="titulo-maki">Contador maki &#x1F3B0;</h1>
+                        <p class="subtitulo">Pulsa el maki para incrementar el contador.</p>
+                    </div>
+                </div>
+                <section class="panel extra-panel" aria-label="Contador">
+                        <div class="contador-maki">
+                            <button type="button" class="maki-boton" id="makiBoton" aria-label="Sumar un maki">
+                                <img src="images/maki_atun.webp" alt="" width="168" height="168" draggable="false">
+                            </button>
+                            <div class="maki-marcador">
+                                <button type="button" class="btn btn-secundario btn-icono" id="makiMenos" aria-label="Restar un maki"><i class="bi bi-dash-lg" aria-hidden="true"></i></button>
+                                <output class="maki-valor num" id="makiValor" aria-live="polite">0</output>
+                                <button type="button" class="btn btn-secundario btn-icono" id="makiReset" aria-label="Poner el contador a cero"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i></button>
+                            </div>
+                            <div class="maki-progreso">
+                                <div class="maki-barra"><span id="makiBarra"></span></div>
+                                <div class="maki-ejes num"><span>0</span><span>30</span><span>100</span></div>
+                            </div>
+                        </div>
+                </section>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- BARRA INFERIOR (movil) -->
+    <nav class="barra-inferior" aria-label="Secciones">
+        <a href="#carta" data-vista="carta"><i class="bi bi-journal-bookmark" aria-hidden="true"></i>Carta</a>
+        <a href="#pedido" data-vista="pedido"><i class="bi bi-bag" aria-hidden="true"></i>Pedido<span class="nav-contador num" data-contador-pedido></span></a>
+        <a href="#postres" data-vista="postres"><i class="bi bi-cake2" aria-hidden="true"></i>Postres</a>
+        <a href="#info" data-vista="info"><i class="bi bi-clock" aria-hidden="true"></i>Horario</a>
+        <a href="#extras" data-vista="extras"><i class="bi bi-puzzle" aria-hidden="true"></i>Extras</a>
+    </nav>
+
+    <!-- MODO DISCRETO: el pedido a pantalla completa para ensenarlo en la mesa -->
+    <dialog class="discreto" id="discreto" aria-labelledby="titulo-discreto">
+        <div class="discreto-contenido">
+            <div class="discreto-cabecera">
+                <h2 id="titulo-discreto">LISTADO DE PEDIDOS</h2>
+                <button type="button" class="discreto-x" data-cerrar-discreto aria-label="Cerrar"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+            </div>
+            <div class="discreto-lista" id="listaDiscreto"></div>
+            <div class="discreto-pie">
+                <span id="totalDiscreto"></span>
+                <div class="discreto-botones">
+                    <button type="button" class="btn btn-secundario" id="copiarDiscreto"><i class="bi bi-files" aria-hidden="true"></i><span>Copiar</span></button>
+                    <button type="button" class="btn btn-secundario" data-cerrar-discreto>Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- MODAL DE CONFIRMACION (sustituye al confirm del navegador) -->
+    <dialog class="confirmar" id="confirmar" aria-labelledby="confirmarTitulo" aria-describedby="confirmarTexto">
+        <form method="dialog">
+            <h2 id="confirmarTitulo">¿Borrar el pedido?</h2>
+            <p id="confirmarTexto"></p>
+            <div class="confirmar-acciones">
+                <button type="submit" class="btn btn-secundario" value="no">Cancelar</button>
+                <button type="submit" class="btn btn-borrar" value="si" id="confirmarSi"><i class="bi bi-trash3" aria-hidden="true"></i>Borrar todo</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- COMPARTIR PEDIDO: QR para otro movil de la mesa y enlace para enviarlo -->
+    <dialog class="confirmar compartir" id="compartir" aria-labelledby="compartirTitulo" aria-describedby="compartirTexto">
+        <div class="compartir-contenido">
+            <h2 id="compartirTitulo">Compartir pedido</h2>
+            <p id="compartirTexto"></p>
+            <div class="qr" id="qrCompartir"></div>
+            <div class="confirmar-acciones">
+                <button type="button" class="btn btn-secundario" data-cerrar-compartir>Cerrar</button>
+                <button type="button" class="btn btn-principal" id="enviarEnlace"></button>
+            </div>
+        </div>
+    </dialog>
+
+    <div class="aviso" id="aviso" role="status" aria-live="polite"></div>
+
+    <script src="js/carta.js"></script>
+    <script src="js/almacen.js"></script>
+    <script src="js/moderna.js"></script>
+
+</body>
+
+</html>
