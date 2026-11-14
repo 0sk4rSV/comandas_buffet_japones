@@ -80,6 +80,8 @@ Es un sitio estático (HTML + CSS + JS, sin build ni dependencias de npm). Todo 
   "foto" (`herramientas/carta-oficial.json`), **no con `carta.js`** (los nombres de la web tienen erratas que la app corrige).
   Si cambia, abre una Pull Request "La carta oficial ha cambiado" con `carta.js` actualizado (platos nuevos/quitados, ⭐, precios)
   y lista para revisar a mano los cambios de nombre, postres, normas y horario.
+  Los platos nuevos cuyo nombre lleva "sushi", "maki", "sashimi", "nigiri", "gunkan", "temaki", "uramaki", "california" o
+  "aburi" se añaden solos a `platosSushi` (`PALABRAS_SUSHI`); los que no lo dicen (como A201 "Taco de salmón y mango") van a mano.
 - Opciones: `--foto` (solo guarda la foto actual), `--html archivo.html` (prueba con una copia local).
 - Requiere en GitHub: Settings → Actions → General → Workflow permissions = "Read and write" + "Allow GitHub Actions to create and approve pull requests".
 

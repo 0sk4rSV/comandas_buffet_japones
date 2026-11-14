@@ -24,6 +24,9 @@ const RUTA_INFORME = join(AQUI, "informe-carta.md");
 const RUTA_CARTA = join(AQUI, "..", "js", "carta.js");
 const ESTRELLA = "⭐";
 const MINIMO_PLATOS = 30; //Si salen menos, la web ha cambiado de formato: mejor fallar que borrar la carta.
+//Un plato nuevo es sushi si su nombre lleva alguna de estas palabras. Con la carta de 2026 acierta 27 de 28
+//y no confunde ningun otro plato; el que se escapa (A201 "Taco de salmon y mango") hay que marcarlo a mano.
+const PALABRAS_SUSHI = /sushi|maki|sashimi|nigiri|gunkan|temaki|uramaki|california|aburi/i;
 
 // ------------------------------------------------------------------ LEER LA WEB
 
@@ -109,7 +112,7 @@ function comparar(antes, ahora) {
     Array.from(codigos).sort(function (a, b) { return numeroCodigo(a) - numeroCodigo(b); }).forEach(function (c) {
         const a = antes.platos[c];
         const b = ahora.platos[c];
-        if (!a) cambios.nuevos.push({ codigo: c, nombre: b.nombre, noche: b.noche });
+        if (!a) cambios.nuevos.push({ codigo: c, nombre: b.nombre, noche: b.noche, sushi: PALABRAS_SUSHI.test(b.nombre) });
         else if (!b) cambios.quitados.push({ codigo: c, nombre: a.nombre });
         else {
             if (a.nombre !== b.nombre) cambios.renombrados.push({ codigo: c, antes: a.nombre, ahora: b.nombre });
@@ -200,6 +203,21 @@ function aplicarEnCarta(cambios) {
 
     carta = lineas.join(nl);
 
+    //Platos nuevos que por su nombre son sushi: se anaden a la lista de sushi (ordenada por numero).
+    const nuevosSushi = cambios.nuevos.filter(function (p) { return p.sushi; }).map(function (p) { return p.codigo; });
+    if (nuevosSushi.length) {
+        carta = carta.replace(/const platosSushi = \[([\s\S]*?)\];/, function (todo, dentro) {
+            const codigos = (dentro.match(/A\d+/g) || []).concat(nuevosSushi)
+                .filter(function (c, i, lista) { return lista.indexOf(c) === i; })
+                .sort(function (a, b) { return numeroCodigo(a) - numeroCodigo(b); })
+                .map(function (c) { return "\"" + c + "\""; });
+            //De 10 en 10 por linea, como estaba escrita la lista.
+            const filasSushi = [];
+            for (let i = 0; i < codigos.length; i += 10) filasSushi.push(codigos.slice(i, i + 10).join(", "));
+            return "const platosSushi = [" + filasSushi.join("," + nl + "    ") + "];";
+        });
+    }
+
     //Precios del buffet.
     cambios.precios.forEach(function (p) {
         const re = new RegExp("(" + p.turno + ": \\{[^}]*" + p.tipo + ": )[\\d.]+");
@@ -221,7 +239,10 @@ function informe(c) {
     const aplicados = c.nuevos.length || c.quitados.length || c.noche.length || c.precios.length;
     if (aplicados) {
         t.push("## Ya aplicado en `js/carta.js`", "");
-        c.nuevos.forEach(function (p) { t.push("- **Plato nuevo** " + p.codigo + ": " + p.nombre + (p.noche ? " " + ESTRELLA : "")); });
+        c.nuevos.forEach(function (p) {
+            t.push("- **Plato nuevo** " + p.codigo + ": " + p.nombre + (p.noche ? " " + ESTRELLA : "") +
+                (p.sushi ? " · añadido a **sushi** por su nombre" : ""));
+        });
         c.quitados.forEach(function (p) { t.push("- **Plato quitado** " + p.codigo + ": " + p.nombre + " (también se quita de favoritos y sushi si estaba)"); });
         c.noche.forEach(function (p) { t.push("- **" + p.codigo + " " + p.nombre + "** " + (p.noche ? "pasa a ser solo de noche " + ESTRELLA : "ya no es solo de noche")); });
         c.precios.forEach(function (p) { t.push("- **Precio " + NOMBRE_TURNO[p.turno] + ", " + NOMBRE_TIPO[p.tipo] + ":** " + euros(p.antes) + " → " + euros(p.ahora)); });
@@ -237,7 +258,8 @@ function informe(c) {
         t.push("");
     }
     if (c.nuevos.length) {
-        t.push("Los platos nuevos entran con el nombre de la web: revisa si hay que corregirlo y si va a favoritos o sushi.", "");
+        t.push("Los platos nuevos entran con el nombre de la web: revisa si hay que corregirlo, si va a favoritos " +
+            "y si alguno es sushi aunque su nombre no lo diga (se añade a mano a `platosSushi`).", "");
     }
     t.push("Al aceptar (Merge) esta Pull Request, Vercel publica la carta nueva en un minuto.");
     return t.join("\n");
