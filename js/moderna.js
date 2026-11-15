@@ -1051,6 +1051,8 @@
         }
         //Cada vez que se entra en la galletita hay una nueva entera.
         if (vista === "galleta") reiniciarGalleta();
+        //El croupier de la ruleta se calla al salir de su pantalla.
+        if (vista !== "ruleta") callarCroupier();
         //Atrapa el sushi se para si se sale de su pantalla a mitad de partida; al entrar, ocupa todo el alto.
         if (vista !== "atrapa") detenerAtrapa();
         else requestAnimationFrame(ajustarZonaAtrapa);
@@ -1522,11 +1524,106 @@
             if (datos && Array.isArray(datos.nombres)) {
                 return {
                     nombres: datos.nombres.filter(function (n) { return typeof n === "string" && n.trim(); }).slice(0, MAX_JUGADORES),
-                    reto: typeof datos.reto === "string" ? datos.reto : ""
+                    reto: typeof datos.reto === "string" ? datos.reto : "",
+                    bolita: datos.bolita === true
                 };
             }
         } catch (e) { }
-        return { nombres: [], reto: "" };
+        return { nombres: [], reto: "", bolita: false };
+    }
+
+    //Modo bolita. La bolita va en una capa que no gira: su angulo en pantalla es su angulo dentro de la rueda
+    //mas lo que ha girado la rueda. "anguloRueda" es el sitio de la rueda donde quedo tras el ultimo giro
+    //(null: esta arriba, en el aro, esperando a lanzarse).
+    const RADIO_PISTA_BOLA = 104;
+    const RADIO_CASILLA_BOLA = 84;
+    const bola = { anguloRueda: null, pantalla: 0 };
+
+    function moverBola(anguloPantalla, radio) {
+        bola.pantalla = anguloPantalla;
+        const punto = puntoRueda(anguloPantalla, radio).split(" ");
+        $("#ruletaBola").setAttribute("transform", "translate(" + punto[0] + " " + punto[1] + ")");
+    }
+
+    function colocarBola() {
+        if (bola.anguloRueda === null) moverBola(0, RADIO_PISTA_BOLA);
+        else moverBola(bola.anguloRueda + giroRuleta, RADIO_CASILLA_BOLA);
+    }
+
+    //Giro actual de la rueda en grados (lo lee de la animacion en curso).
+    function giroActualRueda(rueda) {
+        const matriz = getComputedStyle(rueda).transform;
+        const valores = matriz && matriz !== "none" ? matriz.match(/-?\d*\.?\d+(?:e-?\d+)?/g) : null;
+        return valores ? Math.atan2(parseFloat(valores[1]), parseFloat(valores[0])) * 180 / Math.PI : 0;
+    }
+
+    //Rebote al caer (curva clasica "ease out bounce"): 0 arriba en la pista, 1 dentro de la casilla.
+    function rebote(u) {
+        const n1 = 7.5625, d1 = 2.75;
+        if (u < 1 / d1) return n1 * u * u;
+        if (u < 2 / d1) { u -= 1.5 / d1; return n1 * u * u + 0.75; }
+        if (u < 2.5 / d1) { u -= 2.25 / d1; return n1 * u * u + 0.9375; }
+        u -= 2.625 / d1;
+        return n1 * u * u + 0.984375;
+    }
+
+    //La bolita sale en sentido contrario a la rueda por el aro, va frenando, cae botando hacia dentro y
+    //acaba en "destino" (un punto del trozo ganador) arrastrada por la rueda hasta que esta se para.
+    //Suspense (la mitad de las veces): primero cae en el trozo de al lado, parece que se queda... y da un
+    //ultimo salto hasta el ganador. "anchoTrozo" son los grados de cada trozo.
+    function lanzarBola(rueda, desde, destino, duracion, sinMovimiento, anchoTrozo) {
+        const salto = !sinMovimiento && Math.random() < 0.5;
+        const caida = duracion * (salto ? 0.62 : 0.8);
+        //Casilla donde cae primero: la de al lado, por la que llega (la bolita avanza hacia atras en la rueda).
+        const primera = salto ? destino + anchoTrozo : destino;
+        const inicioSalto = duracion * 0.8;
+        const duracionSalto = 380;
+        //Vueltas que da la bolita respecto a la rueda; se ajusta para salir justo de donde estaba.
+        const vueltas = (sinMovimiento ? 4 : 16) * 360;
+        const ajuste = (((bola.pantalla - primera - desde) % 360) + 360) % 360;
+        const recorrido = vueltas + ajuste;
+        const inicio = performance.now();
+        const botes = [1 / 2.75, 2 / 2.75, 2.5 / 2.75];
+        let bote = 0;
+        let saltoEmpezado = false;
+        let saltoAcabado = false;
+        function paso() {
+            if (!ruletaGirando) return;
+            const t = performance.now() - inicio;
+            if (salto && t >= inicioSalto) {
+                //El ultimo salto: sube un poco hacia el aro y cae en la casilla ganadora.
+                const k = Math.min((t - inicioSalto) / duracionSalto, 1);
+                const suave = k < 0.5 ? 2 * k * k : 1 - 2 * (1 - k) * (1 - k);
+                if (!saltoEmpezado) {
+                    saltoEmpezado = true;
+                    chasquido(1600, 0.03, 0.4, 0.7);
+                }
+                if (k >= 1 && !saltoAcabado) {
+                    saltoAcabado = true;
+                    chasquido(1300, 0.04, 0.8, 1);
+                    vibrar(30);
+                }
+                moverBola(primera + (destino - primera) * suave + giroActualRueda(rueda), RADIO_CASILLA_BOLA + 12 * Math.sin(Math.PI * k));
+                requestAnimationFrame(paso);
+                return;
+            }
+            const s = Math.min(t / caida, 1);
+            //Respecto a la rueda: mucho recorrido al principio y cada vez menos (frena) hasta quedarse en su casilla.
+            const relativo = primera + recorrido * Math.pow(1 - s, 3);
+            let radio = RADIO_PISTA_BOLA;
+            if (s > 0.7) {
+                const u = (s - 0.7) / 0.3;
+                radio = RADIO_PISTA_BOLA - (RADIO_PISTA_BOLA - RADIO_CASILLA_BOLA) * rebote(u);
+                //"Clac" en cada bote contra la casilla, cada vez mas flojo.
+                if (bote < botes.length && u >= botes[bote]) {
+                    chasquido(1100 + bote * 300, 0.035, 0.7 - bote * 0.2, 0.9);
+                    bote++;
+                }
+            }
+            moverBola(relativo + giroActualRueda(rueda), radio);
+            requestAnimationFrame(paso);
+        }
+        requestAnimationFrame(paso);
     }
 
     function guardarRuleta() {
@@ -1555,10 +1652,15 @@
         $("#ruletaNombre").disabled = lleno;
         $("#ruletaNombre").placeholder = lleno ? "Máximo " + MAX_JUGADORES + " personas" : "Nombre…";
         $("#ruletaGirar").disabled = n < 2 || ruletaGirando;
+        $("#ruletaBorrarTodos").hidden = n === 0;
         pintarRueda();
+        //La rueda se ha vuelto a dibujar: la bolita vuelve a su sitio de salida.
+        bola.anguloRueda = null;
+        colocarBola();
     }
 
     function pintarSugerencias() {
+        $("#ruletaRetoBorrar").hidden = !ruleta.reto;
         $("#ruletaSugerencias").innerHTML = RETOS_PROPUESTOS.map(function (reto) {
             return "<button type=\"button\" class=\"sugerencia\" data-reto=\"" + escaparHtml(reto) + "\"" +
                 (reto === ruleta.reto ? " aria-pressed=\"true\"" : " aria-pressed=\"false\"") + ">" + escaparHtml(reto) + "</button>";
@@ -1566,6 +1668,48 @@
     }
 
     //Punto de la circunferencia: angulo en grados desde arriba, en sentido horario.
+    //Nombres largos en la rueda: en vez de cortarlos con "…", primero se encoge la letra hasta que quepa a lo
+    //largo del trozo; si aun asi quedaria demasiado pequena, se parte en dos lineas (por el espacio mas
+    //centrado o, si no hay, por la mitad con guion). Devuelve el resto de la etiqueta <text>: font-size y contenido.
+    const LARGO_ETIQUETA = 66;
+    let lienzoMedidas = null;
+    function anchoTexto(texto, tam) {
+        lienzoMedidas = lienzoMedidas || document.createElement("canvas").getContext("2d");
+        lienzoMedidas.font = "700 " + tam + "px Inter, system-ui, sans-serif";
+        return lienzoMedidas.measureText(texto).width;
+    }
+
+    function htmlEtiquetaRueda(texto, tamBase, paso) {
+        const tamMinimo = Math.max(9, Math.round(tamBase * 0.75));
+        const ancho = anchoTexto(texto, tamBase);
+        if (ancho <= LARGO_ETIQUETA) return " font-size=\"" + tamBase + "\">" + escaparHtml(texto);
+        const encogido = Math.floor(tamBase * LARGO_ETIQUETA / ancho * 10) / 10;
+        if (encogido >= tamMinimo) return " font-size=\"" + encogido + "\">" + escaparHtml(texto);
+
+        //Dos lineas: por el espacio mas cerca del centro o, si no hay, por la mitad con guion.
+        let linea1, linea2;
+        const mitad = texto.length / 2;
+        let corte = -1;
+        for (let k = 0; k < texto.length; k++) {
+            if (texto[k] === " " && (corte < 0 || Math.abs(k - mitad) < Math.abs(corte - mitad))) corte = k;
+        }
+        if (corte > 0) {
+            linea1 = texto.slice(0, corte);
+            linea2 = texto.slice(corte + 1);
+        } else {
+            const k = Math.ceil(mitad);
+            linea1 = texto.slice(0, k) + "-";
+            linea2 = texto.slice(k);
+        }
+        //Que quepa a lo largo y que las dos lineas quepan a lo ancho del trozo (medido a media altura).
+        const anchoTrozo = 2 * 58 * Math.sin(Math.min(paso, 180) * Math.PI / 360);
+        const masLarga = Math.max(anchoTexto(linea1, tamBase), anchoTexto(linea2, tamBase));
+        let tam = Math.min(tamBase, tamBase * LARGO_ETIQUETA / masLarga, anchoTrozo * 0.8 / 2.2);
+        tam = Math.max(7, Math.floor(tam * 10) / 10);
+        return " font-size=\"" + tam + "\"><tspan x=\"0\" dy=\"-0.55em\">" + escaparHtml(linea1) + "</tspan>" +
+            "<tspan x=\"0\" dy=\"1.1em\">" + escaparHtml(linea2) + "</tspan>";
+    }
+
     function puntoRueda(angulo, radio) {
         const rad = angulo * Math.PI / 180;
         return (radio * Math.sin(rad)).toFixed(2) + " " + (-radio * Math.cos(rad)).toFixed(2);
@@ -1593,35 +1737,38 @@
             const paso = 360 / n;
             const tamLetra = n <= 4 ? 14 : (n <= 8 ? 12 : 10);
             let separadores = "";
+            let textos = "";
             nombres.forEach(function (nombre, i) {
                 const desde = i * paso;
                 const hasta = desde + paso;
                 //Con un numero impar de personas, el ultimo trozo usa un tercer color para no repetir junto al primero.
                 const color = (n % 2 === 1 && i === n - 1) ? COLOR_RULETA_EXTRA : COLORES_RULETA[i % 2];
-                svg += "<path d=\"M0 0 L" + puntoRueda(desde, 96) + " A96 96 0 0 1 " + puntoRueda(hasta, 96) + " Z\" fill=\"" + color + "\"/>";
+                svg += "<path class=\"trozo anima-juego\" data-trozo=\"" + i + "\" d=\"M0 0 L" + puntoRueda(desde, 96) + " A96 96 0 0 1 " + puntoRueda(hasta, 96) + " Z\" fill=\"" + color + "\"/>";
                 separadores += "<line x1=\"0\" y1=\"0\" x2=\"" + puntoRueda(desde, 96).replace(" ", "\" y2=\"") + "\" stroke=\"#f5c542\" stroke-width=\"2\"/>";
                 const medio = desde + paso / 2;
-                const limpio = nombre.trim();
-                const etiqueta = limpio.length > 10 ? limpio.slice(0, 9) + "…" : limpio;
                 //En la mitad izquierda el texto se gira media vuelta para que no quede boca abajo.
                 const izquierda = medio > 180;
                 const giroTexto = izquierda ? medio + 90 : medio - 90;
-                svg += "<text transform=\"rotate(" + giroTexto + ") translate(" + (izquierda ? -60 : 60) + " 0)\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"" + tamLetra + "\">" + escaparHtml(etiqueta) + "</text>";
+                textos += "<text class=\"anima-juego\" data-trozo=\"" + i + "\" transform=\"rotate(" + giroTexto + ") translate(" + (izquierda ? -58 : 58) + " 0)\" text-anchor=\"middle\" dominant-baseline=\"middle\"" +
+                    htmlEtiquetaRueda(nombre.trim(), tamLetra, paso) + "</text>";
             });
-            svg += separadores;
+            //Orden de capas: trozos, (brillo del ganador, se anade al parar), separadores y nombres encima.
+            svg += separadores + textos;
         }
 
         //Bombillas del aro, alternando dos tonos.
         for (let k = 0; k < BOMBILLAS_RULETA; k++) {
             const punto = puntoRueda(k * 360 / BOMBILLAS_RULETA, 105).split(" ");
-            svg += "<circle class=\"bombilla" + (k % 2 ? " par" : "") + "\" cx=\"" + punto[0] + "\" cy=\"" + punto[1] + "\" r=\"3\"/>";
+            svg += "<circle class=\"bombilla anima-juego" + (k % 2 ? " par" : "") + "\" cx=\"" + punto[0] + "\" cy=\"" + punto[1] + "\" r=\"3\"/>";
         }
         //El centro dorado con la N va fuera de la rueda (no gira, asi la N siempre se lee recta).
         svg += "</svg>";
         $("#ruletaRueda").innerHTML = svg;
     }
 
-    function girarRuleta() {
+    //duracionPedida (ms, opcional): desde el logo, el giro dura lo mismo que el audio del croupier.
+    //(Como manejador de clic recibe el evento, por eso se comprueba que sea un numero.)
+    function girarRuleta(duracionPedida) {
         const n = ruleta.nombres.length;
         if (ruletaGirando || n < 2) return;
 
@@ -1634,25 +1781,44 @@
         });
         const ganador = elegibles.length > 0 ? elegibles[numeroAlAzar(elegibles.length)] : numeroAlAzar(n);
         //Punto al azar dentro del trozo ganador (sin caer justo en la raya entre dos trozos).
-        const destino = ganador * paso + paso * (0.15 + 0.7 * Math.random());
+        //La mitad de las veces, justo despues de pasar la raya de entrada: "¡casi se queda en el anterior!".
+        //(Al girar, el puntero recorre la rueda hacia atras: entra en el trozo por su final.)
+        const casiNo = Math.random() < 0.5;
+        const destino = ganador * paso + paso * (casiNo ? 0.84 + 0.09 * Math.random() : 0.15 + 0.6 * Math.random());
         //Con "Reducir movimiento" el giro es mas corto, pero se mantiene: es la gracia del juego.
         const sinMovimiento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        const duracion = sinMovimiento ? 1600 : 4200;
-        const vueltas = sinMovimiento ? 2 : 6;
+        const pedida = typeof duracionPedida === "number" && isFinite(duracionPedida) && duracionPedida > 1000;
+        const duracion = pedida ? duracionPedida : (sinMovimiento ? 2000 : 5200);
+        //Mas tiempo, mas vueltas (7 vueltas por cada 5,2 s), para que no vaya a camara lenta.
+        const vueltas = pedida ? Math.max(2, Math.round(7 * duracion / 5200)) : (sinMovimiento ? 2 : 7);
 
-        //Girar en sentido horario lleva el punto "destino" de la rueda hasta el puntero de arriba.
+        //Con puntero: girar en sentido horario lleva el punto "destino" de la rueda hasta el puntero de arriba.
+        //Con bolita: la rueda se para en cualquier sitio; es la bolita la que acaba en "destino".
         const desde = giroRuleta;
-        giroRuleta = giroRuleta - (giroRuleta % 360) + vueltas * 360 + (360 - destino);
+        const modoBolita = ruleta.bolita;
+        giroRuleta = giroRuleta - (giroRuleta % 360) + vueltas * 360 + (modoBolita ? Math.random() * 360 : 360 - destino);
         const rueda = $("#ruletaRueda");
         const final = "rotate(" + giroRuleta + "deg)";
         //Se anima con la API de animaciones (element.animate): en iPhone (Safari) una transicion CSS a veces no
         //llegaba a girar, y la regla general de "Reducir movimiento" tambien la anulaba.
+        //Suspense: la curva es la suma de un frenazo rapido (acaba al 62% del tiempo) y un arrastre lento que
+        //dura todo el giro; asi el ultimo trozo y pico se recorre muy despacio ("tic"... "tic"...) y la
+        //velocidad solo baja, sin tirones. Se calcula a mano en muchos fotogramas clave (funciona en todos).
+        const tramoLento = Math.min(Math.max(paso * 1.2, 35), 80);
+        const total = giroRuleta - desde;
+        const arrastre = Math.min(0.5, tramoLento / (0.38 * 0.38) / total);
+        function curvaSuspense(u) {
+            const rapido = u < 0.62 ? 1 - Math.pow(1 - u / 0.62, 3) : 1;
+            const lento = 1 - Math.pow(1 - u, 2);
+            return (1 - arrastre) * rapido + arrastre * lento;
+        }
+        const fotogramas = [];
+        for (let i = 0; i <= 80; i++) {
+            fotogramas.push({ transform: "rotate(" + (desde + total * curvaSuspense(i / 80)) + "deg)" });
+        }
         rueda.style.transition = "none";
         if (rueda.animate) {
-            const animacion = rueda.animate(
-                [{ transform: "rotate(" + desde + "deg)" }, { transform: final }],
-                { duration: duracion, easing: "cubic-bezier(0.12, 0.8, 0.18, 1)", fill: "forwards" }
-            );
+            const animacion = rueda.animate(fotogramas, { duration: duracion, easing: "linear", fill: "forwards" });
             animacion.onfinish = function () {
                 rueda.style.transform = final;
                 animacion.cancel();
@@ -1663,13 +1829,88 @@
 
         ruletaGirando = true;
         $("#ruletaGirar").disabled = true;
+        $("#ruletaBolita").disabled = true;
         $("#ruletaResultado").innerHTML = "";
+        quitarGanadorRueda();
+        //El primer sonido va dentro del toque: en iPhone el audio solo se desbloquea con un gesto del usuario.
+        clicRuleta();
+        sonarGiroRuleta(rueda, desde);
+        if (modoBolita) lanzarBola(rueda, desde, destino, duracion, sinMovimiento, paso);
+        //En el tramo lento las bombillas parpadean.
+        const marco = $(".ruleta");
+        setTimeout(function () { if (ruletaGirando) marco.classList.add("suspense"); }, duracion * 0.62);
 
         setTimeout(function () {
             ruletaGirando = false;
+            marco.classList.remove("suspense");
             $("#ruletaGirar").disabled = ruleta.nombres.length < 2;
+            $("#ruletaBolita").disabled = false;
+            if (modoBolita) {
+                bola.anguloRueda = destino;
+                colocarBola();
+            }
+            //Al parar, el "clic-clac" del percutor al montarse.
+            chasquido(1400, 0.05, 0.9, 0.6);
+            setTimeout(function () { chasquido(2300, 0.07, 1, 1); }, 120);
+            resaltarGanadorRueda(ganador);
             mostrarResultadoRuleta(ruleta.nombres[ganador]);
         }, duracion);
+    }
+
+    //El trozo que ha tocado sale un poco hacia fuera y parpadea en dorado; los demas se apagan.
+    //El trozo ganador se pasa al final de los trozos para que, al crecer, quede por encima de sus vecinos.
+    function resaltarGanadorRueda(i) {
+        const svg = $("#ruletaRueda svg");
+        const trozo = svg && svg.querySelector(".trozo[data-trozo=\"" + i + "\"]");
+        if (!trozo) return;
+        const encima = svg.querySelector("line, text");
+        svg.insertBefore(trozo, encima);
+        const brillo = trozo.cloneNode(false);
+        brillo.setAttribute("class", "trozo-brillo anima-juego");
+        brillo.removeAttribute("fill");
+        svg.insertBefore(brillo, encima);
+        trozo.classList.add("ganador");
+        svg.querySelector("text[data-trozo=\"" + i + "\"]").classList.add("ganador");
+        svg.classList.add("hay-ganador");
+    }
+
+    function quitarGanadorRueda() {
+        const svg = $("#ruletaRueda svg");
+        if (!svg) return;
+        svg.classList.remove("hay-ganador");
+        svg.querySelectorAll(".ganador").forEach(function (el) { el.classList.remove("ganador"); });
+        svg.querySelectorAll(".trozo-brillo").forEach(function (el) { el.remove(); });
+    }
+
+    //"Tic" del tambor de un revolver al girar: chasquido metalico corto, con una pizca de variacion
+    //para que no suene a maquina.
+    function clicRuleta() {
+        chasquido(3200 + Math.random() * 500, 0.018, 0.55, 0.8);
+    }
+
+    //Mientras gira suena un "tic" cada vez que una bombilla pasa por el puntero (cada 360/20 grados):
+    //rapido al principio y cada vez mas espaciado, como una ruleta de verdad al frenar.
+    function sonarGiroRuleta(rueda, desde) {
+        const paso = 360 / BOMBILLAS_RULETA;
+        function tramo(grados) {
+            return Math.floor((((grados % 360) + 360) % 360) / paso);
+        }
+        let ultimo = tramo(desde);
+        function mirar() {
+            if (!ruletaGirando) return;
+            const matriz = getComputedStyle(rueda).transform;
+            const valores = matriz && matriz !== "none" ? matriz.match(/-?\d*\.?\d+(?:e-?\d+)?/g) : null;
+            if (valores) {
+                const grados = Math.atan2(parseFloat(valores[1]), parseFloat(valores[0])) * 180 / Math.PI;
+                const actual = tramo(grados);
+                if (actual !== ultimo) {
+                    ultimo = actual;
+                    clicRuleta();
+                }
+            }
+            requestAnimationFrame(mirar);
+        }
+        requestAnimationFrame(mirar);
     }
 
     function mostrarResultadoRuleta(nombre) {
@@ -1723,31 +1964,219 @@
     //Tocar la propia rueda tambien la gira (girarRuleta ya no hace nada si esta girando o hay menos de 2 nombres).
     $(".ruleta").addEventListener("click", girarRuleta);
 
+    //Interruptor del modo bolita (se recuerda con los nombres y el reto). Al cambiar, la bolita vuelve arriba.
+    function pintarModoBolita() {
+        $("#ruletaBolita").checked = ruleta.bolita;
+        $(".ruleta").classList.toggle("modo-bolita", ruleta.bolita);
+    }
+    $("#ruletaBolita").addEventListener("change", function () {
+        if (ruletaGirando) return;
+        ruleta.bolita = this.checked;
+        guardarRuleta();
+        bola.anguloRueda = null;
+        colocarBola();
+        pintarModoBolita();
+    });
+    pintarModoBolita();
+
+    //Borrar a todos de golpe (se puede deshacer desde el aviso).
+    $("#ruletaBorrarTodos").addEventListener("click", function () {
+        if (ruletaGirando || ruleta.nombres.length === 0) return;
+        const antes = ruleta.nombres.slice();
+        ruleta.nombres = [];
+        guardarRuleta();
+        $("#ruletaResultado").innerHTML = "";
+        pintarJugadores();
+        avisar("Jugadores borrados", function () {
+            ruleta.nombres = antes;
+            guardarRuleta();
+            pintarJugadores();
+        });
+    });
+
+    //X dentro del campo del reto: lo borra y deja el cursor en el campo para escribir otro.
+    $("#ruletaRetoBorrar").addEventListener("click", function () {
+        ruleta.reto = "";
+        $("#ruletaReto").value = "";
+        guardarRuleta();
+        pintarSugerencias();
+        $("#ruletaReto").focus();
+    });
+
+    //Logo de la esquina: la voz del croupier (audio/hagan_juego.mp3).
+    //Si el archivo no se puede reproducir, lo dice la voz del dispositivo (sintesis de voz) como reserva.
+    const logoRuleta = $("#ruletaLogo");
+    const audioCroupier = new Audio("audio/hagan_juego.mp3");
+    audioCroupier.preload = "auto";
+    audioCroupier.addEventListener("ended", function () { logoRuleta.classList.remove("hablando"); });
+
+    //Elige la voz en español que mas natural suene de las que tenga el dispositivo: primero las neuronales
+    //(Edge: "... Online (Natural)"), luego las de Google, luego las mejoradas de iPhone ("Premium"/"Mejorada"),
+    //y entre iguales, mejor de España y de hombre (pega mas con un croupier).
+    function vozEspanola() {
+        const voces = window.speechSynthesis.getVoices().filter(function (v) { return /^es\b/i.test(v.lang); });
+        function puntos(v) {
+            let p = 0;
+            if (/natural|neural|online/i.test(v.name)) p += 100;
+            if (/google/i.test(v.name)) p += 60;
+            if (/premium|enhanced|mejorad/i.test(v.name)) p += 50;
+            if (/^es[-_]ES/i.test(v.lang)) p += 20;
+            if (/alvaro|álvaro|jorge|pablo|diego|enrique|juan|carlos/i.test(v.name)) p += 5;
+            return p;
+        }
+        voces.sort(function (a, b) { return puntos(b) - puntos(a); });
+        return voces[0] || null;
+    }
+
+    function frase(texto, alAcabar) {
+        const voz = new SpeechSynthesisUtterance(texto);
+        voz.lang = "es-ES";
+        const elegida = vozEspanola();
+        if (elegida) voz.voice = elegida;
+        voz.rate = 0.9;
+        voz.pitch = 0.85;
+        voz.onend = alAcabar;
+        voz.onerror = function () { callarCroupier(); };
+        window.speechSynthesis.speak(voz);
+    }
+
+    function callarCroupier() {
+        audioCroupier.pause();
+        audioCroupier.currentTime = 0;
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        logoRuleta.classList.remove("hablando");
+    }
+
+    //Reserva sin archivo: "Señores, hagan juego" y seguido "¡No va más!" con la voz del dispositivo.
+    function hablarCroupier() {
+        if (!("speechSynthesis" in window)) {
+            logoRuleta.classList.remove("hablando");
+            return;
+        }
+        frase("Señores, hagan juego.", function () {
+            frase("¡No va más!", function () { logoRuleta.classList.remove("hablando"); });
+        });
+    }
+
+    logoRuleta.addEventListener("click", function () {
+        //Mientras suena el audio o gira la ruleta, el logo no hace nada (ni corta ni vuelve a empezar).
+        if (logoRuleta.classList.contains("hablando") || ruletaGirando) return;
+        callarCroupier();
+        logoRuleta.classList.add("hablando");
+        //A la vez que habla el croupier, la ruleta gira y se para cuando acaba el audio
+        //(si ya esta girando o faltan nombres, no hace nada). Si aun no se sabe lo que dura, 5,1 s.
+        girarRuleta(isFinite(audioCroupier.duration) && audioCroupier.duration > 0 ? audioCroupier.duration * 1000 : 5130);
+        const reproduccion = audioCroupier.play();
+        //Si se corta con otro toque (AbortError) no es un fallo: solo se usa la reserva si de verdad no suena.
+        if (reproduccion) reproduccion.catch(function (error) {
+            if (error && error.name === "AbortError") return;
+            if (logoRuleta.classList.contains("hablando")) hablarCroupier();
+        });
+    });
+    //Las voces se cargan tarde en algunos navegadores: pedirlas ya para tenerlas listas al primer toque.
+    if ("speechSynthesis" in window) window.speechSynthesis.getVoices();
+
     $("#ruletaReto").value = ruleta.reto;
     pintarSugerencias();
     pintarJugadores();
+    //Los nombres se ajustan midiendo el texto con la fuente de la app: al cargarse la fuente se vuelven a medir.
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function () { if (!ruletaGirando) pintarRueda(); });
+    }
 
     // ------------------------------------------------------------------ SONIDOS DE LOS JUEGOS
 
     //Pitidos generados por el navegador (sin archivos de audio). El contexto se crea en el primer toque.
     let contextoAudio = null;
-    function pitido(frecuencia, duracion) {
+
+    //Devuelve el contexto de audio (lo crea la primera vez y lo reactiva si el navegador lo tenia en pausa).
+    function audio() {
+        const Contexto = window.AudioContext || window.webkitAudioContext;
+        if (!Contexto) return null;
+        contextoAudio = contextoAudio || new Contexto();
+        if (contextoAudio.state === "suspended") contextoAudio.resume();
+        return contextoAudio;
+    }
+
+    //Opcionales: volumen inicial (0.2 por defecto) y tipo de onda ("triangle" por defecto).
+    function pitido(frecuencia, duracion, volumenInicial, tipo) {
         try {
-            const Contexto = window.AudioContext || window.webkitAudioContext;
-            if (!Contexto) return;
-            contextoAudio = contextoAudio || new Contexto();
+            if (!audio()) return;
             const t = contextoAudio.currentTime;
             const oscilador = contextoAudio.createOscillator();
             const volumen = contextoAudio.createGain();
-            oscilador.type = "triangle";
+            oscilador.type = tipo || "triangle";
             oscilador.frequency.value = frecuencia;
-            volumen.gain.setValueAtTime(0.2, t);
+            volumen.gain.setValueAtTime(volumenInicial || 0.2, t);
             volumen.gain.exponentialRampToValueAtTime(0.001, t + duracion);
             oscilador.connect(volumen);
             volumen.connect(contextoAudio.destination);
             oscilador.start(t);
             oscilador.stop(t + duracion);
         } catch (e) { }
+    }
+
+    //Chasquido metalico (como el tambor de un revolver): un golpe de ruido muy corto filtrado en agudos,
+    //con un "ring" de metal encima. frecuencia = tono del golpe; brillo = cuanto suena el metal (0-1).
+    let ruidoBlanco = null;
+    function chasquido(frecuencia, duracion, volumenInicial, brillo) {
+        try {
+            const ctx = audio();
+            if (!ctx) return;
+            if (!ruidoBlanco) {
+                ruidoBlanco = ctx.createBuffer(1, Math.round(ctx.sampleRate * 0.1), ctx.sampleRate);
+                const datos = ruidoBlanco.getChannelData(0);
+                for (let i = 0; i < datos.length; i++) datos[i] = Math.random() * 2 - 1;
+            }
+            const t = ctx.currentTime;
+            const salida = ctx.createGain();
+            salida.connect(ctx.destination);
+
+            //Golpe: ruido por un filtro de banda, con caida rapidisima.
+            const ruido = ctx.createBufferSource();
+            ruido.buffer = ruidoBlanco;
+            const filtro = ctx.createBiquadFilter();
+            filtro.type = "bandpass";
+            filtro.frequency.value = frecuencia;
+            filtro.Q.value = 2.5;
+            const golpe = ctx.createGain();
+            golpe.gain.setValueAtTime(volumenInicial, t);
+            golpe.gain.exponentialRampToValueAtTime(0.001, t + duracion);
+            ruido.connect(filtro);
+            filtro.connect(golpe);
+            golpe.connect(salida);
+            ruido.start(t, Math.random() * 0.05);
+            ruido.stop(t + duracion);
+
+            //Ring metalico: dos tonos agudos que no son armonicos entre si (suena a acero, no a nota).
+            if (!brillo) return;
+            [frecuencia * 1.47, frecuencia * 2.09].forEach(function (f) {
+                const tono = ctx.createOscillator();
+                const vol = ctx.createGain();
+                tono.type = "sine";
+                tono.frequency.value = f;
+                vol.gain.setValueAtTime(volumenInicial * 0.12 * brillo, t);
+                vol.gain.exponentialRampToValueAtTime(0.0001, t + duracion * 3);
+                tono.connect(vol);
+                vol.connect(salida);
+                tono.start(t);
+                tono.stop(t + duracion * 3);
+            });
+        } catch (e) { }
+    }
+
+    //Crujido (galleta, cosas que se rompen): muchos granitos de ruido muy cortos y desordenados, en
+    //frecuencias distintas, repartidos en "ventana" ms, mas un golpe grave seco al principio.
+    //"granos" = cuantos chasquiditos; "volumen" = fuerza general (0-1).
+    function crujido(granos, ventana, volumen) {
+        chasquido(450 + Math.random() * 150, 0.04, volumen * 0.9, 0);
+        for (let i = 0; i < granos; i++) {
+            const retraso = Math.pow(Math.random(), 1.6) * ventana;
+            const fuerza = volumen * (0.35 + Math.random() * 0.65) * (1 - retraso / ventana * 0.6);
+            setTimeout(function () {
+                chasquido(1400 + Math.random() * 4200, 0.008 + Math.random() * 0.018, fuerza, 0);
+            }, retraso);
+        }
     }
 
     function vibrar(patron) {
@@ -2457,6 +2886,44 @@
         }
     }
 
+    //Cada papelito es distinto: torcido hacia un lado u otro, con los bordes rotos de otra forma y las
+    //arrugas en otro sitio (se elige otra zona de la textura y a veces se voltea).
+    function desordenarPapel() {
+        const azar = function (min, max) { return min + Math.random() * (max - min); };
+        const papel = $("#galletaPapel");
+        const sentido = Math.random() < 0.5 ? -1 : 1;
+        papel.style.setProperty("--giro", (sentido * azar(0.7, 2.6)).toFixed(2) + "deg");
+        const hoja = $("#galletaHoja");
+        //Arrugas: unos pliegues rectos en angulos al azar (una linea de sombra pegada a una de brillo) y un par
+        //de zonas algo mas oscuras, como un papel que ha estado doblado dentro de la galleta.
+        const capas = [];
+        const pliegues = 4 + Math.floor(azar(0, 3));
+        for (let k = 0; k < pliegues; k++) {
+            const angulo = Math.round(azar(0, 180));
+            const donde = azar(15, 85);
+            const fuerza = azar(0.04, 0.085).toFixed(3);
+            capas.push("linear-gradient(" + angulo + "deg, transparent " + (donde - 1.6).toFixed(1) + "%, rgba(90, 60, 30, " + fuerza + ") " + donde.toFixed(1) + "%, rgba(255, 255, 255, 0.34) " + (donde + 0.5).toFixed(1) + "%, transparent " + (donde + 2.2).toFixed(1) + "%)");
+        }
+        for (let k = 0; k < 2; k++) {
+            capas.push("radial-gradient(ellipse at " + Math.round(azar(0, 100)) + "% " + Math.round(azar(0, 100)) + "%, rgba(120, 90, 50, " + azar(0.04, 0.07).toFixed(3) + "), transparent 60%)");
+        }
+        hoja.style.setProperty("--arrugas", capas.join(", "));
+        //Bordes: esquinas recortadas y lados con pequenos entrantes, todo al azar (en % de la hoja).
+        const e = function () { return azar(0, 4.5).toFixed(1); };
+        const l = function () { return azar(0, 1.6).toFixed(1); };
+        const puntos = [
+            "0% " + e() + "%", e() + "% 0%",
+            azar(20, 40).toFixed(0) + "% " + l() + "%", azar(55, 75).toFixed(0) + "% " + l() + "%",
+            (100 - e()) + "% 0%", "100% " + e() + "%",
+            (100 - l()) + "% " + azar(35, 65).toFixed(0) + "%",
+            "100% " + (100 - e()) + "%", (100 - e()) + "% 100%",
+            azar(55, 75).toFixed(0) + "% " + (100 - l()) + "%", azar(20, 40).toFixed(0) + "% " + (100 - l()) + "%",
+            e() + "% 100%", "0% " + (100 - e()) + "%",
+            l() + "% " + azar(35, 65).toFixed(0) + "%"
+        ];
+        hoja.style.clipPath = "polygon(" + puntos.join(", ") + ")";
+    }
+
     function romperGalleta() {
         galleta.rota = true;
         galletaBoton.classList.add("rota");
@@ -2468,11 +2935,12 @@
         galleta.recientes = galleta.recientes.concat(frase).slice(-10);
 
         $("#galletaFrase").textContent = frase;
+        desordenarPapel();
         $("#galletaPista").textContent = "¡Crac! Esto es lo que te depara la suerte:";
         $("#galletaPapel").hidden = false;
         $("#galletaOtra").hidden = false;
-        pitido(660, 0.1);
-        setTimeout(function () { pitido(880, 0.25); }, 110);
+        //"¡Crac!": un crujido grande y largo, como cuando se parte de verdad.
+        crujido(26, 260, 1);
         vibrar([30, 40, 90]);
         //Cuando las mitades ya no se ven, la galleta deja de ocupar sitio.
         setTimeout(function () { if (galleta.rota) galletaBoton.hidden = true; }, 650);
@@ -2497,7 +2965,8 @@
         galletaBoton.classList.remove("golpe");
         void galletaBoton.offsetWidth;
         galletaBoton.classList.add("golpe");
-        pitido(180 + galleta.toques * 40, 0.05);
+        //Cada golpe cruje un poco mas que el anterior (se va agrietando).
+        crujido(4 + galleta.toques * 2, 70 + galleta.toques * 12, 0.5 + galleta.toques * 0.06);
         vibrar(15);
         const queda = galleta.necesarios - galleta.toques;
         $("#galletaPista").textContent = queda <= 1 ? "¡Ya casi está!" : galleta.toques <= 2 ? "Cruje… ¡sigue!" : "¡Más fuerte!";

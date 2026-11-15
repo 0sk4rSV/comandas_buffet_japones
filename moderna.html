@@ -27,7 +27,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <!-- La fuente de los iconos se precarga para que el menu no aparezca sin iconos un instante.
          La URL tiene que ser exactamente la que pide bootstrap-icons.css (con su ?hash). -->
@@ -324,6 +324,7 @@
                     <section class="panel ruleta-mesa" aria-labelledby="titulo-mesa">
                         <div class="panel-cabecera">
                             <h2 id="titulo-mesa">En la mesa <span class="titulo-total num" id="ruletaTotal"></span></h2>
+                            <button type="button" class="accion-texto" id="ruletaBorrarTodos" hidden>Borrar todos</button>
                         </div>
                         <form class="ruleta-form" id="ruletaForm">
                             <label class="visually-hidden" for="ruletaNombre">Nombre de quien está en la mesa</label>
@@ -340,17 +341,39 @@
                             <h2 id="titulo-reto">El reto</h2>
                         </div>
                         <label class="visually-hidden" for="ruletaReto">Qué tiene que hacer al que le toque</label>
-                        <input class="campo" type="text" id="ruletaReto" name="reto" maxlength="80"
-                            autocomplete="off" enterkeyhint="done" placeholder="Escribe el reto o elige uno…">
+                        <div class="campo-con-x">
+                            <input class="campo" type="text" id="ruletaReto" name="reto" maxlength="80"
+                                autocomplete="off" enterkeyhint="done" placeholder="Escribe el reto o elige uno…">
+                            <button type="button" class="campo-x" id="ruletaRetoBorrar" aria-label="Borrar el reto" hidden><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+                        </div>
                         <div class="ruleta-sugerencias" id="ruletaSugerencias" role="group" aria-label="Retos propuestos"></div>
                     </section>
 
                     <!-- La ruleta -->
                     <section class="panel ruleta-panel" aria-label="Ruleta">
-                        <img class="ruleta-logo" src="images/logo-ruleta.png" alt="" width="300" height="134" decoding="async">
+                        <!-- Al tocar el logo, el croupier: "Señores, hagan juego… ¡No va más!" -->
+                        <button type="button" class="ruleta-logo" id="ruletaLogo" aria-label="Señores, hagan juego"><img src="images/logo-ruleta.png" alt="" width="300" height="134" decoding="async"></button>
+                        <!-- Interruptor del modo bolita (enfrente del logo): sin puntero, una bolita cae en el trozo que toca. -->
+                        <label class="interruptor ruleta-modo">
+                            <span>Bolita</span>
+                            <input type="checkbox" id="ruletaBolita" role="switch">
+                        </label>
                         <div class="ruleta">
                             <span class="ruleta-puntero" aria-hidden="true"></span>
                             <div class="ruleta-rueda" id="ruletaRueda"></div>
+                            <svg class="ruleta-bola" viewBox="-120 -120 240 240" aria-hidden="true">
+                                <defs>
+                                    <radialGradient id="brilloBola" cx="0.35" cy="0.3" r="0.75">
+                                        <stop offset="0" stop-color="#ffffff"/>
+                                        <stop offset="0.6" stop-color="#e9e4dc"/>
+                                        <stop offset="1" stop-color="#9c958c"/>
+                                    </radialGradient>
+                                </defs>
+                                <g id="ruletaBola">
+                                    <circle cx="1.2" cy="1.8" r="5.5" fill="rgba(0,0,0,0.45)"/>
+                                    <circle r="5.5" fill="url(#brilloBola)"/>
+                                </g>
+                            </svg>
                             <span class="ruleta-centro" aria-hidden="true">N</span>
                         </div>
                         <button type="button" class="btn btn-principal ruleta-girar" id="ruletaGirar"><i class="bi bi-arrow-repeat" aria-hidden="true"></i>Girar la ruleta</button>
@@ -548,8 +571,11 @@
                                 <path class="galleta-grieta" id="galletaGrieta" d="M100 32l-6 14 8 10-7 13 9 11-6 12" fill="none" stroke="#6b3a0c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                         </button>
+                        <!-- Papelito: hoja arrugada con bordes irregulares (giro, bordes y arrugas cambian en cada galleta). -->
                         <div class="galleta-papel anima-juego" id="galletaPapel" hidden>
-                            <p class="galleta-frase" id="galletaFrase"></p>
+                            <div class="galleta-hoja" id="galletaHoja">
+                                <p class="galleta-frase" id="galletaFrase"></p>
+                            </div>
                         </div>
                     </div>
                     <button type="button" class="btn btn-principal juego-boton" id="galletaOtra" hidden><i class="bi bi-arrow-repeat" aria-hidden="true"></i>Otra galletita</button>

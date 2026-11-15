@@ -7,7 +7,7 @@
 //
 //Si se anaden o renombran archivos de la app, actualizar la lista PRECARGA y subir el numero de VERSION.
 
-const VERSION = "nakoya-v5";
+const VERSION = "nakoya-v8";
 const ESPERA_RED = 3000; //ms antes de tirar de la copia guardada.
 
 //Todo lo que necesitan la Legacy y la Moderna para funcionar sin conexion.
@@ -53,7 +53,8 @@ const PRECARGA = [
     "images/icono-maskable-192.png",
     "images/icono-maskable-512.png",
     "audio/tactical_nuke.mp3",
-    "audio/aficion_CR7.mp3"
+    "audio/aficion_CR7.mp3",
+    "audio/hagan_juego.mp3"
 ];
 
 //Recursos de CDN que se guardan al instalar (si alguno falla, no impide la instalacion).
@@ -63,7 +64,7 @@ const PRECARGA_CDN = [
     "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css",
     "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/fonts/bootstrap-icons.woff2?08efbba7c53d8c5413793eecb19b20bb",
     "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js",
-    "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+    "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Shippori+Mincho:wght@600&display=swap"
 ];
 
 //Solo se guardan respuestas de estos CDN (no Google Imagenes, Maps, etc.).

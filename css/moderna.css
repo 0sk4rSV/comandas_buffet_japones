@@ -2424,8 +2424,121 @@ button.maki-valor {
 	left: var(--pad-x);
 	z-index: 1;
 	width: 58px;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+	touch-action: manipulation;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.ruleta-logo img {
+	display: block;
+	width: 100%;
 	height: auto;
+}
+
+/* Interruptor "Bolita" (el interruptor estandar de la app) en la esquina de enfrente del logo,
+   centrado con el a la misma altura. */
+.panel .interruptor.ruleta-modo {
+	position: absolute;
+	top: var(--pad-y);
+	right: var(--pad-x);
+	z-index: 1;
+	margin-top: 0;
+	min-height: 26px;
+	-webkit-tap-highlight-color: transparent;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+.ruleta-modo input:disabled {
+	opacity: 0.5;
+}
+
+/* Algo mas pequeno que el interruptor normal (es un detalle de la esquina, no un ajuste principal). */
+.panel .interruptor.ruleta-modo {
+	gap: 6px;
+	font-size: 12px;
+}
+
+.ruleta-modo input {
+	width: 26px;
+	height: 15px;
+}
+
+.ruleta-modo input::after {
+	width: 11px;
+	height: 11px;
+}
+
+.ruleta-modo input:checked::after {
+	transform: translateX(11px);
+}
+
+/* Modo bolita: sin puntero; la bolita va en una capa que no gira (la mueve el JS). */
+.ruleta-bola {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
 	pointer-events: none;
+	display: none;
+}
+
+.ruleta.modo-bolita .ruleta-bola {
+	display: block;
+}
+
+.ruleta.modo-bolita .ruleta-puntero {
+	display: none;
+}
+
+/* Campo con una X dentro para borrarlo (la X solo sale si hay algo escrito). */
+.campo-con-x {
+	position: relative;
+}
+
+.campo-con-x .campo {
+	padding-right: 38px;
+}
+
+.campo-x {
+	position: absolute;
+	top: 50%;
+	right: 4px;
+	display: grid;
+	place-items: center;
+	width: 30px;
+	height: 30px;
+	margin-top: -15px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: none;
+	color: var(--faint);
+	font-size: 13px;
+	cursor: pointer;
+}
+
+@media (hover: hover) {
+	.campo-x:hover {
+		color: var(--text);
+	}
+}
+
+.panel-cabecera .accion-texto {
+	min-height: 0;
+}
+
+/* Mientras habla el croupier, el logo late. */
+.ruleta-logo.hablando img {
+	animation: logo-habla 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes logo-habla {
+	from { transform: scale(1); }
+	to { transform: scale(1.12); }
 }
 
 /* El tamano depende del hueco entre la esquina y el aro (unos 14 px de aire en cada caso). */
@@ -2481,6 +2594,49 @@ button.maki-valor {
 	font-weight: 500 !important;
 }
 
+/* Trozo que ha tocado: crece un poco hacia fuera (desde el centro de la rueda) y parpadea en dorado;
+   los demas trozos y nombres se apagan. */
+.ruleta-rueda .trozo,
+.ruleta-rueda text {
+	transition: opacity 0.4s ease;
+}
+
+.ruleta-rueda .hay-ganador .trozo:not(.ganador),
+.ruleta-rueda .hay-ganador text:not(.ganador) {
+	opacity: 0.35;
+}
+
+.ruleta-rueda .trozo.ganador,
+.trozo-brillo {
+	transform-origin: 0 0;
+	animation: trozo-sale 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) forwards;
+}
+
+@keyframes trozo-sale {
+	from { transform: scale(1); }
+	to { transform: scale(1.07); }
+}
+
+.trozo-brillo {
+	fill: #ffe08a;
+	stroke: #ffe08a;
+	stroke-width: 3;
+	stroke-linejoin: round;
+	pointer-events: none;
+	animation: trozo-sale 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) forwards, trozo-parpadeo 1.6s ease-out forwards;
+}
+
+/* Tres destellos y se queda con un tinte dorado suave (el borde dorado se mantiene). */
+@keyframes trozo-parpadeo {
+	0% { fill-opacity: 0; }
+	12% { fill-opacity: 0.7; }
+	25% { fill-opacity: 0.05; }
+	37% { fill-opacity: 0.7; }
+	50% { fill-opacity: 0.05; }
+	62% { fill-opacity: 0.7; }
+	100% { fill-opacity: 0.18; }
+}
+
 /* Bombillas del aro dorado (estilo casino), en dos tonos. */
 .bombilla {
 	fill: #f5c542;
@@ -2488,6 +2644,20 @@ button.maki-valor {
 
 .bombilla.par {
 	fill: #fff7d6;
+}
+
+/* Tramo final lento de la ruleta: las bombillas se encienden y apagan a turnos, como en un casino. */
+.ruleta.suspense .bombilla {
+	animation: bombilla-parpadeo 0.36s steps(1, end) infinite;
+}
+
+.ruleta.suspense .bombilla.par {
+	animation-delay: -0.18s;
+}
+
+@keyframes bombilla-parpadeo {
+	0% { fill: #fff7d6; }
+	50% { fill: #6b4a0e; }
 }
 
 /* Centro dorado con la N de Nakoya: fijo encima de la rueda (no gira). Mide lo mismo que en el dibujo
@@ -2558,6 +2728,8 @@ button.maki-valor {
 .ruleta-ganador b {
 	color: var(--text);
 	font-size: 22px;
+	/* Un nombre largo sin espacios no se sale del panel: se parte. */
+	overflow-wrap: anywhere;
 }
 
 .ruleta-castigo {
@@ -3221,26 +3393,51 @@ button.maki-valor {
 }
 
 /* El papelito: se despliega a lo ancho desde el centro. */
+/* El papelito: se despliega a lo ancho desde el centro y se queda un poco torcido (--giro lo elige el JS al azar). La sombra va aqui
+   (drop-shadow) porque la hoja lleva clip-path para los bordes irregulares y este recorta box-shadow. */
 .galleta-papel {
+	position: relative;
 	width: min(300px, 100%);
-	padding: 16px 18px;
-	border-radius: 3px;
-	background: #fbf6ea;
-	color: #2b2118;
-	box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+	--giro: -1.6deg;
+	transform: rotate(var(--giro));
+	filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.5));
 	animation: abrir-papel 0.5s cubic-bezier(0.25, 0.8, 0.3, 1.1) 0.25s both;
 }
 
 @keyframes abrir-papel {
-	from { transform: scaleX(0.08) scaleY(0.6); opacity: 0; }
-	to { transform: none; opacity: 1; }
+	from { transform: rotate(var(--giro)) scaleX(0.08) scaleY(0.6); opacity: 0; }
+	to { transform: rotate(var(--giro)); opacity: 1; }
+}
+
+/* Hoja: papel crema arrugado, bordes algo irregulares y los dos filetes rojos finos arriba y abajo.
+   Las arrugas (pliegues con su sombra y su brillo) y los bordes los genera el JS al azar en cada galleta
+   con degradados (--arrugas): asi se pintan igual en todos los navegadores. */
+.galleta-hoja {
+	position: relative;
+	padding: 20px 24px;
+	background:
+		linear-gradient(rgba(226, 59, 46, 0.55), rgba(226, 59, 46, 0.55)) 14px 9px / calc(100% - 28px) 1px no-repeat,
+		linear-gradient(rgba(226, 59, 46, 0.55), rgba(226, 59, 46, 0.55)) 14px calc(100% - 9px) / calc(100% - 28px) 1px no-repeat,
+		linear-gradient(170deg, #fdf9ef, #f2e8d2);
+	color: #2b2118;
+	clip-path: polygon(0 3%, 4% 0, 30% 1.5%, 62% 0, 97% 1%, 100% 5%, 99.2% 48%, 100% 95%, 96% 100%, 64% 98.5%, 33% 100%, 3% 99%, 0 94%, 0.8% 52%);
+}
+
+.galleta-hoja::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: var(--arrugas, none);
+	pointer-events: none;
 }
 
 .galleta-frase {
+	position: relative;
 	margin: 0;
-	font-size: 18px;
-	line-height: 1.4;
+	font-family: 'Shippori Mincho', 'Hiragino Mincho ProN', 'Yu Mincho', Georgia, serif;
 	font-weight: 600;
+	font-size: 18px;
+	line-height: 1.5;
 	text-wrap: balance;
 }
 
