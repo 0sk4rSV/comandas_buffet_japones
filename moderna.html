@@ -250,6 +250,11 @@
                         <span class="extra-texto"><b>Atrapa el sushi</b><small>Tócalo antes de que caiga</small></span>
                         <i class="bi bi-chevron-right" aria-hidden="true"></i>
                     </a>
+                    <a class="extra-fila" href="#galleta">
+                        <span class="extra-emoji" aria-hidden="true">&#x1F960;</span>
+                        <span class="extra-texto"><b>Galletita de la suerte</b><small>Rómpela y descubre qué te depara</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
                 </nav>
 
                 <!-- Pie como en la Legacy: el maki del easter egg (5 toques rapidos muestran una frase) y el copyright. -->
@@ -504,6 +509,47 @@
                             <button type="button" class="btn btn-principal juego-boton" id="atrapaEmpezar"><i class="bi bi-play-fill" aria-hidden="true"></i>Empezar</button>
                         </div>
                     </div>
+                </section>
+            </section>
+
+            <!-- ============================================================ EXTRAS: GALLETITA DE LA SUERTE -->
+            <section class="vista" id="vista-galleta" data-vista="galleta" data-padre="extras" aria-labelledby="titulo-galleta" hidden>
+                <a class="volver" href="#extras"><i class="bi bi-chevron-left" aria-hidden="true"></i>Extras</a>
+                <div class="titulo-fila">
+                    <div>
+                        <h1 id="titulo-galleta">Galletita de la suerte &#x1F960;</h1>
+                    </div>
+                </div>
+                <section class="panel juego-panel" aria-label="Galletita de la suerte">
+                    <p class="galleta-pista" id="galletaPista" aria-live="polite">Toca la galletita varias veces para romperla.</p>
+                    <!-- La galleta son dos mitades: al romperse se separan y aparece el papelito en medio. -->
+                    <div class="galleta-escena" id="galletaEscena">
+                        <button type="button" class="galleta anima-juego" id="galleta" aria-label="Golpear la galletita">
+                            <svg viewBox="0 0 200 150" aria-hidden="true">
+                                <defs>
+                                    <linearGradient id="masaGalleta" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0" stop-color="#f6cf7a"/>
+                                        <stop offset="1" stop-color="#d98f2b"/>
+                                    </linearGradient>
+                                </defs>
+                                <rect class="galleta-asoma" x="104" y="100" width="62" height="13" rx="1.5" transform="rotate(14 135 106)"/>
+                                <g class="galleta-mitad galleta-izq anima-juego">
+                                    <path d="M100 30C72 18 28 34 14 92c-1 7 4 11 10 9 24-8 50-4 76 14z" fill="url(#masaGalleta)" stroke="#b46d1c" stroke-width="3" stroke-linejoin="round"/>
+                                    <path d="M36 70c10-18 26-30 46-34" fill="none" stroke="#fff1c9" stroke-width="4" stroke-linecap="round" opacity=".6"/>
+                                </g>
+                                <g class="galleta-mitad galleta-der anima-juego">
+                                    <path d="M100 30c28-12 72 4 86 62 1 7-4 11-10 9-24-8-50-4-76 14z" fill="url(#masaGalleta)" stroke="#b46d1c" stroke-width="3" stroke-linejoin="round"/>
+                                </g>
+                                <path class="galleta-pliegue" d="M100 34c-4 24-4 46 0 64" fill="none" stroke="#c07a22" stroke-width="3" stroke-linecap="round"/>
+                                <path class="galleta-hueco" d="M60 106c14-10 66-10 80 0-12 15-68 15-80 0z" fill="#a55c16" stroke="#b46d1c" stroke-width="3" stroke-linejoin="round"/>
+                                <path class="galleta-grieta" id="galletaGrieta" d="M100 32l-6 14 8 10-7 13 9 11-6 12" fill="none" stroke="#6b3a0c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div class="galleta-papel anima-juego" id="galletaPapel" hidden>
+                            <p class="galleta-frase" id="galletaFrase"></p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-principal juego-boton" id="galletaOtra" hidden><i class="bi bi-arrow-repeat" aria-hidden="true"></i>Otra galletita</button>
                 </section>
             </section>
 

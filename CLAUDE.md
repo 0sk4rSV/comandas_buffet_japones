@@ -29,7 +29,7 @@ Es un sitio estático (HTML + CSS + JS, sin build ni dependencias de npm). Todo 
 ## Versión Moderna
 
 - Vistas por hash: `#carta`, `#pedido`, `#postres`, `#info`, `#extras` y las subpantallas de Extras `#podio`, `#maki`, `#ruleta`,
-  `#sorpresa`, `#dedo`, `#moneda`, `#duelo`, `#piedra-papel-tijera`, `#adivina`, `#atrapa` (llevan `data-padre="extras"`). Cada vista es una `<section class="vista">`; `mostrarVista()` anima la entrada según el orden del menú.
+  `#sorpresa`, `#dedo`, `#moneda`, `#duelo`, `#piedra-papel-tijera`, `#adivina`, `#atrapa`, `#galleta` (llevan `data-padre="extras"`). Cada vista es una `<section class="vista">`; `mostrarVista()` anima la entrada según el orden del menú.
 - Horario: mediodía 12:00-16:00 (tarifa de mediodía entre semana), noche 19:30-24:00. Fines de semana y festivos = tarifa y platos de noche.
   Línea de estado arriba con la cuenta atrás ("quedan H:MM:SS para cerrar/abrir").
 - Funciones: carta con filtros (Todos/Favoritos/Sushi) y buscador; pedido con cantidades, ordenado por número; copiar; modo discreto;
@@ -45,7 +45,9 @@ Es un sitio estático (HTML + CSS + JS, sin build ni dependencias de npm). Todo 
   no hay fotos de los platos, solo enlace a Google Imágenes), el dedo elegido (`<dialog id="dedos">`: varios dedos a la vez,
   3 s quietos y elige uno), cara o cruz (moneda 3D con la N), atrapa el sushi (piezas que caen, bento +5, bombas que quitan
   vida al tocarlas, 3 vidas, cuenta atrás, acelera más desde 150 puntos, récord en `localStorage.recordAtrapaNakoya`;
-  bloquea el scroll durante la partida con `html.sin-scroll` y `touch-action: none`; se para al salir de la pantalla) y easter egg 🍣 (5 toques → frase).
+  bloquea el scroll durante la partida con `html.sin-scroll` y `touch-action: none`; se para al salir de la pantalla), galletita de la suerte (SVG de dos mitades; entre 5 y 8 toques al azar la agrietan y la rompen;
+  papelito con una frase de `FRASES_GALLETA` sin repetir las últimas 10;
+  se reinicia al entrar) y easter egg 🍣 (5 toques → frase).
   Los pitidos de los juegos se generan con Web Audio (`pitido()`), sin archivos.
 - Las ventanas (`<dialog>`) se abren siempre con `abrirVentana()`, nunca con `showModal()` directamente: deja un paso en el
   historial para que el botón de atrás del móvil/navegador (y la tecla de retroceso) las cierre sin salir de la pantalla.

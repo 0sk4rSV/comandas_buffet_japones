@@ -1049,6 +1049,8 @@
             sorpresa.actual = null;
             pintarPlatoSorpresa();
         }
+        //Cada vez que se entra en la galletita hay una nueva entera.
+        if (vista === "galleta") reiniciarGalleta();
         //Atrapa el sushi se para si se sale de su pantalla a mitad de partida; al entrar, ocupa todo el alto.
         if (vista !== "atrapa") detenerAtrapa();
         else requestAnimationFrame(ajustarZonaAtrapa);
@@ -2176,6 +2178,143 @@
         pintarMarcadorMoneda();
         $("#monedaResultado").textContent = "";
     });
+
+    // ------------------------------------------------------------------ GALLETITA DE LA SUERTE
+
+    //Hay que darle unos cuantos toques (entre 5 y 8, al azar) para romperla; luego sale el papelito.
+    const FRASES_GALLETA = [
+        "La paciencia es amarga, pero su fruto es dulce.",
+        "Un viaje de mil millas comienza con un solo paso.",
+        "La suerte favorece a los valientes.",
+        "Pronto recibirás una buena noticia.",
+        "Alguien piensa en ti más de lo que imaginas.",
+        "Lo mejor está por llegar.",
+        "Tu sonrisa es tu mejor carta de presentación.",
+        "Una oportunidad inesperada llamará a tu puerta.",
+        "El que no arriesga, no gana.",
+        "Hoy es un buen día para empezar algo nuevo.",
+        "Tus esfuerzos pronto darán fruto.",
+        "La felicidad no es un destino, es el camino.",
+        "Confía en tu intuición: rara vez se equivoca.",
+        "Un amigo fiel es un tesoro.",
+        "Las grandes cosas empiezan siendo pequeñas.",
+        "Tu generosidad será recompensada.",
+        "Cae siete veces, levántate ocho.",
+        "El bambú que se dobla es más fuerte que el roble que resiste.",
+        "Aprende de ayer, vive el hoy y sueña con el mañana.",
+        "El sabio no lo dice todo, pero todo lo que dice es sabio.",
+        "Tu próximo gran éxito está más cerca de lo que crees.",
+        "Pronto harás un viaje que recordarás siempre.",
+        "Grandes cambios se acercan a tu vida.",
+        "Tu talento será reconocido muy pronto.",
+        "Una sorpresa agradable te espera esta semana.",
+        "Hoy la suerte se sienta a tu mesa.",
+        "Pide otra ronda: la fortuna sonríe a los hambrientos.",
+        "Quien pide makis de atún picante nunca pide en vano.",
+        "Esta noche no te quedarás con hambre.",
+        "Un plato más nunca hizo daño a nadie.",
+        "El postre te está esperando.",
+        "Hoy no pagas tú… o eso dice la galleta.",
+        "Lo que buscas está en la carta: solo tienes que pedirlo.",
+        "El dinero va y viene, pero el sushi se come ahora.",
+        "Serás feliz y comerás perdices… o makis.",
+        "¡Socorro, estoy atrapado en una fábrica de galletas de la suerte!",
+        "Esta galleta no tiene fortuna. Prueba con otra.",
+        "Ignora la galleta anterior."
+    ];
+
+    const galleta = { toques: 0, necesarios: 6, rota: false, recientes: [] };
+    const galletaBoton = $("#galleta");
+    const galletaGrieta = $("#galletaGrieta");
+    let largoGrieta = 140;
+    try { largoGrieta = galletaGrieta.getTotalLength(); } catch (e) { /* se queda la medida aproximada */ }
+
+    function pintarGrieta() {
+        //La grieta se dibuja poco a poco: el primer toque no agrieta, el ultimo la deja casi entera.
+        const avance = Math.max(0, galleta.toques) / galleta.necesarios;
+        galletaGrieta.style.strokeDasharray = largoGrieta;
+        galletaGrieta.style.strokeDashoffset = largoGrieta * (1 - avance);
+    }
+
+    function reiniciarGalleta() {
+        galleta.toques = 0;
+        galleta.necesarios = 5 + numeroAlAzar(4);
+        galleta.rota = false;
+        galletaBoton.classList.remove("rota", "golpe");
+        galletaBoton.hidden = false;
+        galletaBoton.disabled = false;
+        $("#galletaPapel").hidden = true;
+        $("#galletaOtra").hidden = true;
+        $("#galletaPista").textContent = "Toca la galletita varias veces para romperla.";
+        pintarGrieta();
+    }
+
+    function soltarMigas(x, y) {
+        const escena = $("#galletaEscena");
+        for (let i = 0; i < 4; i++) {
+            const miga = document.createElement("span");
+            miga.className = "miga anima-juego";
+            miga.style.left = (x - 3) + "px";
+            miga.style.top = (y - 3) + "px";
+            escena.appendChild(miga);
+            const angulo = Math.random() * Math.PI * 2;
+            const distancia = 26 + Math.random() * 30;
+            const animacion = miga.animate([
+                { transform: "translate(0, 0) rotate(0)", opacity: 1 },
+                { transform: "translate(" + Math.cos(angulo) * distancia + "px, " + (Math.sin(angulo) * distancia + 30) + "px) rotate(" + (Math.random() * 360) + "deg)", opacity: 0 }
+            ], { duration: 520, easing: "cubic-bezier(0.2, 0.6, 0.4, 1)" });
+            animacion.onfinish = function () { miga.remove(); };
+        }
+    }
+
+    function romperGalleta() {
+        galleta.rota = true;
+        galletaBoton.classList.add("rota");
+        galletaBoton.disabled = true;
+
+        //Frase al azar sin repetir ninguna de las ultimas 10.
+        const posibles = FRASES_GALLETA.filter(function (f) { return !galleta.recientes.includes(f); });
+        const frase = posibles[numeroAlAzar(posibles.length)];
+        galleta.recientes = galleta.recientes.concat(frase).slice(-10);
+
+        $("#galletaFrase").textContent = frase;
+        $("#galletaPista").textContent = "¡Crac! Esto es lo que te depara la suerte:";
+        $("#galletaPapel").hidden = false;
+        $("#galletaOtra").hidden = false;
+        pitido(660, 0.1);
+        setTimeout(function () { pitido(880, 0.25); }, 110);
+        vibrar([30, 40, 90]);
+        //Cuando las mitades ya no se ven, la galleta deja de ocupar sitio.
+        setTimeout(function () { if (galleta.rota) galletaBoton.hidden = true; }, 650);
+    }
+
+    galletaBoton.addEventListener("click", function (e) {
+        if (galleta.rota) return;
+        galleta.toques++;
+        //Miguitas donde se ha tocado (con teclado, desde el centro).
+        const escena = $("#galletaEscena").getBoundingClientRect();
+        const caja = galletaBoton.getBoundingClientRect();
+        const x = e.clientX ? e.clientX - escena.left : caja.left - escena.left + caja.width / 2;
+        const y = e.clientY ? e.clientY - escena.top : caja.top - escena.top + caja.height / 2;
+        soltarMigas(x, y);
+
+        if (galleta.toques >= galleta.necesarios) {
+            pintarGrieta();
+            romperGalleta();
+            return;
+        }
+        pintarGrieta();
+        galletaBoton.classList.remove("golpe");
+        void galletaBoton.offsetWidth;
+        galletaBoton.classList.add("golpe");
+        pitido(180 + galleta.toques * 40, 0.05);
+        vibrar(15);
+        const queda = galleta.necesarios - galleta.toques;
+        $("#galletaPista").textContent = queda <= 1 ? "¡Ya casi está!" : galleta.toques <= 2 ? "Cruje… ¡sigue!" : "¡Más fuerte!";
+    });
+
+    $("#galletaOtra").addEventListener("click", reiniciarGalleta);
+    reiniciarGalleta();
 
     // ------------------------------------------------------------------ ATRAPA EL SUSHI
 
