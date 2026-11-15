@@ -2350,6 +2350,11 @@ ul.normas li::before {
 	width: min(280px, 100%);
 	aspect-ratio: 1;
 	overflow: hidden;
+	/* La rueda tambien se gira al tocarla. */
+	cursor: pointer;
+	touch-action: manipulation;
+	-webkit-user-select: none;
+	user-select: none;
 }
 
 .ruleta-rueda {

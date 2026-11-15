@@ -1359,7 +1359,7 @@
         const n = ruleta.nombres.length;
         $("#ruletaTotal").textContent = n > 0 ? n + (n === 1 ? " persona" : " personas") : "";
         $("#ruletaJugadores").innerHTML = n === 0
-            ? "<li class=\"ruleta-vacio\">Añade al menos 2 nombres para poder girar.</li>"
+            ? "<li class=\"ruleta-vacio\">Añade al menos 2 nombres para poder girar la ruleta.</li>"
             : ruleta.nombres.map(function (nombre, i) {
                 const visible = escaparHtml(nombre.trim());
                 return "<li class=\"jugador\"><span>" + visible + "</span>" +
@@ -1534,6 +1534,8 @@
     });
 
     $("#ruletaGirar").addEventListener("click", girarRuleta);
+    //Tocar la propia rueda tambien la gira (girarRuleta ya no hace nada si esta girando o hay menos de 2 nombres).
+    $(".ruleta").addEventListener("click", girarRuleta);
 
     $("#ruletaReto").value = ruleta.reto;
     pintarSugerencias();
