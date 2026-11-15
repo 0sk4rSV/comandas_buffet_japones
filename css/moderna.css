@@ -3401,6 +3401,10 @@ button.maki-valor {
 	--giro: -1.6deg;
 	transform: rotate(var(--giro));
 	filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.5));
+	/* La frase no se puede seleccionar (ni sale el menu de copiar al mantener pulsado). */
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-touch-callout: none;
 	animation: abrir-papel 0.5s cubic-bezier(0.25, 0.8, 0.3, 1.1) 0.25s both;
 }
 
