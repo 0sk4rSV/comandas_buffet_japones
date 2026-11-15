@@ -1496,6 +1496,48 @@ ul.normas li::before {
 	text-align: center;
 }
 
+/* El numero es un boton (al tocarlo se puede escribir) pero se ve igual que antes. */
+button.maki-valor {
+	height: 40px;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--text);
+	cursor: text;
+	-webkit-tap-highlight-color: transparent;
+}
+
+/* Campo para escribir el numero: mismo hueco (72 x 40, cabe "100") para que nada se mueva. */
+.maki-campo {
+	width: 72px;
+	height: 40px;
+	padding: 0;
+	border: 0;
+	border-radius: 10px;
+	background: var(--raised);
+	color: var(--text);
+	caret-color: var(--accent);
+	outline: none;
+	box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.maki-campo::selection {
+	background: rgba(226, 59, 46, 0.5);
+	color: var(--text);
+}
+
+.maki-campo[hidden] {
+	display: none;
+}
+
+/* Mantener pulsado el "-" resta seguido: sin menu ni seleccion al dejar el dedo. */
+#makiMenos {
+	touch-action: manipulation;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
 .maki-progreso {
 	width: 100%;
 	max-width: 320px;

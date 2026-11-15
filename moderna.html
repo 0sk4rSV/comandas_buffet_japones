@@ -295,7 +295,10 @@
                             </button>
                             <div class="maki-marcador">
                                 <button type="button" class="btn btn-secundario btn-icono" id="makiMenos" aria-label="Restar un maki"><i class="bi bi-dash-lg" aria-hidden="true"></i></button>
-                                <output class="maki-valor num" id="makiValor" aria-live="polite">0</output>
+                                <!-- Tocar el numero deja escribirlo (el campo sustituye al numero en el mismo hueco). -->
+                                <button type="button" class="maki-valor num" id="makiValor" aria-live="polite" aria-label="Makis contados: 0. Toca para escribir el número">0</button>
+                                <input class="maki-valor maki-campo num" id="makiCampo" type="text" inputmode="numeric" pattern="[0-9]*"
+                                    maxlength="3" autocomplete="off" enterkeyhint="done" aria-label="Número de makis (0 a 100)" hidden>
                                 <button type="button" class="btn btn-secundario btn-icono" id="makiReset" aria-label="Poner el contador a cero"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i></button>
                             </div>
                             <div class="maki-progreso">

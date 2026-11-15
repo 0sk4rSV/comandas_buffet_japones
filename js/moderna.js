@@ -1065,15 +1065,18 @@
 
     function pintarContador() {
         $("#makiValor").textContent = contador;
+        $("#makiValor").setAttribute("aria-label", "Makis contados: " + contador + ". Toca para escribir el número");
         //La barra crece con transform (mas fluido que animar el ancho).
         $("#makiBarra").style.transform = "scaleX(" + (contador / MAX_CONTADOR) + ")";
     }
 
-    function setContador(valor) {
+    //sinSonido: al mantener pulsado el "-" no suena el audio de los 30 al pasar por el.
+    function setContador(valor, sinSonido) {
         const antes = contador;
         contador = Math.min(Math.max(valor, 0), MAX_CONTADOR);
         guardarContadorStorage(contador);
         pintarContador();
+        if (sinSonido) return;
 
         [audioNuke, audioCR7].forEach(function (a) { a.pause(); a.currentTime = 0; });
         if (contador === 30) audioNuke.play().catch(function () { });
@@ -1398,9 +1401,85 @@
         void imagen.offsetWidth;
         imagen.classList.add("pulso");
 
-        setContador(Math.min(contador + 1, MAX_CONTADOR));
+        //Ya en 100: no se suma ni se repite el audio, solo una regañina.
+        if (contador >= MAX_CONTADOR) {
+            avisar("¡Para ya, animal, no abuses del buffet!");
+            return;
+        }
+        setContador(contador + 1);
     });
-    $("#makiMenos").addEventListener("click", function () { setContador(contador - 1); });
+
+    //"-": un toque resta 1; mantenido, tras medio segundo resta seguido y cada vez mas rapido.
+    //Con raton o dedo lo gestiona pointerdown; el click solo cuenta si viene del teclado (detail 0).
+    const makiMenos = $("#makiMenos");
+    let restaSeguida = null;
+
+    function pararResta() {
+        clearTimeout(restaSeguida);
+        restaSeguida = null;
+    }
+
+    function restarMantenido(espera) {
+        restaSeguida = setTimeout(function () {
+            if (contador <= 0) return pararResta();
+            setContador(contador - 1, true);
+            vibrar(8);
+            restarMantenido(Math.max(40, espera * 0.85));
+        }, espera);
+    }
+
+    makiMenos.addEventListener("pointerdown", function (e) {
+        if (e.button !== 0) return;
+        pararResta();
+        setContador(contador - 1);
+        restaSeguida = setTimeout(function () { restarMantenido(110); }, 450);
+    });
+    ["pointerup", "pointerleave", "pointercancel", "blur"].forEach(function (evento) {
+        makiMenos.addEventListener(evento, pararResta);
+    });
+    makiMenos.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+    makiMenos.addEventListener("click", function (e) {
+        if (e.detail === 0) setContador(contador - 1);
+    });
+
+    //Tocar el numero lo cambia por un campo para escribirlo. Enter o salir del campo lo guarda; Escape cancela.
+    const makiValor = $("#makiValor");
+    const makiCampo = $("#makiCampo");
+
+    makiValor.addEventListener("click", function () {
+        makiCampo.value = contador;
+        makiValor.hidden = true;
+        makiCampo.hidden = false;
+        makiCampo.focus();
+        makiCampo.select();
+    });
+
+    function cerrarCampoMaki(guardar) {
+        if (makiCampo.hidden) return;
+        makiCampo.hidden = true;
+        makiValor.hidden = false;
+        //Si se deja vacio, cuenta como 0.
+        const valor = parseInt(makiCampo.value.replace(/\D/g, ""), 10) || 0;
+        if (guardar && valor !== contador) setContador(valor);
+    }
+
+    //Solo cifras (en algunos teclados se pueden colar otros caracteres).
+    makiCampo.addEventListener("input", function () {
+        const limpio = makiCampo.value.replace(/\D/g, "").slice(0, 3);
+        if (limpio !== makiCampo.value) makiCampo.value = limpio;
+    });
+    makiCampo.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            cerrarCampoMaki(true);
+            makiValor.focus();
+        } else if (e.key === "Escape") {
+            e.preventDefault();
+            cerrarCampoMaki(false);
+            makiValor.focus();
+        }
+    });
+    makiCampo.addEventListener("blur", function () { cerrarCampoMaki(true); });
     //Poner a cero pide confirmacion: un toque sin querer borraria la cuenta de la noche.
     $("#makiReset").addEventListener("click", function () {
         if (contador === 0) return;
