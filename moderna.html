@@ -212,7 +212,7 @@
                     </a>
                     <a class="extra-fila" href="#ruleta">
                         <span class="extra-emoji" aria-hidden="true">&#x1F52B;</span>
-                        <span class="extra-texto"><b>Ruleta rusa</b><small>Gira la ruleta y al que le toque, que cumpla el reto</small></span>
+                        <span class="extra-texto"><b>Ruleta de una rusa</b><small>Gira la ruleta y al que le toque, que cumpla el reto</small></span>
                         <i class="bi bi-chevron-right" aria-hidden="true"></i>
                     </a>
                     <a class="extra-fila" href="#sorpresa">
@@ -306,7 +306,7 @@
                 <a class="volver" href="#extras"><i class="bi bi-chevron-left" aria-hidden="true"></i>Extras</a>
                 <div class="titulo-fila">
                     <div>
-                        <h1 id="titulo-ruleta">Ruleta rusa &#x1F52B;</h1>
+                        <h1 id="titulo-ruleta">Ruleta de una rusa &#x1F52B;</h1>
                         <p class="subtitulo">Apuntad quién come, decidid el reto y girad. Al que le toque, que lo cumpla.</p>
                     </div>
                 </div>
@@ -342,6 +342,7 @@
                         <div class="ruleta">
                             <span class="ruleta-puntero" aria-hidden="true"></span>
                             <div class="ruleta-rueda" id="ruletaRueda"></div>
+                            <span class="ruleta-centro" aria-hidden="true">N</span>
                         </div>
                         <button type="button" class="btn btn-principal ruleta-girar" id="ruletaGirar"><i class="bi bi-arrow-repeat" aria-hidden="true"></i>Girar la ruleta</button>
                         <div class="ruleta-resultado" id="ruletaResultado" aria-live="polite"></div>
@@ -396,8 +397,8 @@
                         <span class="marcador-lado"><small>Cruces</small><b class="num" id="monedaCruces">0</b></span>
                     </div>
                     <div class="moneda-escena" aria-hidden="true">
-                        <div class="moneda-vuelo" id="monedaVuelo">
-                            <div class="moneda" id="moneda">
+                        <div class="moneda-vuelo anima-juego" id="monedaVuelo">
+                            <div class="moneda anima-juego" id="moneda">
                                 <span class="moneda-cara">N</span>
                                 <span class="moneda-cruz"><i class="bi bi-x-lg"></i></span>
                             </div>
@@ -448,9 +449,9 @@
                     </div>
                     <p class="jkp-rondas">Rondas jugadas: <b class="num" id="jkpRondas">0</b></p>
                     <div class="jkp-mesa" aria-hidden="true">
-                        <span class="jkp-jugador" id="jkpLado1"><span class="jkp-mano" id="jkpMano1">&#x270A;</span><small>Jugador 1</small></span>
+                        <span class="jkp-jugador" id="jkpLado1"><span class="jkp-mano anima-juego" id="jkpMano1">&#x270A;</span><small>Jugador 1</small></span>
                         <span class="jkp-texto" id="jkpTexto">VS</span>
-                        <span class="jkp-jugador" id="jkpLado2"><span class="jkp-mano jkp-mano-dos" id="jkpMano2">&#x270A;</span><small>Jugador 2</small></span>
+                        <span class="jkp-jugador" id="jkpLado2"><span class="jkp-mano jkp-mano-dos anima-juego" id="jkpMano2">&#x270A;</span><small>Jugador 2</small></span>
                     </div>
                     <p class="jkp-turno" id="jkpTurno" aria-live="polite"></p>
                     <div class="jkp-opciones" id="jkpOpciones" role="group" aria-label="Elige tu mano">

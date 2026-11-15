@@ -104,6 +104,30 @@
     const $ = function (selector) { return document.querySelector(selector); };
     const $$ = function (selector) { return Array.from(document.querySelectorAll(selector)); };
 
+    //VENTANAS (dialog): se abren dejando un paso en el historial, asi el boton de atras del movil o del navegador
+    //las cierra en vez de salir de la pantalla. La tecla de retroceso tambien las cierra.
+    function abrirVentana(ventana) {
+        ventana.showModal();
+        history.pushState({ ventana: ventana.id }, "");
+        ventana.addEventListener("close", function () {
+            //Si se cierra con su boton (no con atras), se quita el paso que se habia anadido al historial.
+            if (history.state && history.state.ventana === ventana.id) history.back();
+        }, { once: true });
+    }
+
+    window.addEventListener("popstate", function () {
+        $$("dialog[open]").forEach(function (d) { d.close(); });
+    });
+
+    document.addEventListener("keydown", function (e) {
+        if (e.key !== "Backspace") return;
+        const abierta = $("dialog[open]");
+        //En la ventana de confirmar o con un campo de texto activo, retroceso sigue borrando texto.
+        if (!abierta || e.target.matches("input, textarea")) return;
+        e.preventDefault();
+        abierta.close();
+    });
+
     function claveHoy(fecha) {
         return fecha.getFullYear() + "-" + (fecha.getMonth() + 1) + "-" + fecha.getDate();
     }
@@ -569,7 +593,7 @@
             return "<p>" + escaparHtml(textoPedido(item)) + "</p>";
         }).join("");
         $("#totalDiscreto").innerHTML = "Total: <b class=\"num\">" + pedido.length + "</b> " + (pedido.length === 1 ? "plato" : "platos");
-        $("#discreto").showModal();
+        abrirVentana($("#discreto"));
     }
 
     // ------------------------------------------------------------------ RONDAS
@@ -776,7 +800,7 @@
             (pedido.length === 1 ? "este plato" : "estos " + pedido.length + " platos") + " y sumarlos a su pedido.";
         caja.innerHTML = "<span class=\"qr-estado\">Generando QR…</span>";
         reiniciarBotonEnlace();
-        $("#compartir").showModal();
+        abrirVentana($("#compartir"));
 
         cargarLibreriaQr().then(function () {
             caja.innerHTML = svgQr(enlace);
@@ -835,7 +859,7 @@
         boton.className = "btn " + (opciones.peligro ? "btn-borrar" : "btn-principal");
         boton.innerHTML = "<i class=\"bi " + opciones.icono + "\" aria-hidden=\"true\"></i>" + escaparHtml(opciones.boton);
         modal.returnValue = "";
-        modal.showModal();
+        abrirVentana(modal);
         return new Promise(function (resolve) {
             modal.addEventListener("close", function () {
                 resolve(modal.returnValue === "si");
@@ -975,7 +999,9 @@
     let vistaActual = null;
 
     function mostrarVista() {
-        const vista = VISTAS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "carta";
+        //Lo que vaya detras de "?" en el hash (p. ej. "#atrapa?algo") no forma parte del nombre de la vista.
+        const nombreVista = location.hash.slice(1).split("?")[0];
+        const vista = VISTAS.includes(nombreVista) ? nombreVista : "carta";
         let pestana = vista;
 
         //Animacion de entrada segun el orden del menu: hacia la derecha entra desde la derecha y al reves.
@@ -1295,8 +1321,10 @@
         "¿Quién paga la cena?"
     ];
     //Colores de los trozos: rojo de la casa y grises de la app, alternos.
-    const COLORES_RULETA = ["#e23b2e", "#2a2725"];
-    const COLOR_RULETA_EXTRA = "#4a4644";
+    //Estilo casino: trozos rojo y negro, y un rojo oscuro para el ultimo si hay un numero impar de personas.
+    const COLORES_RULETA = ["#e23b2e", "#141110"];
+    const COLOR_RULETA_EXTRA = "#8f2a22";
+    const BOMBILLAS_RULETA = 20;
 
     let ruleta = cargarRuleta();
     let giroRuleta = 0;
@@ -1358,10 +1386,15 @@
     }
 
     //La rueda en SVG: un trozo por persona con su nombre en el radio.
+    //La rueda en SVG, estilo casino: aro dorado con bombillas, trozos rojo y negro con separadores dorados,
+    //el nombre de cada uno en su trozo y el centro dorado con la N de Nakoya.
     function pintarRueda() {
         const nombres = ruleta.nombres;
         const n = nombres.length;
-        let svg = "<svg viewBox=\"-100 -100 200 200\" role=\"img\" aria-label=\"Ruleta con " + n + (n === 1 ? " nombre" : " nombres") + "\">";
+        let svg = "<svg viewBox=\"-120 -120 240 240\" role=\"img\" aria-label=\"Ruleta con " + n + (n === 1 ? " nombre" : " nombres") + "\">" +
+            "<defs><radialGradient id=\"oroRuleta\"><stop offset=\"0\" stop-color=\"#ffe08a\"/><stop offset=\"1\" stop-color=\"#c98a12\"/></radialGradient></defs>" +
+            //Aro dorado y fondo negro de la rueda.
+            "<circle r=\"116\" fill=\"#7a5a12\"/><circle r=\"112\" fill=\"url(#oroRuleta)\"/><circle r=\"98\" fill=\"#0b0a09\"/>";
 
         if (n < 2) {
             //Sin nombres la rueda vuelve recta (si se habia girado antes, el texto saldria torcido).
@@ -1369,26 +1402,36 @@
             $("#ruletaRueda").style.transition = "none";
             $("#ruletaRueda").style.transform = "none";
             //El texto va por encima del circulo central para que no lo tape.
-            svg += "<circle r=\"98\" fill=\"#2a2725\"/><text class=\"ruleta-texto-vacio\" y=\"-42\" text-anchor=\"middle\" dominant-baseline=\"middle\">Añade nombres</text>";
+            svg += "<circle r=\"96\" fill=\"#1c1817\"/><text class=\"ruleta-texto-vacio\" y=\"-46\" text-anchor=\"middle\" dominant-baseline=\"middle\">Añade nombres</text>";
         } else {
             const paso = 360 / n;
-            const tamLetra = n <= 4 ? 13 : (n <= 8 ? 11 : 9);
+            const tamLetra = n <= 4 ? 14 : (n <= 8 ? 12 : 10);
+            let separadores = "";
             nombres.forEach(function (nombre, i) {
                 const desde = i * paso;
                 const hasta = desde + paso;
                 //Con un numero impar de personas, el ultimo trozo usa un tercer color para no repetir junto al primero.
                 const color = (n % 2 === 1 && i === n - 1) ? COLOR_RULETA_EXTRA : COLORES_RULETA[i % 2];
-                svg += "<path d=\"M0 0 L" + puntoRueda(desde, 98) + " A98 98 0 0 1 " + puntoRueda(hasta, 98) + " Z\" fill=\"" + color + "\"/>";
+                svg += "<path d=\"M0 0 L" + puntoRueda(desde, 96) + " A96 96 0 0 1 " + puntoRueda(hasta, 96) + " Z\" fill=\"" + color + "\"/>";
+                separadores += "<line x1=\"0\" y1=\"0\" x2=\"" + puntoRueda(desde, 96).replace(" ", "\" y2=\"") + "\" stroke=\"#f5c542\" stroke-width=\"2\"/>";
                 const medio = desde + paso / 2;
                 const limpio = nombre.trim();
                 const etiqueta = limpio.length > 10 ? limpio.slice(0, 9) + "…" : limpio;
                 //En la mitad izquierda el texto se gira media vuelta para que no quede boca abajo.
                 const izquierda = medio > 180;
                 const giroTexto = izquierda ? medio + 90 : medio - 90;
-                svg += "<text transform=\"rotate(" + giroTexto + ") translate(" + (izquierda ? -58 : 58) + " 0)\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"" + tamLetra + "\">" + escaparHtml(etiqueta) + "</text>";
+                svg += "<text transform=\"rotate(" + giroTexto + ") translate(" + (izquierda ? -60 : 60) + " 0)\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"" + tamLetra + "\">" + escaparHtml(etiqueta) + "</text>";
             });
+            svg += separadores;
         }
-        svg += "<circle r=\"14\" fill=\"#0b0a09\" stroke=\"#ffffff\" stroke-width=\"2\"/></svg>";
+
+        //Bombillas del aro, alternando dos tonos.
+        for (let k = 0; k < BOMBILLAS_RULETA; k++) {
+            const punto = puntoRueda(k * 360 / BOMBILLAS_RULETA, 105).split(" ");
+            svg += "<circle class=\"bombilla" + (k % 2 ? " par" : "") + "\" cx=\"" + punto[0] + "\" cy=\"" + punto[1] + "\" r=\"3\"/>";
+        }
+        //El centro dorado con la N va fuera de la rueda (no gira, asi la N siempre se lee recta).
+        svg += "</svg>";
         $("#ruletaRueda").innerHTML = svg;
     }
 
@@ -1406,15 +1449,31 @@
         const ganador = elegibles.length > 0 ? elegibles[numeroAlAzar(elegibles.length)] : numeroAlAzar(n);
         //Punto al azar dentro del trozo ganador (sin caer justo en la raya entre dos trozos).
         const destino = ganador * paso + paso * (0.15 + 0.7 * Math.random());
+        //Con "Reducir movimiento" el giro es mas corto, pero se mantiene: es la gracia del juego.
         const sinMovimiento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        const duracion = sinMovimiento ? 600 : 4200;
-        const vueltas = sinMovimiento ? 1 : 6;
+        const duracion = sinMovimiento ? 1600 : 4200;
+        const vueltas = sinMovimiento ? 2 : 6;
 
         //Girar en sentido horario lleva el punto "destino" de la rueda hasta el puntero de arriba.
+        const desde = giroRuleta;
         giroRuleta = giroRuleta - (giroRuleta % 360) + vueltas * 360 + (360 - destino);
         const rueda = $("#ruletaRueda");
-        rueda.style.transition = "transform " + duracion + "ms cubic-bezier(0.12, 0.8, 0.18, 1)";
-        rueda.style.transform = "rotate(" + giroRuleta + "deg)";
+        const final = "rotate(" + giroRuleta + "deg)";
+        //Se anima con la API de animaciones (element.animate): en iPhone (Safari) una transicion CSS a veces no
+        //llegaba a girar, y la regla general de "Reducir movimiento" tambien la anulaba.
+        rueda.style.transition = "none";
+        if (rueda.animate) {
+            const animacion = rueda.animate(
+                [{ transform: "rotate(" + desde + "deg)" }, { transform: final }],
+                { duration: duracion, easing: "cubic-bezier(0.12, 0.8, 0.18, 1)", fill: "forwards" }
+            );
+            animacion.onfinish = function () {
+                rueda.style.transform = final;
+                animacion.cancel();
+            };
+        } else {
+            rueda.style.transform = final;
+        }
 
         ruletaGirando = true;
         $("#ruletaGirar").disabled = true;
@@ -1631,7 +1690,7 @@
     //Cada vez que se entra en la arena empieza un duelo nuevo desde 0 – 0.
     $("#dueloEmpezar").addEventListener("click", function () {
         duelo.rondas = [0, 0];
-        arena.showModal();
+        abrirVentana(arena);
         nuevaRondaDuelo();
     });
 
@@ -1924,8 +1983,8 @@
             return;
         }
         const elegido = lista[numeroAlAzar(lista.length)];
-        const sinMovimiento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        if (!animar || sinMovimiento || sorpresa.animando) {
+        //El paso de nombres es parte del juego: se hace tambien con "Reducir movimiento".
+        if (!animar || sorpresa.animando) {
             sorpresa.actual = elegido;
             pintarPlatoSorpresa();
             return;
@@ -2023,7 +2082,7 @@
         e.preventDefault();
         if (dedos.estado === "elegido") return;
         const el = document.createElement("span");
-        el.className = "dedo";
+        el.className = "dedo anima-juego";
         el.style.setProperty("--color", COLORES_DEDO[dedos.colores++ % COLORES_DEDO.length]);
         colocarDedo(el, e);
         capaDedos.appendChild(el);
@@ -2055,7 +2114,7 @@
 
     $("#dedoEmpezar").addEventListener("click", function () {
         reiniciarDedos();
-        capaDedos.showModal();
+        abrirVentana(capaDedos);
     });
     $("#dedosCerrar").addEventListener("click", function () { capaDedos.close(); });
     capaDedos.addEventListener("close", reiniciarDedos);
@@ -2075,8 +2134,9 @@
         moneda.lanzando = true;
         const cara = numeroAlAzar(2) === 0;
         const sinMovimiento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        const duracion = sinMovimiento ? 300 : 1400;
-        const vueltas = sinMovimiento ? 1 : 6;
+        //Con "Reducir movimiento" el lanzamiento es mas corto, pero se ve girar (es la gracia del juego).
+        const duracion = sinMovimiento ? 900 : 1400;
+        const vueltas = sinMovimiento ? 3 : 6;
         const pieza = $("#moneda");
         const vuelo = $("#monedaVuelo");
 
@@ -2101,6 +2161,11 @@
             moneda.lanzando = false;
             $("#monedaLanzar").disabled = false;
         }, duracion);
+    });
+
+    //Tocar la propia moneda tambien la lanza (igual que el boton; mientras esta en el aire no hace nada).
+    $(".moneda-escena").addEventListener("click", function () {
+        $("#monedaLanzar").click();
     });
 
     $("#monedaReiniciar").addEventListener("click", function () {
@@ -2130,7 +2195,6 @@
         ultimo: 0, espera: 0, alto: 0, animacion: null, avisoAceleron: false
     };
     const zonaAtrapa = $("#atrapaZona");
-
     function recordAtrapa() {
         const guardado = parseInt(leerStorage(CLAVE_ATRAPA), 10);
         return guardado > 0 ? guardado : 0;
@@ -2171,7 +2235,7 @@
     //Texto que salta donde se toca ("+1", "+5", "-❤️") o en el centro ("¡Más rápido!").
     function textoFlotante(texto, x, y, clase) {
         const el = document.createElement("span");
-        el.className = "atrapa-flotante" + (clase ? " " + clase : "");
+        el.className = "atrapa-flotante anima-juego" + (clase ? " " + clase : "");
         el.textContent = texto;
         //Sin salirse de la zona: cerca del borde de arriba o de los lados quedaria cortado.
         el.style.left = Math.min(Math.max(x, 40), zonaAtrapa.clientWidth - 40) + "px";
@@ -2189,7 +2253,7 @@
         else if (azar < probBomba + 5) tipo = "bento";
 
         const el = document.createElement("span");
-        el.className = "pieza pieza-" + tipo;
+        el.className = "pieza anima-juego pieza-" + tipo;
         el.textContent = tipo === "bomba" ? BOMBA : (tipo === "bento" ? BENTO : PIEZAS_SUSHI[numeroAlAzar(PIEZAS_SUSHI.length)]);
         el.style.left = numeroAlAzar(Math.max(1, zonaAtrapa.clientWidth - 52)) + "px";
         el.style.transform = "translate3d(0, -52px, 0)";

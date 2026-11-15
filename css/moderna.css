@@ -2369,7 +2369,7 @@ ul.normas li::before {
 .ruleta-rueda text {
 	fill: #ffffff;
 	font-family: var(--font);
-	font-weight: 600;
+	font-weight: 700;
 }
 
 .ruleta-texto-vacio {
@@ -2378,18 +2378,55 @@ ul.normas li::before {
 	font-weight: 500 !important;
 }
 
-.ruleta-puntero {
+/* Bombillas del aro dorado (estilo casino), en dos tonos. */
+.bombilla {
+	fill: #f5c542;
+}
+
+.bombilla.par {
+	fill: #fff7d6;
+}
+
+/* Centro dorado con la N de Nakoya: fijo encima de la rueda (no gira). Mide lo mismo que en el dibujo
+   original (40 de 240 unidades = 16,7% del ancho). */
+.ruleta-centro {
 	position: absolute;
-	top: 0;
+	top: 50%;
 	left: 50%;
 	z-index: 1;
-	width: 0;
-	height: 0;
-	margin-left: -11px;
-	border-left: 11px solid transparent;
-	border-right: 11px solid transparent;
-	border-top: 20px solid #ffffff;
-	filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5)); /* taste-skill-ignore: el puntero tiene que separarse de la rueda */
+	display: grid;
+	place-items: center;
+	width: 16.7%;
+	aspect-ratio: 1;
+	transform: translate(-50%, -50%);
+	border: 2px solid #7a5a12;
+	border-radius: 50%;
+	background: radial-gradient(#ffe08a, #c98a12);
+	color: #0b0a09;
+	font-family: 'GangOfThree', var(--font);
+	font-size: 20px;
+	line-height: 1;
+	pointer-events: none;
+}
+
+/* Puntero dorado con canto oscuro (el triangulo se recorta en ::before y la sombra va en el contenedor). */
+.ruleta-puntero {
+	position: absolute;
+	top: 1px;
+	left: 50%;
+	z-index: 1;
+	width: 26px;
+	height: 24px;
+	margin-left: -13px;
+	filter: drop-shadow(0 1.5px 0 #7a5a12) drop-shadow(0 3px 3px rgba(0, 0, 0, 0.5)); /* taste-skill-ignore: el puntero tiene que separarse de la rueda */
+}
+
+.ruleta-puntero::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(#ffe08a, #c98a12);
+	clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
 
 .ruleta-girar {
@@ -2902,11 +2939,16 @@ ul.normas li::before {
 
 /* --- Cara o cruz: moneda en 3D (la cruz esta en la parte de atras) */
 
+/* La moneda tambien se lanza al tocarla. */
 .moneda-escena {
 	display: grid;
 	place-items: center;
 	height: 180px;
 	perspective: 600px;
+	cursor: pointer;
+	touch-action: manipulation;
+	-webkit-user-select: none;
+	user-select: none;
 }
 
 .moneda-vuelo.lanzando {
@@ -3295,10 +3337,12 @@ html.sin-scroll body {
 	padding: 0;
 }
 
+/* "Reducir movimiento": se quitan las animaciones de la app (cambios de pantalla, avisos, rebotes...),
+   pero NO las de los juegos (clase .anima-juego: moneda, manos, dedos, piezas, "+1"...), que son parte del juego. */
 @media (prefers-reduced-motion: reduce) {
-	*,
-	*::before,
-	*::after {
+	*:not(.anima-juego),
+	*:not(.anima-juego)::before,
+	*:not(.anima-juego)::after {
 		transition-duration: 0.01ms !important;
 		animation-duration: 0.01ms !important;
 	}

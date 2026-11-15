@@ -36,7 +36,8 @@ Es un sitio estático (HTML + CSS + JS, sin build ni dependencias de npm). Todo 
   **rondas** ("Ya lo he pedido" guarda la ronda; historial desplegable; volver a pedir; borrar una o todas); **compartir pedido**
   por enlace `?pedido=15-2.20.109` o QR propio (qrcode-generator 1.4.4 de cdnjs, pintado en SVG con el maki en el centro);
   avisos con "Deshacer"; Extras: Hall of Fame (imagen del podio de makis), contador maki (vibra y suena a los 30 y 100),
-  ruleta rusa (truco secreto: un nombre apuntado con espacio al final nunca pierde), plato sorpresa (un plato al azar
+  "Ruleta de una rusa" estilo casino (aro dorado con bombillas, trozos rojo/negro, centro dorado con la N fijo encima de la rueda;
+  truco secreto: un nombre apuntado con espacio al final nunca pierde), plato sorpresa (un plato al azar
   entre los que se sirven ahora), duelo de reflejos al mejor de 3 (`<dialog id="arena">` a pantalla completa partido en dos;
   el marcador de la pantalla cuenta duelos ganados),
   piedra, papel o tijera para dos jugadores por turnos con un móvil
@@ -46,6 +47,8 @@ Es un sitio estático (HTML + CSS + JS, sin build ni dependencias de npm). Todo 
   vida al tocarlas, 3 vidas, cuenta atrás, acelera más desde 150 puntos, récord en `localStorage.recordAtrapaNakoya`;
   bloquea el scroll durante la partida con `html.sin-scroll` y `touch-action: none`; se para al salir de la pantalla) y easter egg 🍣 (5 toques → frase).
   Los pitidos de los juegos se generan con Web Audio (`pitido()`), sin archivos.
+- Las ventanas (`<dialog>`) se abren siempre con `abrirVentana()`, nunca con `showModal()` directamente: deja un paso en el
+  historial para que el botón de atrás del móvil/navegador (y la tecla de retroceso) las cierre sin salir de la pantalla.
 - Diseño: negro (`--ground #0b0a09`), rojo hinomaru (`--accent #e23b2e`), Inter + GangOfThree para la marca, iconos Bootstrap Icons 1.11.3.
 
 ### Reglas de diseño (el usuario es muy detallista)
@@ -55,6 +58,10 @@ Es un sitio estático (HTML + CSS + JS, sin build ni dependencias de npm). Todo 
   Las tablas de carta y postres (`.panel.panel-lista`) van aparte.
 - **Textos de acción subrayados** ("Ver carta oficial", "Ver completo", "Borrar"…): siempre la clase `.accion-texto`.
 - Efectos `:hover` dentro de `@media (hover: hover)` (en móvil se quedan pegados).
+- "Reducir movimiento" (`prefers-reduced-motion`) anula las animaciones de la app, **salvo las de los juegos**: los elementos que
+  se animan como parte de un juego llevan la clase `.anima-juego` (moneda, manos, dedos, piezas, "+1"…). Los giros largos
+  (ruleta, moneda) se hacen más cortos en ese modo, pero se ven. La ruleta gira con `element.animate()` (en Safari una
+  transición CSS a veces no giraba).
 - Nada de toasts para añadir/quitar platos de la carta; solo para copiar, habituales, borrar, rondas y deshacer.
 - Comprobar siempre en móvil (360-412 px) y escritorio, midiendo espacios y alineaciones; para decisiones visuales,
   enseñar variantes en una imagen comparativa.
