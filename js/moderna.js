@@ -1767,11 +1767,12 @@
 
     // ------------------------------------------------------------------ DUELO DE REFLEJOS
 
-    //Al mejor de 3: gana el duelo el primero que se lleva 2 rondas.
+    //Gana el duelo el primero que llega a 3 rondas ganadas (al mejor de 5); en cuanto llega, se acaba.
     //Estados: "espera" (no tocar), "ya" (rojo: gana el primero), "fin" (resultado), "listo" (toca para seguir).
     //"rondas" es el marcador del duelo en curso; "puntos", los duelos ganados (el marcador de la pantalla).
-    const RONDAS_PARA_GANAR = 2;
-    const duelo = { puntos: [0, 0], rondas: [0, 0], estado: "parado", temporizador: null, inicio: 0 };
+    const RONDAS_PARA_GANAR = 3;
+    const GRACIA_DUELO = 800;
+    const duelo = { puntos: [0, 0], rondas: [0, 0], estado: "parado", temporizador: null, inicio: 0, graciaHasta: 0 };
     const arena = $("#arena");
     const ladosArena = $$(".arena-lado");
     const formatoSegundos = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
@@ -1802,9 +1803,11 @@
         if (dueloTerminado()) duelo.rondas = [0, 0];
         const ronda = duelo.rondas[0] + duelo.rondas[1] + 1;
         duelo.estado = "espera";
+        //Para seguir suelen tocar los dos: el toque del segundo (un instante despues) no cuenta como adelantarse.
+        duelo.graciaHasta = performance.now() + GRACIA_DUELO;
         arena.dataset.estado = "espera";
         ladosArena.forEach(function (l) { l.classList.remove("gana", "pierde"); });
-        const cabecera = "<small class=\"arena-ronda\">Ronda " + ronda + " · al mejor de 3</small>";
+        const cabecera = "<small class=\"arena-ronda\">Ronda " + ronda + " · gana quien llegue a " + RONDAS_PARA_GANAR + "</small>";
         textoLado(1, "Espera…" + cabecera + marcadorDesde(1));
         textoLado(2, "Espera…" + cabecera + marcadorDesde(2));
         //Entre 1,5 y 5 segundos al azar para que nadie pueda adivinar el momento.
@@ -1869,7 +1872,10 @@
         lado.addEventListener("pointerdown", function (e) {
             e.preventDefault();
             const n = parseInt(lado.dataset.lado, 10);
-            if (duelo.estado === "espera") terminarRondaDuelo(n === 1 ? 2 : 1, true);
+            if (duelo.estado === "espera") {
+                if (performance.now() < duelo.graciaHasta) return;
+                terminarRondaDuelo(n === 1 ? 2 : 1, true);
+            }
             else if (duelo.estado === "ya") terminarRondaDuelo(n, false);
             else if (duelo.estado === "listo") nuevaRondaDuelo();
         });

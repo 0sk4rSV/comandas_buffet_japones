@@ -38,7 +38,7 @@ Es un sitio estático (HTML + CSS + JS, sin build ni dependencias de npm). Todo 
   avisos con "Deshacer"; Extras: Hall of Fame (imagen del podio de makis), contador maki (vibra y suena a los 30 y 100; a los 100, confeti a pantalla completa en un `<canvas class="confeti">`; en 100 el maki ya no suma y avisa "¡Para ya, animal…!"; mantener el "-" resta seguido; tocar el número deja escribirlo),
   "Ruleta de una rusa" estilo casino (aro dorado con bombillas, trozos rojo/negro, centro dorado con la N fijo encima de la rueda;
   truco secreto: un nombre apuntado con espacio al final nunca pierde), plato sorpresa (un plato al azar
-  entre los que se sirven ahora), duelo de reflejos al mejor de 3 (`<dialog id="arena">` a pantalla completa partido en dos;
+  entre los que se sirven ahora), duelo de reflejos (gana el primero que llega a 3 rondas; `<dialog id="arena">` a pantalla completa partido en dos;
   el marcador de la pantalla cuenta duelos ganados),
   piedra, papel o tijera para dos jugadores por turnos con un móvil
   (el 1 elige sin que se vea, luego el 2; marcador y rondas jugadas), adivina el plato (preguntas sin fin código ↔ nombre; aciertos, fallos y racha; mejor racha en `localStorage.rachaAdivinaNakoya`;
