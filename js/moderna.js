@@ -1070,6 +1070,7 @@
     }
 
     function setContador(valor) {
+        const antes = contador;
         contador = Math.min(Math.max(valor, 0), MAX_CONTADOR);
         guardarContadorStorage(contador);
         pintarContador();
@@ -1077,6 +1078,110 @@
         [audioNuke, audioCR7].forEach(function (a) { a.pause(); a.currentTime = 0; });
         if (contador === 30) audioNuke.play().catch(function () { });
         if (contador === 100) audioCR7.play().catch(function () { });
+        //Al llegar a 100 (no si ya estaba), confeti por toda la pantalla.
+        if (contador === 100 && antes !== 100) lanzarConfeti();
+    }
+
+    // ------------------------------------------------------------------ CONFETI
+
+    //Un lienzo a pantalla completa que no captura toques: lluvia desde arriba y dos cañonazos desde las esquinas
+    //de abajo. Si se vuelve a lanzar mientras cae, se suman piezas al mismo lienzo.
+    const COLORES_CONFETI = ["#e23b2e", "#f5c542", "#ffffff", "#ff8b80", "#3fbf7f", "#4aa3ff"];
+    let confeti = null;
+
+    function lanzarConfeti() {
+        if (!confeti) {
+            const lienzo = document.createElement("canvas");
+            lienzo.className = "confeti";
+            lienzo.setAttribute("aria-hidden", "true");
+            document.body.appendChild(lienzo);
+            confeti = { lienzo: lienzo, ctx: lienzo.getContext("2d"), piezas: [], ultimo: performance.now() };
+            ajustarConfeti();
+            requestAnimationFrame(moverConfeti);
+        }
+        const ancho = window.innerWidth;
+        const alto = window.innerHeight;
+        function pieza(x, y, vx, vy, espera) {
+            confeti.piezas.push({
+                x: x, y: y, vx: vx, vy: vy, espera: espera,
+                giro: Math.random() * Math.PI * 2,
+                velGiro: (Math.random() - 0.5) * 12,
+                vaiven: Math.random() * Math.PI * 2,
+                tam: 6 + Math.random() * 6,
+                redonda: Math.random() < 0.25,
+                color: COLORES_CONFETI[numeroAlAzar(COLORES_CONFETI.length)]
+            });
+        }
+        //Lluvia: repartida por todo el ancho, saliendo poco a poco durante el primer segundo.
+        for (let i = 0; i < 140; i++) {
+            pieza(Math.random() * ancho, -20 - Math.random() * 60, (Math.random() - 0.5) * 60, 60 + Math.random() * 120, Math.random() * 1.1);
+        }
+        //Cañonazos desde las esquinas de abajo, hacia arriba y hacia el centro.
+        [0, 1].forEach(function (lado) {
+            for (let i = 0; i < 70; i++) {
+                const angulo = (lado ? 110 : 70) + (Math.random() - 0.5) * 34;
+                const fuerza = alto * (1.9 + Math.random() * 1.3);
+                const rad = angulo * Math.PI / 180;
+                pieza(lado ? ancho + 10 : -10, alto + 10, Math.cos(rad) * fuerza, -Math.sin(rad) * fuerza, Math.random() * 0.15);
+            }
+        });
+        vibrar([60, 40, 60, 40, 120]);
+    }
+
+    function ajustarConfeti() {
+        if (!confeti) return;
+        const escala = window.devicePixelRatio || 1;
+        confeti.lienzo.width = Math.round(window.innerWidth * escala);
+        confeti.lienzo.height = Math.round(window.innerHeight * escala);
+        confeti.ctx.setTransform(escala, 0, 0, escala, 0, 0);
+    }
+    window.addEventListener("resize", ajustarConfeti);
+
+    function moverConfeti(ahora) {
+        if (!confeti) return;
+        const dt = Math.min((ahora - confeti.ultimo) / 1000, 0.05);
+        confeti.ultimo = ahora;
+        const ctx = confeti.ctx;
+        const alto = window.innerHeight;
+        ctx.clearRect(0, 0, window.innerWidth, alto);
+
+        confeti.piezas = confeti.piezas.filter(function (p) {
+            if (p.espera > 0) {
+                p.espera -= dt;
+                return true;
+            }
+            //Gravedad y rozamiento del aire: los cañonazos frenan y caen flotando como el resto.
+            p.vy += 900 * dt;
+            p.vx *= Math.pow(0.02, dt);
+            p.vy *= Math.pow(0.02, dt);
+            p.vaiven += dt * 5;
+            p.x += (p.vx + Math.sin(p.vaiven) * 40) * dt;
+            p.y += p.vy * dt;
+            p.giro += p.velGiro * dt;
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.giro);
+            //El coseno del vaiven hace que el papelito "gire" sobre si mismo (se ve de canto y de frente).
+            ctx.scale(1, Math.cos(p.vaiven));
+            ctx.fillStyle = p.color;
+            if (p.redonda) {
+                ctx.beginPath();
+                ctx.arc(0, 0, p.tam / 2.4, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                ctx.fillRect(-p.tam / 2, -p.tam / 4, p.tam, p.tam / 2);
+            }
+            ctx.restore();
+            return p.y < alto + 30;
+        });
+
+        if (confeti.piezas.length) {
+            requestAnimationFrame(moverConfeti);
+        } else {
+            confeti.lienzo.remove();
+            confeti = null;
+        }
     }
 
     // ------------------------------------------------------------------ EVENTOS

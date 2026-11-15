@@ -35,7 +35,7 @@ Es un sitio estático (HTML + CSS + JS, sin build ni dependencias de npm). Todo 
 - Funciones: carta con filtros (Todos/Favoritos/Sushi) y buscador; pedido con cantidades, ordenado por número; copiar; modo discreto;
   **rondas** ("Ya lo he pedido" guarda la ronda; historial desplegable; volver a pedir; borrar una o todas); **compartir pedido**
   por enlace `?pedido=15-2.20.109` o QR propio (qrcode-generator 1.4.4 de cdnjs, pintado en SVG con el maki en el centro);
-  avisos con "Deshacer"; Extras: Hall of Fame (imagen del podio de makis), contador maki (vibra y suena a los 30 y 100),
+  avisos con "Deshacer"; Extras: Hall of Fame (imagen del podio de makis), contador maki (vibra y suena a los 30 y 100; a los 100, confeti a pantalla completa en un `<canvas class="confeti">`),
   "Ruleta de una rusa" estilo casino (aro dorado con bombillas, trozos rojo/negro, centro dorado con la N fijo encima de la rueda;
   truco secreto: un nombre apuntado con espacio al final nunca pierde), plato sorpresa (un plato al azar
   entre los que se sirven ahora), duelo de reflejos al mejor de 3 (`<dialog id="arena">` a pantalla completa partido en dos;

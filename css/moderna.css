@@ -1502,6 +1502,7 @@ ul.normas li::before {
 }
 
 .maki-barra {
+	position: relative;
 	height: 6px;
 	border-radius: 999px;
 	background: var(--raised);
@@ -1519,12 +1520,42 @@ ul.normas li::before {
 	transition: transform 0.15s ease;
 }
 
+/* Muesca en el 30 (la barra va de 0 a 100): corta la barra con el color del panel. */
+.maki-barra::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 30%;
+	width: 2px;
+	margin-left: -1px;
+	background: var(--surface);
+}
+
+/* Cada numero en su sitio real de la escala: el 30 al 30 % del ancho, no en el centro. */
 .maki-ejes {
+	position: relative;
 	display: flex;
 	justify-content: space-between;
 	margin-top: 6px;
 	font-size: 12px;
 	color: var(--faint);
+}
+
+.maki-ejes span:nth-child(2) {
+	position: absolute;
+	left: 30%;
+	transform: translateX(-50%);
+}
+
+/* Confeti al llegar a 100 makis: lienzo a pantalla completa por encima de todo, sin capturar toques. */
+.confeti {
+	position: fixed;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 9999;
+	pointer-events: none;
 }
 
 /* ---------------------------------------------------------------- MODO DISCRETO */
