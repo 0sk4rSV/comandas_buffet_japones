@@ -26,12 +26,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Descargar el repositorio
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Preparar Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Comparar la web oficial con la ultima foto
         id: carta
@@ -39,7 +39,7 @@ jobs:
 
       - name: Abrir o actualizar la Pull Request con los cambios
         if: steps.carta.outputs.cambios == 'true'
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           branch: carta-oficial
           delete-branch: true
