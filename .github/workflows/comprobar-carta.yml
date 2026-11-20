@@ -16,7 +16,6 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  actions: write
 
 concurrency:
   group: comprobar-carta
@@ -51,8 +50,6 @@ jobs:
             js/carta.js
             herramientas/carta-oficial.json
 
-      # GitHub desactiva las tareas programadas de los repositorios sin actividad en 60 dias.
-      # Este paso lo evita sin hacer commits.
-      - name: Mantener activa la tarea programada
-        if: github.event_name == 'schedule'
-        uses: gautamkrishnar/keepalive-workflow@v2
+# Nota: GitHub pausa las tareas programadas si el repositorio pasa 60 dias sin commits (avisa antes por
+# correo). Cualquier push la mantiene viva; si se pausa, se reactiva en Actions -> este flujo -> "Enable workflow".
+# (Antes habia un paso "keepalive-workflow" para evitarlo, pero GitHub bloqueo esa accion y rompia todo el flujo.)
